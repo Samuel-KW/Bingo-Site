@@ -1,0 +1,23 @@
+{
+  "name": "rck-control-panel",
+  "version": "1.0.0",
+  "description": "Control panel for viewing server status'",
+  "main": "main.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samuel-KW/RCK-Control-Panel.git"
+  },
+  "author": "Samuel Walls",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Samuel-KW/RCK-Control-Panel/issues"
+  },
+  "homepage": "https://github.com/Samuel-KW/RCK-Control-Panel#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

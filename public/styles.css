@@ -1,0 +1,18 @@
+
+/* https://coolors.co/1f1e1a-5b6e27-e35f41-f0bb00-f8f2d6 */
+
+body {
+    margin: 0;
+}
+
+
+footer {
+    padding: 15px;
+    background-color: #0079bd;
+    position: fixed;
+    font-size: 16px;
+    color: #eee;
+    height: 60px;
+    width: 100%;
+    bottom: 0;
+}
