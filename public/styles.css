@@ -1,31 +1,76 @@
 
 /* https://coolors.co/1f1e1a-5b6e27-e35f41-f0bb00-f8f2d6 */
 
+@font-face {
+    font-family: "Saira";
+    src:
+        local("Saira Condensed"), 
+        url("./fonts/SairaCondensed-regular-200.ttf") format("TrueType"),
+}
+
+@font-face {
+    font-family: "Riotic";
+    src:
+        local("Riotic typeface"), 
+        url("./fonts/riotic-regular-400.otf") format("OpenType"),
+}
+
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html:not([data-scroll='0']) {
+
+    header {
+        box-shadow: 0 0 25px #00000080;
+    }
+
+    h2 {
+        font-size: 1rem;
+        padding-bottom: 1rem;
+    }
+
 }
 
 body {
+    font-family: "Saira";
     overflow-x: hidden;
     margin: 0;
 }
 
-header {
 
+
+header, #instructions {
     background-color: #EECC54;
     color: #1F1E1A;
-    padding: 15px;
     text-align: center;
-    
-
-    h1 {
-        font-family: "Riotic typeface", sans-serif;
-        font-size: 5rem;
-    }
-    
 }
 
+header {
 
+    transition: box-shadow 0.5s ease;
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    h1 {
+        font-family: "Riotic", sans-serif;
+        font-size: 5rem;
+    }
+
+    h2 {
+        transition: all 0.5s ease;
+        font-weight: 800;
+        font-size: 2rem;
+    }
+}
+
+#instructions {
+    padding-bottom: 15px;
+}
 
 main {
 
@@ -36,18 +81,26 @@ main {
         align-items: flex-start;
         align-content: flex-start;
         max-width: 1000px;
+        min-width: 75%
     }
 
     .square {
+        transition: all 0.5s ease;
         aspect-ratio : 1 / 1;
         padding: 5px;
         background-color: #E35F41;
         border: 4px solid #CC3D12;
         text-align: center;
         opacity: 0.8;
-        width: 19%;
+        width: 24%;
         margin: 0.5% 0;
         overflow: hidden;
+        cursor: pointer;
+    }
+
+    .square:active, .square:focus {
+        border: 4px solid #EECC54;
+        opacity: 1;
     }
 
     .checked {
@@ -78,6 +131,26 @@ main {
 #bingo-card {
     display: flex;
     justify-content: space-around;
+}
+
+#popup {
+    box-shadow: 0 0 25px #00000080;
+    border-top: 4px solid #CC3D12;
+    background-color: #E35F41;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+    padding: 15px;
+    font-size: 2rem;
+    color: #eee;
+    z-index: 100;
+    transition: all 0.5s ease;
+    transform: translateY(100%);
+}
+
+#popup.active {
+    transform: translateY(0);    
 }
 
 footer {
