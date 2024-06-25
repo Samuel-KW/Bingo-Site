@@ -1,0 +1,55 @@
+
+.icon {
+    margin: 1% 0.5% 0.5% 0.5%;
+    transition: all 0.5s ease;
+    cursor: pointer;
+    display: block;
+    height: 24px;
+    width: 24px;
+    z-index: 5;
+}
+
+input.sort-grid {
+    display: none;
+}
+
+.icon:hover .icon-sort-grid div {
+    background: #47B74B;
+}
+
+/* Default 3x3 grid */
+.icon-sort-grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1px;
+    transition: all 0.5s ease;
+    div {
+        transition: background ease .3s;
+        background-color: #9FB1BD;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* Change to three horizontal bars when checked */
+.sort-grid:checked + .icon .icon-sort-grid {
+    column-gap: 0;
+    row-gap: 8px;
+}
+
+/* Set sorting style of the container */
+.sort-grid:checked ~ #container-squares {
+    flex-direction: column;
+    align-content: center;
+
+    .square {
+        width: 90%;
+        aspect-ratio: auto;
+        min-height: 40vh;
+        margin: 10px;
+    }
+}
+

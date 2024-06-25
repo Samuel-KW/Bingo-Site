@@ -1,0 +1,44 @@
+
+html:not([data-scroll='0']) {
+
+    header {
+        box-shadow: 0 0 25px #00000080;
+    }
+
+    h2 {
+        font-size: 1rem;
+        padding-bottom: 1rem;
+    }
+
+}
+
+
+header, #instructions {
+    background-color: #EECC54;
+    color: #1F1E1A;
+    text-align: center;
+}
+
+header {
+
+    transition: box-shadow 0.5s ease;
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    h1 {
+        font-family: "Riotic", sans-serif;
+        font-size: 5rem;
+    }
+
+    h2 {
+        transition: font-size 0.5s ease, padding 0.5s ease;
+        font-weight: 800;
+        font-size: 2rem;
+    }
+}
+
+#instructions {
+    padding: 15px 0 20px 0;
+}

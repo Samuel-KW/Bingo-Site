@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-scroll="0">
+<html lang="en" data-scroll="0">
 
 <head>
     <meta charset=utf-8>
@@ -7,6 +7,10 @@
     <title>Bingo! OASC Summer Camp</title>
     <meta content="width=device-width,initial-scale=1" name="viewport">
     <link rel='stylesheet' type='text/css' media='screen' href='styles/main.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/bingo.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/header.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/sort-grid.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/popup.css'>
 </head>
 
 <body>
@@ -25,11 +29,15 @@
 
     <main>
 
-        <div id="toggle-layout"></div>
-
         <div id="bingo-card">
+
+            <!-- Sort grid animation -->
+            <input type="checkbox" class="sort-grid" id="sort-grid-0" aria-label="Change the layout of the bingo cards">
+            <label class="icon" for="sort-grid-0" tabindex="0">
+                <div class="icon-sort-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            </label>
+
             <div id="container-squares">
-                
                 <div tabindex="0" class="square checked" data-desc="Leina changes her name and moves towns, and it's your job to track her new identity. Start your search at the front desk."><p>Track Leina's new identity</p></div>
                 <div tabindex="0" class="square" data-desc="Leina sues for defamation, and you need to gather evidence to counter her claims. The evidence is scattered around the camp."><p>Gather evidence against Leina</p></div>
                 <div tabindex="0" class="square" data-desc="Send Leina a fake letter from your lawyer, demanding an apology for a nonexistent offense."><p>Leina receives legal threats</p></div>
@@ -46,8 +54,6 @@
                 <div tabindex="0" class="square" data-desc="Create a fake social media account in Leina's name and post bizarre updates."><p>Fake Leina's Social Media</p></div>
                 <div tabindex="0" class="square" data-desc="Convince the other campers that Leina has a secret identity and is working undercover."><p>Leina is undercover</p></div>
                 <div tabindex="0" class="square checked" data-desc="Spread a rumor that Leina has been skipping her counselor duties. Make sure it reaches the head counselor."><p>Spread a rumor about Leina</p></div>
-            
-            
             </div>
         </div>
     </main>
@@ -59,11 +65,7 @@
     <section id="popup">
         <div id="popup-content">
 
-            <!-- Sort grid animation -->
-            <input type="checkbox" class="sort-grid" id="sort-grid-0">
-            <label class="icon" for="sort-grid-0" tabindex="0">
-                <div class="icon-sort-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-            </label>
+            
 
             <h3>Bingo Card</h3>
             <p id="popup-task">Convince Leina to quit</p>
