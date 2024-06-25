@@ -35,3 +35,14 @@ const saveBingoCodes = () => {
     localStorage.setItem('bingoCodes', JSON.stringify(codes));
     console.log('Saved bingo to local storage:', codes);
 };
+
+const handleHashChange = () => {
+    const hash = window.location.hash.slice(1);
+    window.location.hash = '';
+
+    if (hash.length > 0)
+        addBingoCode(hash)
+}
+
+window.addEventListener('hashchange', handleHashChange);
+handleHashChange();
