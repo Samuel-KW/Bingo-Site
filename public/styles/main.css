@@ -20,7 +20,7 @@
 }
 
 ::-webkit-scrollbar {
-    background: transparent;
+    background: #F8F2D6; 
     width: 10px;
 }
 
