@@ -57,3 +57,23 @@ document.getElementById('container-squares').addEventListener('click', function 
         openPopup(elem);
     }
 });
+
+// Register the service worker
+if ('serviceWorker' in navigator) {
+
+    // Wait for the 'load' event to not block other work
+    window.addEventListener('load', async () => {
+
+        // Try to register the service worker.
+        try {
+            // Register the service worker
+            const reg = await navigator.serviceWorker.register('service-worker.js');
+
+            console.log('Service worker registered!', reg);
+        } catch (err) {
+            console.log('Service worker registration failed: ', err);
+        }
+    });
+}
+
+const hash = window.location.hash.slice(1);
