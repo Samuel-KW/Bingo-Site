@@ -19,6 +19,23 @@
         url("../fonts/riotic-regular-400.otf") format("OpenType"),
 }
 
+::-webkit-scrollbar {
+    background: transparent;
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(121, 121, 121); 
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(66, 66, 66); 
+}
+
 * {
     box-sizing: border-box;
     padding: 0;
