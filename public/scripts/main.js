@@ -40,10 +40,12 @@ const squares = document.querySelectorAll('.square');
 
 // Add active 
 document.getElementById('container-squares').addEventListener('click', function (e) {
-    const elem = e.target;
+    let elem = e.target;
 
-    if (elem.classList.contains('square') ||
-        elem.parentElement.classList.contains('square')) {
+    if (!elem.classList.contains('square'))
+        elem = elem.parentElement;
+
+    if (elem.classList.contains('square')) {
         
         // Prevent event bubbling
         e.stopPropagation();
