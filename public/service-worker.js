@@ -10,15 +10,17 @@ const precacheResources = [
 ];
 
 async function cacheFirst(request) {
-    const fetchResponsePromise = fetch(request).then(async response => {
-        if (response.ok) {
-            const cache = await caches.open(cacheName);
-            cache.put(request, response.clone());
-        }
-        return response;
-    });
 
-    return (await caches.match(request)) || (await fetchResponsePromise);
+    const cache = await caches.match(request);
+    if (cache) return cache;
+
+    const response = await fetch(request);
+    if (response.ok) {
+        const cache = await caches.open(cacheName);
+        cache.put(request, response.clone());
+    }
+    
+    return response;
 }
 
 async function networkFirst(request) {
