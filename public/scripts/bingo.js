@@ -1,20 +1,20 @@
 const winningCombos = [
 
     // Horizontal
-    '1111000000000000',
-    '0000111100000000',
-    '0000000011110000',
-    '0000000000001111',
+    "1111000000000000",
+    "0000111100000000",
+    "0000000011110000",
+    "0000000000001111",
     
     // Vertical
-    '1000100010001000',
-    '0100010001000100',
-    '0010001000100010',
-    '0001000100010001',
+    "1000100010001000",
+    "0100010001000100",
+    "0010001000100010",
+    "0001000100010001",
 
     // Diagonal
-    '1000010000100001',
-    '0001001001001000'
+    "1000010000100001",
+    "0001001001001000"
 ];
 
 
@@ -28,15 +28,21 @@ class BingoBoard {
 
     }
 
-    init () {
-        window.addEventListener('hashchange', () => handleHashChange());
+    async init () {
+        await this.loadCards();
         
+        window.addEventListener("hashchange", () => this.handleHashChange());
         this.handleHashChange();
-        this.loadCards();
+
+        const codes = loadBingoCodes();
+        for (const [sha, code] of codes) {
+            const card = this.checkHash(sha);
+            card.complete();
+        }
     }
 
     async loadCards () {
-        const response = await fetch('/api/v1/config');
+        const response = await fetch("/api/v1/config");
         const config = await response.json();
 
         for (const card of config.cards) {
@@ -48,21 +54,29 @@ class BingoBoard {
         }
     }
 
-    checkCode (code) {
+    submitCode (code) {
         const sha = sha256(code);
-        const card = this.cards.find(card => card.sha256 === sha);
+        const card = this.checkHash(sha);
 
         if (card) {
             card.complete();
-            return card;
+        
+            addBingoCode(code);
+            saveBingoCodes();
         }
 
-        return false;
+        return card;
+    }
+
+    checkHash (sha) {
+        const card = this.cards.find(card => card.sha256 === sha);
+
+        return card;
     }
 
     getCompleted () {
         const bools = this.cards.map(card => !!card.completed);
-        return bools.join('');
+        return bools.join("");
     }
 
     checkBingo () {
@@ -79,15 +93,13 @@ class BingoBoard {
 
     handleHashChange () {
         const code = window.location.hash.slice(1);
-        window.location.hash = '';
+        window.location.hash = "";
 
         if (code.length > 0) {
-            const card = this.checkCode(code);
+            const valid = this.submitCode(code);
 
-            if (card) {
-                addBingoCode(code);
-                saveBingoCodes();
-            }
+            if (valid)
+                console.log("Loaded bingo code from hash:", code);
         }
     }
 }
@@ -105,26 +117,26 @@ class BingoCard {
     }
 
     generateCard() {
-        const card = document.createElement('div');
-        card.classList.add('square');
+        const card = document.createElement("div");
+        card.classList.add("square");
 
-        card.setAttribute('data-desc', this.description);
-        card.setAttribute('tabindex', 0);
+        card.setAttribute("data-desc", this.description);
+        card.setAttribute("tabindex", 0);
         
-        const cardInner = document.createElement('div');
-        cardInner.classList.add('square-inner');
+        const cardInner = document.createElement("div");
+        cardInner.classList.add("square-inner");
 
-        const cardFront = document.createElement('div');
-        cardFront.classList.add('square-front');
+        const cardFront = document.createElement("div");
+        cardFront.classList.add("square-front");
 
-        const title = document.createElement('p');
+        const title = document.createElement("p");
         title.textContent = this.title;
 
         if (this.required)
-            card.classList.add('required');
+            card.classList.add("required");
 
         if (this.completed)
-            card.classList.add('checked');
+            card.classList.add("checked");
 
         card.appendChild(cardInner);
         cardInner.appendChild(cardFront);
@@ -137,7 +149,7 @@ class BingoCard {
         if (this.completed) return;
 
         this.completed = true;
-        this.elem.classList.add('checked');
+        this.elem.classList.add("checked");
     }
 
     checkCode(code) {
@@ -152,7 +164,7 @@ class BingoCard {
 }
 
 
-const bingoContainer = document.getElementById('container-squares');
+const bingoContainer = document.getElementById("container-squares");
 const Session = new BingoBoard(bingoContainer);
 
-// [...$0.querySelectorAll('p')].map(e => e.textContent.trim().toUpperCase().replaceAll(' ', '').replaceAll('\'', ''))
+// [...$0.querySelectorAll("p")].map(e => e.textContent.trim().toUpperCase().replaceAll(" ", "").replaceAll("\"", ""))
