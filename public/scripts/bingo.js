@@ -1,23 +1,3 @@
-const winningCombos = [
-
-    // Horizontal
-    "1111000000000000",
-    "0000111100000000",
-    "0000000011110000",
-    "0000000000001111",
-    
-    // Vertical
-    "1000100010001000",
-    "0100010001000100",
-    "0010001000100010",
-    "0001000100010001",
-
-    // Diagonal
-    "1000010000100001",
-    "0001001001001000"
-];
-
-
 class BingoBoard {
     constructor (container) {
 
@@ -39,6 +19,9 @@ class BingoBoard {
             const card = this.checkHash(sha);
             card.complete();
         }
+
+        if (this.checkBingo())
+            this.handleBingo();
     }
 
     async loadCards () {
@@ -63,9 +46,21 @@ class BingoBoard {
         
             addBingoCode(code);
             saveBingoCodes();
+
+            if (this.checkBingo())
+                this.handleBingo();
         }
 
         return card;
+    }
+
+    handleBingo () {
+        alert("Congrats! Bingo achieved!");
+    }
+
+    handleBlackout () {
+        localStorage.setItem("blackoutTime", Date.now());
+        alert("Congrats! You achieved a blackout!");
     }
 
     checkHash (sha) {
@@ -77,11 +72,6 @@ class BingoBoard {
     getCompleted () {
         const bools = this.cards.map(card => !!card.completed);
         return bools.join("");
-    }
-
-    checkBingo () {
-        const completed = this.getCompleted();
-        return winningCombos.includes(completed);
     }
 
     updateCards () {
@@ -101,6 +91,53 @@ class BingoBoard {
             if (valid)
                 console.log("Loaded bingo code from hash:", code);
         }
+    }
+
+    checkBingo () {
+        const size = Math.sqrt(this.cards.length);
+
+        if (this.cards.every(card => card.completed)) {
+            this.handleBlackout();
+            return true;
+        }
+
+        return this.checkBingoRequired() &&
+            (this.checkBingoHorizontal(size) || this.checkBingoVertical(size) || this.checkBingoDiagonal(size));
+    }
+
+    checkBingoRequired () {
+        const required = this.cards.filter(card => card.required);
+        return required.every(card => card.completed);
+    }
+
+    checkBingoHorizontal (size) {
+        for (let i = 0; i < size; i++) {
+            const start = i * size;
+            const row = this.cards.slice(start, start + size);
+
+            if (row.every(card => card.completed))
+                return true;
+        }
+
+        return false;
+    }
+
+    checkBingoVertical (size) {
+        for (let i = 0; i < size; i++) {
+            const col = this.cards.filter((_, j) => j % size === i);
+
+            if (col.every(card => card.completed))
+                return true;
+        }
+
+        return false;
+    }
+
+    checkBingoDiagonal (size) {
+        const diag1 = this.cards.filter((_, i) => i % (size + 1) === 0);
+        const diag2 = this.cards.filter((_, i) => i % (size - 1) === 0 && i > 0 && i < size * size - 1);
+
+        return diag1.every(card => card.completed) || diag2.every(card => card.completed)
     }
 }
 
