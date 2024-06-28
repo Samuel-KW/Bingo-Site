@@ -42,21 +42,23 @@ const squares = document.querySelectorAll('.square');
 document.getElementById('container-squares').addEventListener('click', function (e) {
     let elem = e.target;
 
-    if (!elem.classList.contains('square'))
-        elem = elem.parentElement;
+    while (elem != null && elem != this) {
+        if (elem.classList.contains('square')) {
+             
+            // Prevent event bubbling
+            e.stopPropagation();
 
-    if (elem.classList.contains('square')) {
-        
-        // Prevent event bubbling
-        e.stopPropagation();
+            // Remove active class from all squares
+            squares.forEach(elem => elem.classList.remove('active'));
+            
+            // Add active class to the clicked square
+            elem.classList.add('active');
 
-        // Remove active class from all squares
-        squares.forEach(elem => elem.classList.remove('active'));
-        
-        // Add active class to the clicked square
-        elem.classList.add('active');
+            openPopup(elem);
+            return 
+        }
 
-        openPopup(elem);
+        elem = elem.parentElement
     }
 });
 

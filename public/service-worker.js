@@ -75,7 +75,7 @@ self.addEventListener('fetch', event => {
     const req = event.request;
     const url = new URL(req.url);
 
-    console.log('Fetch event for:', url);
+    // console.log('Fetch event for:', url);
 
     // Bug fix
     // https://stackoverflow.com/a/49719964
