@@ -1,20 +1,100 @@
 {
     "cards": [
-        ["Track Leina's new identity", "Leina changes her name and moves towns, and it's your job to track her new identity. Start your search at the front desk.", "635c671498c06b904c7b47aae29a4ce78e294f86fc1d72b922e17ad885ee06a6", true],
-        ["Gather evidence against Leina", "Leina sues for defamation, and you need to gather evidence to counter her claims. The evidence is scattered around the camp.", "93afc84d9a0b787e2c7e72db8093ca3490c3de4679ed1590c69e9b477f2a6f42", true],
-        ["Leina receives legal threats", "Send Leina a fake letter from your lawyer, demanding an apology for a nonexistent offense.", "12a6cb523a88c24c8c9964c38377be0566e889d97b84b0acba315e98700cdc07", true],
-        ["Defend against Leina's lawsuit", "Leina pursues legal action against you, and you must defend yourself in the trial. Seek help from the camp's legal counselor.", "a3c6990f4ea9896ca23798b30ead49afba1ca5394692959f4a654257d15bd6a6", true],
-        ["Frame Leina", "Frame Leina for your own illegal activities by planting evidence in her cabin. Be discreet and avoid getting caught.", "bb4fcf9cd3fe86b45578d3e1188aad8a613e9ed47ac4327df724cddbf0e9b555", false],
-        ["Leina's Cult", "Gather a group of campers and start a cult in Leina's name, complete with secret handshakes and chants.", "6a7e6fbabf3e4d2e95f6983229a7f55a47c2c0e27833139999bafd925b74fe3f", false],
-        ["Get banned by Leina", "Force Leina to ban you from camp by committing a series of incriminating acts. Your final act should be unforgivable.", "724cf508b060263027db380c5b564a327c31962732e5d6730e63f94c5fee6421", false],
-        ["Make Leina call security", "Create a situation where Leina feels threatened and has to call security on you.", "26ba2dd2bb42f7dec275590d238da2860441cc05260ca76ff62a462d5312a1cc", false],
-        ["Expose 'fake' Leina", "Convince everyone that Leina isn't really a counselor by spreading rumors and creating fake evidence. Present your findings at the camp assembly.", "30606aa4f3942edf007ef4020281b2d3a2f4afbc6c09c0094b127402b059dbe9", false],
-        ["Leina the famous author", "Start a trend where campers ask Leina for her autograph, claiming she's a famous author.", "74fbef183b4df98186b27318f559502474fd5b0f06a2b4f45ba28fbd273071de", false],
-        ["Leina is the camp director", "Convince everyone that Leina is actually the camp director in disguise, testing the counselors.", "8320c49bbc528d7ef1c177afb9e3f914af6538424f11d86a6ef96adc6f3a8eff", false],
-        ["Secret messages for Leina", "Make Leina think that a mysterious stranger is leaving her secret messages. Be creative with the notes.", "35e89e9d64b2b0b7c373e0eed913e423b17f416a7dc98d9141de95acf9149324", false],
-        ["Leina's hidden treasure", "Start a rumor that Leina has been hiding something valuable in her cabin. Encourage a scavenger hunt.", "ca7ceb9635c962d97a538723ed749c94f6630f67ad477e037f60ccbc82756f6e", false],
-        ["Fake Leina's Social Media", "Create a fake social media account in Leina's name and post bizarre updates.", "d37354a1ee3c7be5e4b9a929f0d3f8ec6b53e915d36c49b023d2247b36ea9245", false],
-        ["Leina is undercover", "Convince the other campers that Leina has a secret identity and is working undercover.", "b7bd356e2b12f4ae7fb672cc863bfdeae83cd415dc76209c07d4661761bd5494", false],
-        ["Spread a rumor about Leina", "Spread a rumor that Leina has been skipping her counselor duties. Make sure it reaches the head counselor.", "f1f2471f79a40cf516a83279504b288e3d10bd925bf119ea5c74f7b989dc96b0", false]
+      [
+        "Pickup shirt, name tag, and bag",
+        "Head to LEINA where you can pick up your shirt, nametag, and bag.",
+        "ae2a13e98459c010c3dd6e1514f4e3ab9a7ce085e87aeaa601235d57a82002d5",
+        true
+      ],
+      [
+        "Get keys and check in with medicine",
+        "Go pick up your keys and check in with medicine at LEINA",
+        "d4f5b9b133539b49620ac245f898eb239f790c50fd628cc0d093a1e96e95da46",
+        true
+      ],
+      [
+        "Find your room and move in",
+        "Go find your room and get it all set up! The QR code for this box can be found in the hallways near your room.",
+        "6383ba9983fda78f7263dd3d6dbd6082589ab916996a0e31cf3a56f98e48b123",
+        true
+      ],
+      [
+        "Find the Grove",
+        "Become acquainted with the Grove, this is the location you will be ending at.",
+        "aeef2fb77cf57e5e2bfaea4e2aa13ea9e5192377f6472b3b0415c8c50152540b",
+        true
+      ],
+      [
+        "Meet your roommate or neighbors",
+        "Go be social and find your roommate! If you don't have one, find your neighbors and talk with them. I'm sure they aren't THAT scary.",
+        "bb92c4fe2c521b91b5afa18eb7a23d14e76ce8b401de4292592465858485a8bf",
+        false
+      ],
+      [
+        "Find a JC in the Grove",
+        "More socializing! Go find a junior counselor in the Grove and say HAIIIII.",
+        "bbd845dd13219fe018eada2861aea1c6f780e7d0d471add32dca6914727e03e9",
+        false
+      ],
+      [
+        "Find a SC in the Grove",
+        "Wow this guy is old. Go find a senior counselor in the Grove and say hi.",
+        "728a4e7e7da2cab30add9c6e207dd93e3bbfba217c22ae6bcc2e9a72413cf367",
+        false
+      ],
+      [
+        "Find a friend in your region",
+        "You better not lie about this one... Go make a friend with somebody in the same region as you.",
+        "4e113751498046ded82cf41bb008b39679ee013cf7b801028c92b0934392fee8",
+        false
+      ],
+      [
+        "Find a friend in your grade",
+        "Tired of making friends? Well too bad. Go make a friend with somebody who is in the same grade as you.",
+        "2e36e4d0edbc398d8c42e538f44ad6521f216d27d672c9cdd982e8c9360004a3",
+        false
+      ],
+      [
+        "Say thanks to support staff or tech crew",
+        "These guy work way too hard, go give them your appreciation.",
+        "81fb4519809f40f170d7816c104c967d290bf94983877a85b73bb982b0c2ddc7",
+        false
+      ],
+      [
+        "",
+        "",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        false
+      ],
+      [
+        "",
+        "",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        false
+      ],
+      [
+        "",
+        "",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        false
+      ],
+      [
+        "",
+        "",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        false
+      ],
+      [
+        "",
+        "",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        false
+      ],
+      [
+        "",
+        "",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        false
+      ]
     ]
-}
+  }

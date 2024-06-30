@@ -54,8 +54,8 @@ class PersistentInput {
         this.input = document.getElementById(id);
         this.value = localStorage.getItem(`persistent-${id}`);
 
-        if (this.value === null)
-            this.value = false;
+        // if (this.value === null)
+        //     this.value = false;
     }
 
     init() {
@@ -68,7 +68,7 @@ class PersistentInput {
             this.input.value = this.value;
 
         this.input.addEventListener('input', () => {
-            this.save(this.input.value);
+            this.setState(this.input.value);
         });
     }
 
