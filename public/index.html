@@ -24,6 +24,7 @@
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/header.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/sort-grid.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/popup.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/styles/menu-toggle.css'>
 </head>
 
 <body>
@@ -34,11 +35,19 @@
     </header>
 
     <section id="instructions">
-        <p>This website tracks your readiness for camp! The first 10 campers to have a blackout will get a prize!</p>
-        <h3>Instructions</h3>
-        <p>To fill in the bingo boxes, look for QR codes to scan or click a box for more instructions</p>
-        <p style="font-weight: 600;">The first row is mandatory to complete!</p>
+
+        <input type="checkbox" id="menu-toggle" class="menu-toggle"/>
+        <div class="menu-container">
+            <p>This website tracks your readiness for camp! The first 10 campers to have a blackout will get a prize!</p>
+            <h3>Instructions</h3>
+            <p>To fill in the bingo boxes, look for QR codes to scan or click a box for more instructions</p>
+            <p style="font-weight: 600;">The first row is mandatory to complete!</p>
+        </div>
+        
+        <label for="menu-toggle" class="menu-toggle">&#9660;</label>
     </section>
+
+    
 
     <main>
 

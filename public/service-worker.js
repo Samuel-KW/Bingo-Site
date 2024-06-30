@@ -4,33 +4,40 @@ const cacheName = 'bingo-cache-v1';
 const precacheResources = [
     '/images/checkmark.svg',
     '/fonts/riotic-regular-400.otf', '/fonts/SairaCondensed-regular-200.ttf',
-    '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css',
+    '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css', '/styles/menu-toggle.css',
     '/scripts/bingo.js', '/scripts/main.js', '/scripts/popup.js', '/scripts/sha256.min.js', '/scripts/storage.js',
     '/', '/index.html',
 ];
+
+async function cacheRequest(request) {
+    const response = await fetch(request);
+    
+    if (response.ok) {
+        const cache = await caches.open(cacheName);
+        cache.put(request, response.clone());
+    }
+
+    return response;
+}
 
 async function cacheFirst(request) {
 
     const cache = await caches.match(request);
     if (cache) return cache;
 
-    const response = await fetch(request);
-    if (response.ok) {
-        const cache = await caches.open(cacheName);
-        cache.put(request, response.clone());
-    }
-    
+    const response = await cacheRequest(request);
     return response;
 }
 
 async function networkFirst(request) {
     try {
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-            const cache = await caches.open(cacheName);
-            cache.put(request, networkResponse.clone());
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) {
+            cacheRequest(request);
+            return cachedResponse;
         }
 
+        const networkResponse = await cacheRequest(request);
         return networkResponse;
 
     } catch (error) {

@@ -43,3 +43,91 @@ const loadBingoCodes = () => {
 
     return savedBingoCodes;
 };
+
+class PersistentInput {
+    /**
+     * Create a new persistent input
+     * @param {string} id 
+     */
+    constructor(id) {
+        this.id = id;
+        this.input = document.getElementById(id);
+        this.value = localStorage.getItem(`persistent-${id}`);
+
+        if (this.value === null)
+            this.value = false;
+    }
+
+    init() {
+        if (!this.input) {
+            console.error(`Input with id ${this.id} not found`);
+            return;
+        }
+
+        if (this.value !== null)
+            this.input.value = this.value;
+
+        this.input.addEventListener('input', () => {
+            this.save(this.input.value);
+        });
+    }
+
+    /**
+     * Save the input value to local storage
+     */
+    setState(value) {
+        localStorage.setItem(`persistent-${this.id}`, value);
+        this.value = value;
+        this.input.value = value;
+    }
+
+    /**
+     * Load the input value from local storage
+     */
+    getState() {
+        this.value = localStorage.getItem(`persistent-${this.id}`);
+        this.input.value = this.value;
+        return this.value;
+    }
+}
+
+class PersistentCheckbox extends PersistentInput {
+    init() {
+        if (!this.input) {
+            console.error(`Checkbox with id ${this.id} not found`);
+            return;
+        }
+
+        if (this.value === 'true')
+            this.input.checked = true;
+
+        this.input.addEventListener('click', () => {
+            this.setState(this.input.checked);
+        });
+    }
+
+    /**
+     * Save the input value to local storage
+     */
+    setState(value) {
+        localStorage.setItem(`persistent-${this.id}`, value);
+        this.value = value;
+        this.input.checked = value;
+    }
+
+    /**
+     * Load the input value from local storage
+     */
+    getState() {
+        this.value = localStorage.getItem(`persistent-${this.id}`);
+        this.input.checked = this.value === 'true';
+        return this.value;
+    }
+}
+
+const checkboxes = ['menu-toggle'];
+
+for (const id of checkboxes) {
+    const input = new PersistentCheckbox(id);
+    input.init();
+}

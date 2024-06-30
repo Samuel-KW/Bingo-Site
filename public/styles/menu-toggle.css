@@ -1,0 +1,24 @@
+label.menu-toggle {
+    display: inline-block;
+	transition: transform 0.5s;
+    user-select: none;
+    cursor: pointer;
+}
+
+label.menu-toggle:hover, input.menu-toggle:checked ~ label.menu-toggle {
+	transform: rotate(180deg);
+}
+
+input.menu-toggle {
+    display: none;
+}
+
+.menu-container {
+    transition: max-height 0.5s ease;
+    overflow: hidden;
+    max-height: 200px;
+}
+
+input.menu-toggle:checked + .menu-container {
+    max-height: 0px;
+}

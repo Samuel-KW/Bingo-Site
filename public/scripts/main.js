@@ -55,7 +55,7 @@ document.getElementById('container-squares').addEventListener('click', function 
             elem.classList.add('active');
 
             openPopup(elem);
-            return 
+            return;
         }
 
         elem = elem.parentElement
