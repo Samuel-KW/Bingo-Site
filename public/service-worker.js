@@ -10,14 +10,20 @@ const precacheResources = [
 ];
 
 async function cacheRequest(request) {
-    const response = await fetch(request);
-    
-    if (response.ok) {
-        const cache = await caches.open(cacheName);
-        cache.put(request, response.clone());
-    }
+    try {
 
-    return response;
+        const response = await fetch(request);
+        
+        if (response.ok) {
+            const cache = await caches.open(cacheName);
+            cache.put(request, response.clone());
+        }
+
+        return response;
+        
+    } catch (error) {
+        return Response.error();
+    }
 }
 
 async function cacheFirst(request) {
