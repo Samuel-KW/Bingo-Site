@@ -35,7 +35,6 @@ document.addEventListener('scroll', debounce(storeScroll), { passive: true });
 // Update scroll position for first time
 storeScroll();
 
-
 const squares = document.querySelectorAll('.square');
 
 // Add active 

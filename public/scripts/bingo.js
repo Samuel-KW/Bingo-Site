@@ -44,7 +44,7 @@ class BingoBoard {
         if (card) {
             card.complete();
         
-            addBingoCode(code);
+            addBingoCode(code, sha);
             saveBingoCodes();
 
             if (this.checkBingo())
@@ -58,8 +58,20 @@ class BingoBoard {
         alert("Congrats! Bingo achieved!");
     }
 
+    openDialog (title, message) {
+        const dialog = document.getElementById("dialog");
+        const dialogTitle = document.getElementById("dialog-title");
+        const dialogMessage = document.getElementById("dialog-message");
+
+        dialogTitle.textContent = title;
+        dialogMessage.textContent = message;
+
+        dialog.showModal();
+    }
+
     handleBlackout () {
         localStorage.setItem("blackoutTime", Date.now());
+        document.documentElement.setAttribute('data-blackout', true)
         alert("Congrats! You achieved a blackout!");
     }
 
@@ -187,16 +199,6 @@ class BingoCard {
 
         this.completed = true;
         this.elem.classList.add("checked");
-    }
-
-    checkCode(code) {
-        const sha = sha256(code);
-        if (sha === this.sha256) {
-            this.complete();
-            return sha;
-        }
-
-        return false
     }
 }
 

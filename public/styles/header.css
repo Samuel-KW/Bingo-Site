@@ -14,8 +14,8 @@ html:not([data-scroll='0']) {
 
 
 header, #instructions {
-    background-color: #EECC54;
-    color: #1F1E1A;
+    background-color: var(--bg-header);
+    color: var(--text-header);
     text-align: center;
 }
 

@@ -2,6 +2,84 @@
 if (typeof localStorage === 'undefined')
     alert('Local storage is disabled, please enable it to use this page.');
 
+class PersistentInput {
+    /**
+     * Create a new persistent input
+     * @param {string} id 
+     */
+    constructor(id) {
+        this.id = id;
+        this.input = document.getElementById(id);
+        this.value = localStorage.getItem(`-${id}`);
+    }
+
+    init() {
+        if (!this.input) {
+            console.error(`Input with id ${this.id} not found`);
+            return;
+        }
+
+        if (this.value !== null)
+            this.input.value = this.value;
+
+        this.input.addEventListener('input', () => {
+            this.setState(this.input.value);
+        });
+    }
+
+    /**
+     * Save the input value to local storage
+     */
+    setState(value) {
+        localStorage.setItem(`-${this.id}`, value);
+        this.value = value;
+        this.input.value = value;
+    }
+
+    /**
+     * Load the input value from local storage
+     */
+    getState() {
+        this.value = localStorage.getItem(`-${this.id}`);
+        this.input.value = this.value;
+        return this.value;
+    }
+}
+
+class PersistentCheckbox extends PersistentInput {
+    init() {
+        if (!this.input) {
+            console.error(`Checkbox with id ${this.id} not found`);
+            return;
+        }
+
+        if (this.value === 'true')
+            this.input.checked = true;
+
+        this.input.addEventListener('click', () => {
+            this.setState(this.input.checked);
+        });
+    }
+
+    /**
+     * Save the input value to local storage
+     */
+    setState(value) {
+        localStorage.setItem(`-${this.id}`, value);
+        this.value = value;
+        this.input.checked = value;
+    }
+
+    /**
+     * Load the input value from local storage
+     */
+    getState() {
+        this.value = localStorage.getItem(`-${this.id}`);
+        this.input.checked = this.value === 'true';
+        return this.value;
+    }
+}
+
 // Store a map containing entered bingo codes
 const savedBingoCodes = new Map();
 
@@ -9,8 +87,9 @@ const savedBingoCodes = new Map();
  * Add a bingo code to the map
  * @param {string} code 
  */
-const addBingoCode = code => {
-    const sha = sha256(code);
+const addBingoCode = (code, sha) => {
+    sha = sha || sha256(code);
+    document.cookie = sha + '=; expires=Fri, 31 Dec 9999 23:59:59 GMT';
     savedBingoCodes.set(sha, code);
 };
 
@@ -44,87 +123,31 @@ const loadBingoCodes = () => {
     return savedBingoCodes;
 };
 
-class PersistentInput {
-    /**
-     * Create a new persistent input
-     * @param {string} id 
-     */
-    constructor(id) {
-        this.id = id;
-        this.input = document.getElementById(id);
-        this.value = localStorage.getItem(`persistent-${id}`);
+/**
+ * Set a cookie with a name and value
+ * @param {string} name 
+ * @param {string} value 
+ */
+const setCookie = (name, value) => {
+    document.cookie = `${name}=${value}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+};
 
-        // if (this.value === null)
-        //     this.value = false;
-    }
+/**
+ * Get a cookie by name
+ * @param {string} name 
+ * @returns {string | null} cookie value
+ */
+const getCookie = name => {
+    const cookie = document.cookie.split(";")
+        .find(item => item.trim().startsWith(name));
 
-    init() {
-        if (!this.input) {
-            console.error(`Input with id ${this.id} not found`);
-            return;
-        }
+    return cookie ? cookie.slice(cookie.indexOf('=') + 1) : null;
+};
 
-        if (this.value !== null)
-            this.input.value = this.value;
+// Check if user is signed in
+getCookie('name') || document.getElementById('sign-in').showModal();
 
-        this.input.addEventListener('input', () => {
-            this.setState(this.input.value);
-        });
-    }
-
-    /**
-     * Save the input value to local storage
-     */
-    setState(value) {
-        localStorage.setItem(`persistent-${this.id}`, value);
-        this.value = value;
-        this.input.value = value;
-    }
-
-    /**
-     * Load the input value from local storage
-     */
-    getState() {
-        this.value = localStorage.getItem(`persistent-${this.id}`);
-        this.input.value = this.value;
-        return this.value;
-    }
-}
-
-class PersistentCheckbox extends PersistentInput {
-    init() {
-        if (!this.input) {
-            console.error(`Checkbox with id ${this.id} not found`);
-            return;
-        }
-
-        if (this.value === 'true')
-            this.input.checked = true;
-
-        this.input.addEventListener('click', () => {
-            this.setState(this.input.checked);
-        });
-    }
-
-    /**
-     * Save the input value to local storage
-     */
-    setState(value) {
-        localStorage.setItem(`persistent-${this.id}`, value);
-        this.value = value;
-        this.input.checked = value;
-    }
-
-    /**
-     * Load the input value from local storage
-     */
-    getState() {
-        this.value = localStorage.getItem(`persistent-${this.id}`);
-        this.input.checked = this.value === 'true';
-        return this.value;
-    }
-}
-
+// Make inputs persistent
 const checkboxes = ['menu-toggle'];
 
 for (const id of checkboxes) {

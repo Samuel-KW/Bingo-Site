@@ -21,6 +21,7 @@
     
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/vars.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/main.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='/styles/dialog.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/bingo.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/header.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='/styles/sort-grid.css'>
@@ -29,6 +30,22 @@
 </head>
 
 <body>
+
+    <dialog id="sign-in">
+        <h3>Enter your name to save your progress.</h3><hr>
+        <div class="content">
+            <p>If you see this message multiple times it means you don't have cookies enabled.</p>
+            <p>Enable cookie in order to save your progress.</p>
+            <form method="dialog" onsubmit="document.cookie='name='+this.querySelector('input').value+'; expires=Fri, 31 Dec 9999 23:59:59 GMT'">
+                <label>
+                    Name:
+                    <input type="text" placeholder="Username" name="submitted-name" autocomplete="given-name" maxlength="32" minlength="3" required>
+                </label>
+                
+                <button id="submit">Save</button>
+            </form>
+        </div>
+    </dialog>
 
     <header>
         <h1 id="title">Bingo!</h1>

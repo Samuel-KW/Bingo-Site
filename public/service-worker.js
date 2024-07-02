@@ -4,7 +4,7 @@ const cacheName = 'bingo-cache-v1';
 const precacheResources = [
     '/images/checkmark.svg',
     '/fonts/riotic-regular-400.otf', '/fonts/SairaCondensed-regular-200.ttf',
-    '/styles/vars.css', '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css', '/styles/menu-toggle.css',
+    '/styles/vars.css', '/styles/dialog.css', '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css', '/styles/menu-toggle.css',
     '/scripts/bingo.js', '/scripts/main.js', '/scripts/popup.js', '/scripts/sha256.min.js', '/scripts/storage.js',
     '/', '/index.html',
 ];
@@ -95,6 +95,9 @@ self.addEventListener('fetch', event => {
     // Bug fix
     // https://stackoverflow.com/a/49719964
     if (req.cache === 'only-if-cached' && req.mode !== 'same-origin') return;
+
+    if (url.pathname.startsWith('/data/'))
+        return event.respondWith(fetch(req));
 
     const dynamic = url.pathname.startsWith('/api/');
     const response = dynamic ? networkFirst(req) : cacheFirst(req);

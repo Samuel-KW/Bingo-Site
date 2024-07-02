@@ -43,11 +43,12 @@
 }
 
 html, body {
+    
     height: 100%;
 }
 
 body {
-    background-color: #1F1E1A;
+    background-color: var(--bg-footer);
     font-family: "Saira";
     overflow-x: hidden;
     margin: 0;
@@ -59,8 +60,7 @@ header, section, main, footer {
 }
 
 footer {
-    background-color: #1F1E1A;
-    color: #EEEEEE;
+    color: var(--footer-text);
     padding: 10px;
     font-size: 1rem;
     width: 100%;
