@@ -42,12 +42,20 @@
     margin: 0;
 }
 
+html, body {
+    height: 100%;
+}
 
 body {
     background-color: #1F1E1A;
     font-family: "Saira";
     overflow-x: hidden;
     margin: 0;
+}
+
+header, section, main, footer {
+    display: block;
+    position: relative;
 }
 
 footer {

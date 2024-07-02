@@ -4,7 +4,7 @@ const cacheName = 'bingo-cache-v1';
 const precacheResources = [
     '/images/checkmark.svg',
     '/fonts/riotic-regular-400.otf', '/fonts/SairaCondensed-regular-200.ttf',
-    '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css', '/styles/menu-toggle.css',
+    '/styles/vars.css', '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css', '/styles/menu-toggle.css',
     '/scripts/bingo.js', '/scripts/main.js', '/scripts/popup.js', '/scripts/sha256.min.js', '/scripts/storage.js',
     '/', '/index.html',
 ];
