@@ -2,12 +2,14 @@
 'use strict'
 
 const express = require('express'); 
+const compression = require('compression');
+
 const config = require('./config.json')
 const getCookies = require('./utils/cookie.js');
-
 const PORT = 80;
 
 const app = express(); 
+app.use(compression());
 
 
 // Serve files in public directory
