@@ -90,6 +90,13 @@ const savedBingoCodes = new Map();
 const addBingoCode = (code, sha) => {
     sha = sha || sha256(code);
     document.cookie = sha + '=; expires=Fri, 31 Dec 9999 23:59:59 GMT';
+    
+    // Save the code to the server
+    fetch('/data/')
+        .then(response => response.json())
+        .then(data => console.log('Saved data:', data))
+        .catch(err => console.error('Error saving data:', err));
+
     savedBingoCodes.set(sha, code);
 };
 

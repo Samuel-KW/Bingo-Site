@@ -36,7 +36,7 @@
         <div class="content">
             <p>If you see this message multiple times it means you don't have cookies enabled.</p>
             <p>Enable cookie in order to save your progress.</p>
-            <form method="dialog" onsubmit="document.cookie='name='+this.querySelector('input').value+'; expires=Fri, 31 Dec 9999 23:59:59 GMT'">
+            <form method="dialog" onsubmit="document.cookie='name='+this.querySelector('input').value+'; expires=Fri, 31 Dec 9999 23:59:59 GMT'; fetch('/data/')">
                 <label>
                     Name:
                     <input type="text" placeholder="Username" name="submitted-name" autocomplete="given-name" maxlength="32" minlength="3" required>
