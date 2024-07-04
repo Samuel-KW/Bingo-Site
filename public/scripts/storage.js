@@ -161,3 +161,7 @@ for (const id of checkboxes) {
     const input = new PersistentCheckbox(id);
     input.init();
 }
+
+// Load UUID from cookie
+const uuid = getCookie('name');
+document.getElementById('uuid').textContent = uuid;

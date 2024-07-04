@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summer Camp Bingo Stats</title>
+
+    <link rel='stylesheet' type='text/css' media='screen' href='/styles/dashboard.css'>
+</head>
+
+<body>
+    <h1>Summer Camp Bingo Statistics</h1>
+    <div class="container">
+        <div class="section">
+            <h2>User Progress Over Time</h2>
+            <div id="dotPlot" class="chart"></div>
+        </div>
+
+        <div class="section">
+            <h2>Completed Bingos</h2>
+            <div id="pieChart" class="chart"></div>
+        </div>
+
+        <div class="section">
+            <h2>Overall Statistics</h2>
+            <div id="overallStats"></div>
+        </div>
+
+        <div class="section">
+            <h2>User Progress</h2>
+            <select id="userSelect"></select>
+            <div id="lineChart" class="chart"></div>
+        </div>
+    </div>
+
+    <script src="/scripts/d3.min.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+</body>
+
+</html>

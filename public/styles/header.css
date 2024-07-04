@@ -42,3 +42,12 @@ header {
 #instructions {
     padding: 15px 0 20px 0;
 }
+
+#uuid {
+    color: var(--text-header);
+    font-size: 1rem;
+    top: 0; right: 0;
+    padding: 10px;
+    position: fixed;
+    z-index: 500;
+}

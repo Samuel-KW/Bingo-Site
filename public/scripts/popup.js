@@ -30,3 +30,19 @@ const { openPopup, closePopup } = (() => {
     };
 })();
 
+function submitName () {
+    
+    const username = this.querySelector('input').value.trim();
+    const uuid = username.replace(/[^a-zA-Z0-9]/g, '') + '~' + Date.now().toString(36);
+
+    document.cookie = 'name=' + uuid + '; expires=Fri, 31 Dec 9999 23:59:59 GMT';
+    
+    fetch('/data/')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Saved username:', data);
+        })
+        .catch(error => {
+            console.error('Error saving username:', error);
+        });
+}

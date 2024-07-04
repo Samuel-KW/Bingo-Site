@@ -60,9 +60,11 @@ app.get('/data/logs/', async (request, response) => {
     // Optimize results into [ name, hash1, hash2, ...], [ USER, 0, 1, ...]
     const resp = [ ["User", ...hashes] ];
     for (const user of users) {
-        const row = [ user.name ];
+        const row = [ user.name, user.updatedAt ];
+
         for (const hash of hashes)
             row.push(user[hash] ? 1 : 0);
+
         resp.push(row);
     }
 

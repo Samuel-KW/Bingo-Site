@@ -31,12 +31,14 @@
 
 <body>
 
+    <div id="uuid"></div>
+
     <dialog id="sign-in">
         <h3>Enter your name to save your progress.</h3><hr>
         <div class="content">
             <p>If you see this message multiple times it means you don't have cookies enabled.</p>
             <p>Enable cookie in order to save your progress.</p>
-            <form method="dialog" onsubmit="document.cookie='name='+this.querySelector('input').value+'; expires=Fri, 31 Dec 9999 23:59:59 GMT'; fetch('/data/')">
+            <form method="dialog" onsubmit="submitName.call(this)">
                 <label>
                     Name:
                     <input type="text" placeholder="Username" name="submitted-name" autocomplete="given-name" maxlength="32" minlength="3" required>
@@ -59,6 +61,7 @@
             <p>This website tracks your readiness for camp! The first 10 campers to have a blackout will get a prize!</p>
             <h3>Instructions</h3>
             <p>To fill in the bingo boxes, look for QR codes to scan or click a box for more instructions</p>
+            <p>If you're having any bingo problems find JC <u>Leina</u> in the Grove</p>
             <p style="font-weight: 600;">The first row is mandatory to complete!</p>
         </div>
         
