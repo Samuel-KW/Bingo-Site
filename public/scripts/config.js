@@ -10,7 +10,7 @@ const showJsonPopup = () => {
     document.getElementById('generate').disabled = true;
 
     const sections = document.querySelectorAll('.section');
-    const data = { cards: [] };
+    const data = { version: Date.now(), cards: [] };
 
     for (const section of sections) {
         const cardTitle = section.querySelector('.card-title').value;
