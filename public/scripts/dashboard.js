@@ -179,10 +179,10 @@ function updateOverallStats() {
     }, {});
 
     const uniqueNames = Object.keys(users);
-    const avgCompletion = userData.reduce((acc, user) => acc + users[user].progress.filter(Boolean).length, 0) / userData.length;
+    const avgCompletion = uniqueNames.reduce((acc, user) => acc + users[user].progress.filter(Boolean).length, 0) / userData.length;
 
     d3.select("#overallStats")
-        .html(`<p>Unique Users: ${uniqueNames}</p><p>Average Completion: ${avgCompletion.toFixed(2)} / 16</p>`);
+        .html(`<p>Unique Users: ${uniqueNames.length}</p><p>Average Completion: ${avgCompletion.toFixed(2)} / 16</p>`);
 }
 
 function createLineChart() {
