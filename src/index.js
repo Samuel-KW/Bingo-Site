@@ -11,7 +11,7 @@ const PORT = 80;
 
 
 // Get array of hashes from config file
-const hashes = config.cards.map(card => card[2]);
+const hashes = config.cards.map(card => card[3]);
 
 // Create Sequelize instance
 const sequelize = new Sequelize({
@@ -40,8 +40,11 @@ app.use(compression());
 // Serve files in public directory
 app.use(express.static('public'));
 
+// Remove password from config file
+const safeConfig = config.cards.map(e => e.slice(1));
+
 app.get('/api/v1/config', (request, response) => {
-    response.json(config);
+    response.json(safeConfig);
 });
 
 

@@ -18,7 +18,14 @@ const showJsonPopup = () => {
         const description = section.querySelector('.description').value;
         const select = section.querySelector('.card-type').value;
         const required = section.querySelector('.required').checked;
-        data.cards.push([cardTitle, description, sha256(cardKey), select, required]);
+        const key = section.querySelector('.private-key').value;
+
+        let hash = cardKey;
+
+        if (select != 'QR Code' || !key)
+            hash = cardTitle;
+
+        data.cards.push([key, cardTitle, description, sha256(hash), select, required]);
     }
 
     const jsonData = JSON.stringify(data, null, 2);

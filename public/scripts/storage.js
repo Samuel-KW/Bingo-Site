@@ -92,13 +92,35 @@ const addBingoCode = (code, sha) => {
     document.cookie = sha + '=; expires=Fri, 31 Dec 9999 23:59:59 GMT';
     
     // Save the code to the server
-    fetch('/data/')
-        .then(response => response.json())
-        .then(data => console.log('Saved data:', data))
-        .catch(err => console.error('Error saving data:', err));
+    sendData();
 
     savedBingoCodes.set(sha, code);
 };
+
+const addUserInput = (input, sha) => {
+    document.cookie = sha + '=' + input + '; expires=Fri, 31 Dec 9999 23:59:59 GMT';
+    
+    // Save the code to the server
+    sendData();
+
+    savedBingoCodes.set(sha, input);
+};
+
+const addHonorCode = sha => {
+    document.cookie = sha + '=1; expires=Fri, 31 Dec 9999 23:59:59 GMT';
+    
+    // Save the code to the server
+    sendData();
+
+    savedBingoCodes.set(sha, true);
+};
+
+const sendData = () => {
+    return fetch('/data/')
+        .then(response => response.json())
+        .then(data => console.log('Saved data:', data))
+        .catch(err => console.error('Error saving data:', err));
+}
 
 /**
  * Save bingo codes to local storage

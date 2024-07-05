@@ -5,7 +5,7 @@ const precacheResources = [
     '/images/checkmark.svg',
     '/fonts/riotic-regular-400.otf', '/fonts/SairaCondensed-regular-200.ttf',
     '/styles/vars.css', '/styles/dialog.css', '/styles/bingo.css', '/styles/header.css', '/styles/main.css', '/styles/popup.css', '/styles/sort-grid.css', '/styles/menu-toggle.css',
-    '/scripts/bingo.js', '/scripts/main.js', '/scripts/popup.js', '/scripts/sha256.min.js', '/scripts/storage.js',
+    '/scripts/bingo.js', '/scripts/main.js', '/scripts/popup.js', '/scripts/sha256.min.js', '/scripts/storage.js', '/scripts/canvas-confetti.min.js',
     '/', '/index.html',
 ];
 

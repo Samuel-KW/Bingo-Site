@@ -1,20 +1,23 @@
 {
   "cards": [
     [
+      "",
       "Pick up your shirt, nametag, and bag",
       "By opening this bingo up you should have these camp materials! Make sure to put on your shirt and nametag before you leave your dorm room.",
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "d62504961e8ec28d33e5faf5e96eec6cbb0c6f317b33f90c4f36f7243cec9ff0",
       "Honor System",
       true
     ],
     [
+      "LANYARDSAREFORFRESHMEN",
       "Get your keys and (if needed) check in with medicine",
-      "Inside on the first floor you’ll get the keys to your room (don’t lose these!) and be able to let staff know if you have any medical needs, prescriptions, or questions.",
+      "Inside on the first floor you'll get the keys to your room (don't lose these!) and be able to let staff know if you have any medical needs, prescriptions, or questions.",
       "1f86f511a20b205c29203d4f02725b574e401377786c21f24887e079aa8ae72f",
       "QR Code",
       true
     ],
     [
+      "JUSTMOVEDINGONNANAP",
       "Find your room and move in",
       "Bring all your stuff into your room and set yourself up for camp this week. Scan the QR on the door to your fling (section of the dorm) on your way out to complete!",
       "6383ba9983fda78f7263dd3d6dbd6082589ab916996a0e31cf3a56f98e48b123",
@@ -22,6 +25,7 @@
       true
     ],
     [
+      "GONNABEGROVING",
       "Head down to the Grove",
       "The Grove is the outdoor area on the first floor. This is where you should be hanging out and exploring before camp activities begin. The QR you need to scan is in the center of the Grove.",
       "aeef2fb77cf57e5e2bfaea4e2aa13ea9e5192377f6472b3b0415c8c50152540b",
@@ -29,6 +33,7 @@
       true
     ],
     [
+      "THISGUYNEEDSTOSHOWER",
       "Find a JC in the Grove and say hello",
       "JCs are so excited to meet you! Any of us in the Grove have the QRs for you to scan",
       "bbd845dd13219fe018eada2861aea1c6f780e7d0d471add32dca6914727e03e9",
@@ -36,6 +41,7 @@
       false
     ],
     [
+      "FOUNDANOLDCOUNSELOR",
       "Find an SC in the Grove and say hello",
       "SCs are so excited to meet you! Any of us in the Grove have the QRs for you to scan.",
       "728a4e7e7da2cab30add9c6e207dd93e3bbfba217c22ae6bcc2e9a72413cf367",
@@ -43,6 +49,7 @@
       false
     ],
     [
+      "GONNABUYSOMEDRIP",
       "Find the OASC store",
       "The OASC is only open at certain times. If you want to check out the available OASC merch and meet the staff working it, you can find the store on the first floor of Ackerman.",
       "a24bb86e470df07fcbefd10407d78b14ecb9b26e92022d770e5b441b2afdf3d5",
@@ -50,41 +57,47 @@
       false
     ],
     [
+      "",
       "Find a friend in the same grade as you",
       "Say hello to some campers! Enter the name of the camper you met - but they cannot be from your high school!",
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "271626fc625f39a4f60e7eca2a0de7b4ccc9562e2c3f84608cab67807ca86154",
       "User Input",
       false
     ],
     [
+      "",
       "Find a friend from the same region as you",
       "Say hello to some campers! Enter the name of the camper you met - but they cannot be from your high school!",
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "033261544d70749f4fd93e4e420aa55497f0f72d357adde95042019d01ee79ff",
       "User Input",
       false
     ],
     [
+      "",
       "Meet your roommate or find a friend in the same fling as you",
       "Say hello to some campers! Enter the name of the camper you met, if you have a roommate enter your roommate or the name of someone in the same dorm hall as you.",
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "25357b4b5a68661922e0576110e43d41cd08d9acaab1f745a782e68cf2d90da4",
       "User Input",
       false
     ],
     [
+      "",
       "Say “THANK YOU!” to someone on tech crew or support staff",
-      "WE LOVE TECH CREW! WE LOVE SUPPORT STAFF! Check this off once you’ve said hi and shared the love.",
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "WE LOVE TECH CREW! WE LOVE SUPPORT STAFF! Check this off once you've said hi and shared the love.",
+      "7c4768fabec658f04bb93b70da3079b13cf6294854dec0dc7d46e2b564cc947f",
       "Honor System",
       false
     ],
     [
-      "Tell JC Tyler something about OASC camp you’re excited for",
-      "JC Tyler will be in the grove hanging out, go find him and ask any questions you have about camp and share something you’re excited about!",
+      "WATERBALLOONFIGHTS",
+      "Tell JC Tyler something about OASC camp you're excited for",
+      "JC Tyler will be in the grove hanging out, go find him and ask any questions you have about camp and share something you're excited about!",
       "9da6cdb8dd09016ea458d6f39c5abd09ae8945fc1cd290781c8ec5535285e335",
       "QR Code",
       false
     ],
     [
+      "THISGUYNEEDSTOSHOWER",
       "Beat JC Diego in rock, paper, scissors",
       "Be careful, JC Diego is crazy good at RPS. Challenge him and scan his QR code if you win!",
       "bbd845dd13219fe018eada2861aea1c6f780e7d0d471add32dca6914727e03e9",
@@ -92,22 +105,25 @@
       false
     ],
     [
+      "KARAOKETIMEBABY",
       "Sing a song to JoJo or Lupita",
       "JoJo and Lupita are on our support staff and love music, share your favorite tune (Taylor Swift songs are their favorite) and scan their QR code!",
-      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "c38d24e737e7e88ab35ed30a5dc4cba42706bd57fb321dfbea4b545ed0573ea2",
       "QR Code",
       false
     ],
     [
+      "IMAHYDROHOMIE",
       "Fill up your water bottle and show SC Greg",
-      "SC Greg wants you to stay hydrated! Show him a full water bottle and he’ll let you scan his QR code!",
+      "SC Greg wants you to stay hydrated! Show him a full water bottle and he'll let you scan his QR code!",
       "899a457a2ff077cb64bd74a829adef9c520284c44c42fb6207a3893e9897c61c",
       "QR Code",
       false
     ],
     [
+      "THESEGUYSAREGROVING",
       "Find a camp director in the Grove and say hello",
-      "Camp directors (Britt, Beau, or Miles) are so happy you’re here. Say hello and scan the QR code they have",
+      "Camp directors (Britt, Beau, or Miles) are so happy you're here. Say hello and scan the QR code they have",
       "c24af50849e6efd5a00881d9de11b33960fe38e97dd8c01a078931b5e105cd9b",
       "QR Code",
       false

@@ -28,9 +28,9 @@ class BingoBoard {
         const response = await fetch("/api/v1/config");
         const config = await response.json();
 
-        for (const card of config.cards) {
-            const [title, desc, sha256, required] = card;
-            const bc = new BingoCard(title, desc, sha256, required);
+        for (const card of config) {
+            const [title, desc, sha256, type, required] = card;
+            const bc = new BingoCard(title, desc, sha256, type, required);
 
             this.container.appendChild(bc.elem);
             this.cards.push(bc);
@@ -154,10 +154,11 @@ class BingoBoard {
 }
 
 class BingoCard {
-    constructor (title, description, sha256, required=false, completed=false) {
+    constructor (title, description, sha256, type, required=false, completed=false) {
         this.title = title;
         this.description = description;
         this.sha256 = sha256;
+        this.type = type;
 
         this.required = required;
         this.completed = completed;
@@ -171,6 +172,8 @@ class BingoCard {
 
         card.setAttribute("data-desc", this.description);
         card.setAttribute("tabindex", 0);
+        card.setAttribute("key", this.sha256);
+        card.setAttribute("type", this.type);
         
         const cardInner = document.createElement("div");
         cardInner.classList.add("square-inner");
@@ -187,9 +190,10 @@ class BingoCard {
         if (this.completed)
             card.classList.add("checked");
 
+        cardFront.appendChild(title);
+
         card.appendChild(cardInner);
         cardInner.appendChild(cardFront);
-        cardFront.appendChild(title);
 
         return card;
     }
