@@ -3,8 +3,8 @@
     transform: translateY(100%);
 
     box-shadow: 0 0 25px #00000080;
-    border-top: 4px solid #CC3D12;
-    background-color: #E35F41;
+    border-top: 4px solid var(--border-card);
+    background-color: var(--bg-card);
     
     position: fixed;
     min-height: 40vh;
@@ -18,7 +18,7 @@
 
     h3 {
         font-family: "Riotic", sans-serif;
-        text-shadow: #CC3D12 3px 4px;
+        text-shadow: var(--border-card-required) 3px 4px;
         font-weight: 200;
         color: #f1f1f1;
         font-size: 3rem;
@@ -44,8 +44,8 @@
     }
 
     button {
-        background-color: #f1f1f1;
-        color: #E35F41;
+        background-color: var(--footer-text);
+        color: var(--bg-card);
         border: none;
         padding: 10px 20px;
         font-size: 1.5rem;

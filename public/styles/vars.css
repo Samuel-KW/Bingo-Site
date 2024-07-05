@@ -18,20 +18,20 @@
 }
 
 [data-blackout="true"] {
-    --bg-header: #2C3E50;  /* Dark blue-gray for header */
-    --text-header: #F1C40F;  /* Bright yellow for header text */
+    --bg-header: #2C3E50;
+    --text-header: #F1C40F;
 
-    --bg-footer: #1A252F;  /* Darker shade for footer */
-    --bg-main: #2F3640;  /* Dark gray for main background */
+    --bg-footer: #1A252F;
+    --bg-main: #2F3640;
 
-    --bg-card: #E74C3C;  /* Vibrant red for card backgrounds */
-    --border-card: #C0392B;  /* Darker red for card borders */
-    --text-card: #FFFFFF;  /* White text for cards */
+    --bg-card: #232323;
+    --border-card: #4d0000;
+    --text-card: #eee;
 
-    --bg-card-required: #3498DB;  /* Blue for required cards */
-    --border-card-required: #2980B9;  /* Darker blue for required card borders */
+    --bg-card-required: #232323;
+    --border-card-required: #800000;
     
-    --border-card-active: #2ECC71;  /* Green for active card borders */
+    --border-card-active: #2ECC71;
 
-    --footer-text: #ECEDEE;  /* Off-white for footer text */
+    --footer-text: #ECEDEE;
 }
