@@ -1,7 +1,7 @@
 const container = document.getElementById('container');
 
 const generateQRCode = function (elemKey, qrCode) {
-    const privateKey = elemKey.value.trim();
+    const privateKey = 'https://oasc.bingo-list.com/#' + elemKey.value.trim();
 
     qrCode.makeCode(privateKey);
 };
