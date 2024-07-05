@@ -21,7 +21,7 @@ function createDotPlot() {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleTime()
-        .domain(d3.extent(userData, d => new Date(d.date)))
+        .domain(d3.extent(userData, d => d.date))
         .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -30,7 +30,10 @@ function createDotPlot() {
 
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x)
+            .tickFormat(d3.timeFormat("%I:%M %p"))
+            .tickValues(userData.map(d => d.date))
+        )
 
     svg.append("g")
         .call(d3.axisLeft(y));
@@ -39,7 +42,7 @@ function createDotPlot() {
         .data(userData)
         .enter()
         .append("circle")
-        .attr("cx", d => x(new Date(d.date)))
+        .attr("cx", d => x(d.date))
         .attr("cy", d => y(d.progress.filter(Boolean).length))
         .attr("r", 5)
         .attr("fill", "#69b3a2");
