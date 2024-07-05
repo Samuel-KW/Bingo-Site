@@ -16,8 +16,9 @@ const showJsonPopup = () => {
         const cardTitle = section.querySelector('.card-title').value;
         const cardKey = section.querySelector('.private-key').value;
         const description = section.querySelector('.description').value;
+        const select = section.querySelector('.card-type').value;
         const required = section.querySelector('.required').checked;
-        data.cards.push([cardTitle, description, sha256(cardKey), required]);
+        data.cards.push([cardTitle, description, sha256(cardKey), select, required]);
     }
 
     const jsonData = JSON.stringify(data, null, 2);
@@ -137,6 +138,35 @@ class PersistentCheckbox extends PersistentInput {
     }
 }
 
+class PersistentSelect extends PersistentInput {
+    init() {
+        if (!this.input)
+            return console.error(`Select input with id ${this.id} not found`);
+
+        this.getState();
+
+        this.input.addEventListener('change', () => this.setState(this.input.value));
+    }
+
+    /**
+     * Save the input value to local storage
+     */
+    setState(value) {
+        localStorage.setItem(`~${this.id}`, value);
+        this.value = value;
+        this.input.value = value;
+    }
+
+    /**
+     * Load the input value from local storage
+     */
+    getState() {
+        this.value = localStorage.getItem(`~${this.id}`);
+        this.input.value = this.value
+        return this.value;
+    }
+}
+
 const size = 4;
 
 for (let i = 0; i < size * size; i++) {
@@ -166,6 +196,20 @@ for (let i = 0; i < size * size; i++) {
     privateKey.className = 'private-key';
     privateKey.id = `k${i}`;
     
+    const selectInput = document.createElement('select');
+    selectInput.className = 'card-type';
+    selectInput.id = `s${i}`;
+
+    const bingoCardTypes = ['QR Code', 'Honor System', 'Given', 'User Input'];
+    for (const type of bingoCardTypes) {
+        const option = document.createElement('option');
+        option.value = type;
+        option.text = type;
+        selectInput.appendChild(option);
+    }
+
+    
+
     const requiredLabel = document.createElement('label');
     const requiredCheckbox = document.createElement('input');
     requiredCheckbox.type = 'checkbox';
@@ -179,6 +223,7 @@ for (let i = 0; i < size * size; i++) {
     content.appendChild(cardTitle);
     content.appendChild(description);
     content.appendChild(privateKey);
+    content.appendChild(selectInput);
     content.appendChild(requiredLabel);
 
     // Create QR code div
@@ -191,13 +236,26 @@ for (let i = 0; i < size * size; i++) {
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.H
     });
+
+    // Add event listeners
     privateKey.addEventListener('blur', () => generateQRCode(privateKey, qrCode) );
     privateKey.addEventListener('keypress', e => e.key === 'Enter' && generateQRCode(privateKey, qrCode));
+
+    selectInput.addEventListener('change', () => {
+        if (selectInput.value === 'QR Code') {
+            privateKey.classList.remove('disabled');
+            qrCodeDiv.classList.remove('disabled');
+        } else {
+            privateKey.classList.add('disabled');
+            qrCodeDiv.classList.add('disabled');
+        }
+    });
 
     new PersistentInput(cardTitle.id, cardTitle);
     new PersistentInput(description.id, description);
     new PersistentInput(privateKey.id, privateKey);
     new PersistentCheckbox(requiredCheckbox.id, requiredCheckbox);
+    new PersistentSelect(selectInput.id, selectInput);
 
     // Append content and QR code div to section
     section.appendChild(content);
