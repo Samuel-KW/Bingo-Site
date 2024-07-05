@@ -7,7 +7,7 @@ const { Sequelize, Model, DataTypes, QueryTypes } = require('sequelize');
 
 const config = require('./config.json')
 const getCookies = require('./utils/cookie.js');
-const PORT = 80;
+const PORT = process.env.PORT || 80;
 
 
 // Get array of hashes from config file

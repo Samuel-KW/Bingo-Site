@@ -11,6 +11,7 @@ dialog {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    width: 90%;
 
     h3 {
         background-color: var(--bg-header);
