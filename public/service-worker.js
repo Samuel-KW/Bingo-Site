@@ -1,5 +1,5 @@
 // Choose a cache name
-const cacheName = 'bingo-cache-v1';
+const cacheName = 'bingo-cache-v2';
 
 const precacheResources = [
     '/images/checkmark.svg',
