@@ -61,9 +61,9 @@ function createPieChart() {
 
     // Get the most recent data point for each user
     const latestUserData = userData.reduce((acc, curr) => {
-        if (!acc[curr.name] || new Date(curr.date) > new Date(acc[curr.name].date)) {
+        if (!acc[curr.name] || curr.date > acc[curr.name].date)
             acc[curr.name] = curr;
-        }
+
         return acc;
     }, {});
 
@@ -171,8 +171,15 @@ function createPieChart() {
 }
 
 function updateOverallStats() {
-    const uniqueNames = new Set(userData.map(d => d.name)).size;
-    const avgCompletion = userData.reduce((acc, user) => acc + user.progress.filter(Boolean).length, 0) / userData.length;
+    const users = userData.reduce((acc, curr) => {
+        if (!acc[curr.name] || curr.date > acc[curr.name].date)
+            acc[curr.name] = curr;
+    
+        return acc;
+    }, {});
+
+    const uniqueNames = Object.keys(users);
+    const avgCompletion = userData.reduce((acc, user) => acc + users[user].progress.filter(Boolean).length, 0) / userData.length;
 
     d3.select("#overallStats")
         .html(`<p>Unique Users: ${uniqueNames}</p><p>Average Completion: ${avgCompletion.toFixed(2)} / 16</p>`);
