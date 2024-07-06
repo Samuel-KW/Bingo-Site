@@ -47,7 +47,7 @@ html, body {
 }
 
 body {
-    background-color: var(--bg-footer);
+    background-color: var(--bg-main );
     font-family: "Saira";
     overflow-x: hidden;
     margin: 0;
@@ -60,6 +60,7 @@ header, section, main, footer {
 
 footer {
     color: var(--footer-text);
+    background-color: var(--footer-bg);
     padding: 10px;
     font-size: 1rem;
     width: 100%;
