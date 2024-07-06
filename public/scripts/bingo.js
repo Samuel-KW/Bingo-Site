@@ -17,7 +17,7 @@ class BingoBoard {
         const codes = loadBingoCodes();
         for (const [sha, code] of codes) {
             const card = this.checkHash(sha);
-            card.complete();
+            if (card) card.complete();
         }
 
         if (this.checkBingo())

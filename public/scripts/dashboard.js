@@ -21,7 +21,7 @@ function createDotPlot() {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleTime()
-        .domain(d3.extent(userData, d => new Date(d.date)))
+        .domain(d3.extent(userData, d => d.date))
         .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -30,7 +30,10 @@ function createDotPlot() {
 
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x)
+            .tickFormat(d3.timeFormat("%I:%M %p"))
+            .tickValues(userData.map(d => d.date))
+        )
 
     svg.append("g")
         .call(d3.axisLeft(y));
@@ -39,7 +42,7 @@ function createDotPlot() {
         .data(userData)
         .enter()
         .append("circle")
-        .attr("cx", d => x(new Date(d.date)))
+        .attr("cx", d => x(d.date))
         .attr("cy", d => y(d.progress.filter(Boolean).length))
         .attr("r", 5)
         .attr("fill", "#69b3a2");
@@ -61,9 +64,9 @@ function createPieChart() {
 
     // Get the most recent data point for each user
     const latestUserData = userData.reduce((acc, curr) => {
-        if (!acc[curr.name] || new Date(curr.date) > new Date(acc[curr.name].date)) {
+        if (!acc[curr.name] || curr.date > acc[curr.name].date)
             acc[curr.name] = curr;
-        }
+
         return acc;
     }, {});
 
@@ -171,11 +174,18 @@ function createPieChart() {
 }
 
 function updateOverallStats() {
-    const uniqueNames = new Set(userData.map(d => d.name)).size;
-    const avgCompletion = userData.reduce((acc, user) => acc + user.progress.filter(Boolean).length, 0) / userData.length;
+    const users = userData.reduce((acc, curr) => {
+        if (!acc[curr.name] || curr.date > acc[curr.name].date)
+            acc[curr.name] = curr;
+    
+        return acc;
+    }, {});
+
+    const uniqueNames = Object.keys(users);
+    const avgCompletion = uniqueNames.reduce((acc, user) => acc + users[user].progress.filter(Boolean).length, 0) / userData.length;
 
     d3.select("#overallStats")
-        .html(`<p>Unique Users: ${uniqueNames}</p><p>Average Completion: ${avgCompletion.toFixed(2)} / 16</p>`);
+        .html(`<p>Unique Users: ${uniqueNames.length}</p><p>Average Completion: ${avgCompletion.toFixed(2)} / 16</p>`);
 }
 
 function createLineChart() {

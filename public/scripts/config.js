@@ -1,7 +1,7 @@
 const container = document.getElementById('container');
 
 const generateQRCode = function (elemKey, qrCode) {
-    const privateKey = elemKey.value.trim();
+    const privateKey = 'https://oasc.bingo-list.com/#' + elemKey.value.trim();
 
     qrCode.makeCode(privateKey);
 };
@@ -10,7 +10,7 @@ const showJsonPopup = () => {
     document.getElementById('generate').disabled = true;
 
     const sections = document.querySelectorAll('.section');
-    const data = { cards: [] };
+    const data = { version: Date.now(), cards: [] };
 
     for (const section of sections) {
         const cardTitle = section.querySelector('.card-title').value;

@@ -1,4 +1,3 @@
-
 'use strict'
 
 const express = require('express'); 
@@ -16,7 +15,7 @@ const hashes = config.cards.map(card => card[3]);
 // Create Sequelize instance
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: './database.sqlite',
+    storage:  '/var/data/database.sqlite',
     logging: false
 });
 
@@ -27,7 +26,7 @@ for (const hash of hashes)
 
 // Define User model
 class Logs extends Model { }
-Logs.init(dbConfig, { sequelize });
+Logs.init(dbConfig, { sequelize, modelName: String(config.version)});
 
 // Sync models with database
 sequelize.sync();
@@ -47,17 +46,12 @@ app.get('/api/v1/config', (request, response) => {
     response.json(safeConfig);
 });
 
-
-// const logQuery = `SELECT * FROM Logs WHERE ${hashes.map(hash => `"${hash}" IS NOT NULL`).join(" AND ")};`;
-
 app.get('/data/logs/', async (request, response) => {
 
     // Get logs with user codes
-    // Get values that are not null
-
-    const users = await sequelize.query('SELECT * FROM Logs', {
-        type: QueryTypes.SELECT,
-        raw: true,
+    const users = await Logs.findAll({
+        attributes: ['name', 'updatedAt', ...hashes],
+        where: { name: { [Sequelize.Op.not]: null } }
     });
 
     // Optimize results into [ name, hash1, hash2, ...], [ USER, 0, 1, ...]

@@ -34,6 +34,7 @@ const { openPopup, closePopup } = (() => {
         }
 
         switch (type) {
+            case "Given":
             case "Honor System":
                 const button = document.createElement("button");
                 button.classList.add("square-complete");
@@ -88,7 +89,7 @@ const { openPopup, closePopup } = (() => {
                 break;
 
             default:
-                console.error("Invalid card type:", this.type);
+                console.error("Invalid card type:", type);
         }
 
         elemPopup.classList.add('active');
