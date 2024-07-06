@@ -60,7 +60,7 @@ header, section, main, footer {
 
 footer {
     color: var(--footer-text);
-    background-color: var(--footer-bg);
+    background-color: var(--bg-footer);
     padding: 10px;
     font-size: 1rem;
     width: 100%;

@@ -32,6 +32,7 @@
 <body>
 
     <div id="uuid"></div>
+    <div id="help" onclick="document.getElementById('menu-help').showModal();">?</div>
 
     <dialog id="sign-in">
         <h3>Enter your name to save your progress.</h3><hr>
@@ -49,6 +50,25 @@
                 </label>
                 
                 <button id="submit">Save</button>
+            </form>
+        </div>
+    </dialog>
+
+    <dialog id="menu-help">
+        <h3>Need help?</h3><hr>
+        <div class="content">
+            <p>Have questions?</p>
+            <p>If you're having any problems you can find JC Leina in the Grove.</p>
+            <br>
+            <p>Not able to scan a code? Enter it manually here:</p>
+            <form method="dialog">
+                <label>
+                    Code:
+                    <input id="inp-code" type="text" placeholder="Enter code..." name="custom-code" maxlength="32" minlength="3" required>
+                </label>
+                <br>
+                <button onclick="const e=document.getElementById('inp-code');Session.submitCode(e.value);">Check</button>
+                <button formnovalidate>Close</button>
             </form>
         </div>
     </dialog>
