@@ -20,8 +20,11 @@ function createDotPlot() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+
     const x = d3.scaleTime()
-        .domain(d3.extent(userData, d => d.date))
+        .domain([oneDayAgo, now])
         .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -31,8 +34,8 @@ function createDotPlot() {
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x)
-            .tickFormat(d3.timeFormat("%I:%M %p"))
-            .tickValues(userData.map(d => d.date))
+            .tickFormat(d3.timeFormat("%I %p"))
+            .ticks(6)
         )
 
     svg.append("g")
@@ -182,7 +185,7 @@ function updateOverallStats() {
     }, {});
 
     const uniqueNames = Object.keys(users);
-    const avgCompletion = uniqueNames.reduce((acc, user) => acc + users[user].progress.filter(Boolean).length, 0) / userData.length;
+    const avgCompletion = uniqueNames.reduce((acc, user) => acc + users[user].progress.filter(Boolean).length, 0) / uniqueNames.length;
 
     d3.select("#overallStats")
         .html(`<p>Unique Users: ${uniqueNames.length}</p><p>Average Completion: ${avgCompletion.toFixed(2)} / 16</p>`);
@@ -222,7 +225,10 @@ function createLineChart() {
 
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x)
+                .tickFormat(d3.timeFormat("%I %p"))
+                .ticks(6)
+            );
 
         svg.append("g")
             .call(d3.axisLeft(y));
@@ -265,7 +271,12 @@ function fetchData() {
         .then(response => response.json())
         .then(data => {
             const [headers, ...logs] = data;
-            userData = logs.map(user => new User(...user));
+            const hours = Number(document.getElementById('timeFrame').value) || 24;
+            const yesterday = Date.now() - hours * 1000 * 60 * 60;
+
+            userData = logs
+                .map(user => new User(...user))
+                .filter(e => e.date > yesterday);
             
             // Initialize all charts
             createDotPlot();
