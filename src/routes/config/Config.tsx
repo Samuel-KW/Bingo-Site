@@ -1,4 +1,4 @@
-function App() {
+function Config() {
 
 	return (
 		<>
@@ -7,4 +7,4 @@ function App() {
 	)
 }
 
-export default App
+export default Config

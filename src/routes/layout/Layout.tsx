@@ -1,12 +1,27 @@
+import { Outlet, Link } from "react-router-dom";
+
 import './Layout.css'
 
-function App() {
-
+const Layout = () => {
 	return (
 		<>
-			<h1>BINGO SITE</h1>
+			<nav>
+				<ul>
+					<li>
+						<Link to="/">Home</Link>
+					</li>
+					<li>
+						<Link to="/dashboard">Dashboard</Link>
+					</li>
+					<li>
+						<Link to="/config">Config</Link>
+					</li>
+				</ul>
+			</nav>
+
+			<Outlet />
 		</>
 	)
-}
+};
 
-export default App
+export default Layout;
