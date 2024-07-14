@@ -9,7 +9,5 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
   },
-  "include": [
-    "**.ts"
-, "src/Server.ts", "tests/perf.ts"  ],
+  "include": [ "**.ts" ],
 }
