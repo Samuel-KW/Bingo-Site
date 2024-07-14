@@ -11,5 +11,5 @@
   },
   "include": [
     "**.ts"
-, "src/Server.ts"  ],
+, "src/Server.ts", "tests/perf.ts"  ],
 }
