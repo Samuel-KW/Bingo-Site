@@ -1,0 +1,12 @@
+{
+	"files.eol": "\n",
+	"files.trimTrailingWhitespace": true,
+
+	"editor.tabSize": 2,
+	"editor.indentSize": 2,
+  "editor.insertSpaces": false,
+  "editor.detectIndentation": false,
+
+	"prettier.tabWidth": 2,
+	"prettier.useTabs": true
+}

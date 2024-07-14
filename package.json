@@ -1,29 +1,20 @@
 {
-  "name": "oasc-bingo-site",
+  "name": "OASC-Bingo-Site",
+  "version": "1.0.0",
+  "author": "Samuel-UC <68044712+Samuel-KW@users.noreply.github.com>",
+  "repository": "https://github.com/Samuel-KW/OASC-Bingo-Site.git",
+  "main": "index.js",
+  "dependencies": {},
+  "description": "Bingo site",
+  "license": "MIT",
   "private": true,
-  "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "dev": "bunx --bun vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.24.1"
-  },
   "devDependencies": {
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
-    "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "typescript": "^5.2.2",
-    "vite": "^5.3.1"
+    "concurrently": "^8.2.2"
+  },
+  "scripts": {
+    "start": "cd backend && bun start",
+    "build": "cd frontend && bun run build",
+    "prod": "bun run build && bun run start",
+    "dev": "concurrently \"cd backend && bun run dev\" \"cd frontend && bun run dev\""
   }
 }
