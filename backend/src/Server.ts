@@ -31,7 +31,7 @@ export class Server {
     };
 
     constructor(private app: Express) {
-        this.db = new BingoDatabase("./db/bingo.db");
+        this.db = new BingoDatabase("./db/bingo.sqlite");
 
 				this.app.use(express.json());
 				this.app.use(express.urlencoded({ extended: false }));
@@ -63,7 +63,7 @@ export class Server {
 
           req.user = user;
           console.log(req.user);
-          
+
           next();
         });
 

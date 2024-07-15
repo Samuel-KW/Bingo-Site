@@ -8,13 +8,10 @@
   "description": "Bingo site",
   "license": "MIT",
   "private": true,
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
   "scripts": {
     "start": "cd backend && bun start",
     "build": "cd frontend && bun run build",
     "prod": "bun run build && bun run start",
-    "dev": "concurrently \"cd backend && bun run dev\" \"cd frontend && bun run dev\""
+    "dev": "cd frontend && bun run build && cd ../backend && bun run dev"
   }
 }
