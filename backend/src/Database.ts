@@ -1,177 +1,228 @@
 import { Database, Statement } from "bun:sqlite";
-import {Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
 export type BingoCard = [
-    string, // Title
-    string, // Description
-    boolean, // Required
-    "QR Code" | "Honor System" | "Given" | "User Input" // Type
+	string, // Title
+	string, // Description
+	boolean, // Required
+	"QR Code" | "Honor System" | "Given" | "User Input" // Type
 ];
 
+export type UserDB = {
+	uuid: string;
+	password: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	birthday: string;
+	avatarUrl: string;
+	accountType: string;
+	boards: string;
+};
+
+export type BoardDB = {
+	id: string;
+	title: string;
+	created_at: number;
+	updated_at: number;
+	owner: string;
+	editors: string;
+	cards: string;
+};
+
 export class Board {
-    constructor(
-        public id: string,
-        public title: string,
-        public createdAt: number,
-        public updatedAt: number,
-        public owner: string,
-        public editors: string[],
-        public cards: BingoCard[]
-    ) {}
+	constructor(
+		public id: string,
+		public title: string,
+		public createdAt: number,
+		public updatedAt: number,
+		public owner: string,
+		public editors: string[],
+		public cards: BingoCard[]
+	) { }
 
-    static fromDB(board: any): Board {
-        return new Board(
-            board.id,
-            board.title,
-            board.created_at,
-            board.updated_at,
-            board.owner,
-            board.editors.split(","),
-            JSON.parse(board.cards)
-        );
-    }
+	static fromDB(board: BoardDB): Board {
+		return new Board(
+			board.id,
+			board.title,
+			board.created_at,
+			board.updated_at,
+			board.owner,
+			board.editors.split(","),
+			JSON.parse(board.cards)
+		);
+	}
 
-    toDB(): any {
-        return {
-            id: this.id,
-            title: this.title,
-            created_at: this.createdAt,
-            updated_at: this.updatedAt,
-            owner: this.owner,
-            editors: this.editors.join(","),
-            cards: JSON.stringify(this.cards)
-        };
-    }
+	toDB(): any {
+		return {
+			id: this.id,
+			title: this.title,
+			created_at: this.createdAt,
+			updated_at: this.updatedAt,
+			owner: this.owner,
+			editors: this.editors.join(","),
+			cards: JSON.stringify(this.cards)
+		};
+	}
 
-    static createBoard(title: string, owner: string, editors: string[], cards: BingoCard[]): Board {
-        return new Board(crypto.randomUUID(), title, Date.now(), Date.now(), owner, editors, cards);
-    }
+	static createBoard(title: string, owner: string, editors: string[], cards: BingoCard[]): Board {
+		return new Board(crypto.randomUUID(), title, Date.now(), Date.now(), owner, editors, cards);
+	}
 }
 
 export class User {
-    constructor(
-        public uuid: string,
-        public password: string,
-        public firstName: string,
-        public lastName: string,
-        public email: string,
-        public birthday: string,
-        public avatarUrl: string,
-        public accountType: string,
-        public boards: string[]
-    ) {}
+	constructor(
+		public uuid: string,
+		public password: string,
+		public firstName: string,
+		public lastName: string,
+		public email: string,
+		public birthday: string,
+		public avatarUrl: string,
+		public accountType: string,
+		public boards: string[]
+	) { }
 
-    static createUser(
-        password: string,
-        firstName: string,
-        lastName: string,
-        email: string,
-        birthday: string,
-        avatarUrl: string,
-    ): User {
-        return new User(crypto.randomUUID(), password, firstName, lastName, email, birthday, avatarUrl, "user", []);
-    }
+	static createUser(
+		password: string,
+		firstName: string,
+		lastName: string,
+		email: string,
+		birthday: string,
+		avatarUrl: string,
+	): User {
+		return new User(crypto.randomUUID(), password, firstName, lastName, email, birthday, avatarUrl, "user", []);
+	}
 
-    static fromDB(user: any): User {
-        return new User(
-            user.uuid,
-            user.password,
-            user.firstName,
-            user.lastName,
-            user.email,
-            user.birthday,
-            user.avatarUrl,
-            user.accountType,
-            user.boards.split(",")
-        );
-    }
+	static fromDB(user: UserDB): User {
+		return new User(
+			user.uuid,
+			user.password,
+			user.firstName,
+			user.lastName,
+			user.email,
+			user.birthday,
+			user.avatarUrl,
+			user.accountType,
+			user.boards.split(",")
+		);
+	}
 
-    toDB(): any {
-        return {
-            uuid: this.uuid,
-            password: this.password,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            birthday: this.birthday,
-            avatarUrl: this.avatarUrl,
-            accountType: this.accountType,
-            boards: this.boards.join(",")
-        };
-    }
+	toDB(): any {
+		return {
+			uuid: this.uuid,
+			password: this.password,
+			firstName: this.firstName,
+			lastName: this.lastName,
+			email: this.email,
+			birthday: this.birthday,
+			avatarUrl: this.avatarUrl,
+			accountType: this.accountType,
+			boards: this.boards.join(",")
+		};
+	}
 
-    createBoard(title: string, editors: string[], cards: BingoCard[]): Board {
-        const board = Board.createBoard(title, this.uuid, editors, cards);
-        this.boards.push(board.id);
-        return board;
-    }
+	createBoard(title: string, editors: string[], cards: BingoCard[]): Board {
+		const board = Board.createBoard(title, this.uuid, editors, cards);
+		this.boards.push(board.id);
+		return board;
+	}
 }
 
 export default class BingoDatabase {
 
-    private db: Database;
+	private db: Database;
 
-    public queryGetUserByUUID: Statement;
-    public queryGetBoardByID: Statement;
+	public queryGetUserByEmail: Statement
+	public queryGetUserByUUID: Statement;
+	public queryGetBoardByID: Statement;
 
-    public queryCreateUser: Statement;
-    public queryCreateBoard: Statement;
+	public queryCreateUser: Statement;
+	public queryCreateBoard: Statement;
 
-    constructor(private dbFile: string) {
-    }
+	constructor(private dbFile: string) {
+	}
 
-    addBoard (board: Board) {
-        this.queryCreateBoard.run(board.toDB());
-    }
+	getDatabase(): Database {
+		return this.db;
+	}
 
-    addUser (user: User) {
-        this.queryCreateUser.run(user.toDB());
-    }
+	addBoard(board: Board) {
+		this.queryCreateBoard.run(board.toDB());
+	}
 
-    getBoard (id: string): Board {
-        return Board.fromDB(this.queryGetBoardByID.get({ id }));
-    }
+	addUser(user: User) {
+		this.queryCreateUser.run(user.toDB());
+	}
 
-    getUser (uuid: string): User {
-        return User.fromDB(this.queryGetUserByUUID.get({ uuid }));
-    }
+	getBoard(id: string): Board | undefined {
+		const response: unknown = this.queryGetBoardByID.get({ id });
 
-    openQueries () {
-        this.queryGetUserByUUID = this.db.prepare("SELECT * FROM users WHERE uuid = $uuid");
-        this.queryGetBoardByID = this.db.prepare("SELECT * FROM boards WHERE id = $id");
+		if (response === undefined || response === null)
+			return undefined;
 
-        this.queryCreateUser = this.db.prepare("INSERT OR IGNORE INTO users (uuid, password, firstName, lastName, email, birthday, avatarUrl, accountType, boards) VALUES ($uuid, $password, $firstName, $lastName, $email, $birthday, $avatarUrl, $accountType, $boards)");
-        this.queryCreateBoard = this.db.prepare("INSERT OR IGNORE INTO boards (id, title, created_at, updated_at, owner, editors, cards) VALUES ($id, $title, $created_at, $updated_at, $owner, $editors, $cards)");
-    }
+		const board = response as BoardDB;
+		return Board.fromDB(board);
+	}
 
-    closeQueries () {
-        this.queryGetUserByUUID.finalize();
-        this.queryGetBoardByID.finalize();
+	getUserByEmail(email: string): User | undefined {
+		const response: unknown = this.queryGetUserByEmail.get({ email });
 
-        this.queryCreateUser.finalize();
-        this.queryCreateBoard.finalize();
-    }
+		if (response === undefined || response === null)
+			return undefined;
 
-    openDatabase () {
-        const BingoDB = new Database(this.dbFile, {
-            create: true,
-            strict: true
-        });
+		const user = response as UserDB;
+		return User.fromDB(user);
+	}
 
-        // Enable Write-Ahead Logging
-        BingoDB.exec("PRAGMA journal_mode = WAL;");
-        
-        // Create default tables if they don't exist
-        BingoDB.run("CREATE TABLE IF NOT EXISTS users (uuid TEXT PRIMARY KEY, password TEXT, firstName TEXT, lastName TEXT, email TEXT, birthday TEXT, avatarUrl TEXT, accountType TEXT, boards TEXT)");
-        BingoDB.run("CREATE TABLE IF NOT EXISTS boards (id TEXT PRIMARY KEY, title TEXT, created_at INTEGER, updated_at INTEGER, owner TEXT, editors TEXT, cards TEXT, FOREIGN KEY(owner) REFERENCES users(uuid))");
-        BingoDB.run("CREATE TABLE IF NOT EXISTS sessions (uuid TEXT PRIMARY KEY, accessToken TEXT, refreshToken TEXT, expiresIn INTEGER, tokenType TEXT, FOREIGN KEY(uuid) REFERENCES users(uuid))");
-        
-        this.db = BingoDB;
-    }
+	getUser(uuid: string): User | undefined {
+		const response: unknown = this.queryGetUserByUUID.get({ uuid });
 
-    closeDatabase () {
-        this.db.close();
-    }
+		if (response === undefined || response === null)
+			return undefined;
+
+		const user = response as UserDB;
+		return User.fromDB(user);
+	}
+
+	openQueries() {
+		this.queryGetUserByEmail = this.db.prepare("SELECT * FROM users WHERE email = $email");
+		this.queryGetUserByUUID = this.db.prepare("SELECT * FROM users WHERE uuid = $uuid");
+		this.queryGetBoardByID = this.db.prepare("SELECT * FROM boards WHERE id = $id");
+
+		this.queryCreateUser = this.db.prepare("INSERT OR IGNORE INTO users (uuid, password, firstName, lastName, email, birthday, avatarUrl, accountType, boards) VALUES ($uuid, $password, $firstName, $lastName, $email, $birthday, $avatarUrl, $accountType, $boards)");
+		this.queryCreateBoard = this.db.prepare("INSERT OR IGNORE INTO boards (id, title, created_at, updated_at, owner, editors, cards) VALUES ($id, $title, $created_at, $updated_at, $owner, $editors, $cards)");
+	}
+
+	closeQueries() {
+		this.queryGetUserByEmail.finalize();
+		this.queryGetUserByUUID.finalize();
+		this.queryGetBoardByID.finalize();
+
+		this.queryCreateUser.finalize();
+		this.queryCreateBoard.finalize();
+	}
+
+	openDatabase() {
+		const BingoDB = new Database(this.dbFile, {
+			create: true,
+			strict: true
+		});
+
+		// Enable Write-Ahead Logging
+		BingoDB.exec("PRAGMA journal_mode = WAL;");
+
+		// Create default tables if they don't exist
+		BingoDB.run("CREATE TABLE IF NOT EXISTS users (uuid TEXT PRIMARY KEY, password TEXT, firstName TEXT, lastName TEXT, email TEXT, birthday TEXT, avatarUrl TEXT, accountType TEXT, boards TEXT)");
+		BingoDB.run("CREATE TABLE IF NOT EXISTS boards (id TEXT PRIMARY KEY, title TEXT, created_at INTEGER, updated_at INTEGER, owner TEXT, editors TEXT, cards TEXT, FOREIGN KEY(owner) REFERENCES users(uuid))");
+		BingoDB.run("CREATE TABLE IF NOT EXISTS sessions (uuid TEXT PRIMARY KEY, accessToken TEXT, refreshToken TEXT, expiresIn INTEGER, tokenType TEXT, FOREIGN KEY(uuid) REFERENCES users(uuid))");
+
+		this.db = BingoDB;
+	}
+
+	closeDatabase() {
+		this.db.close();
+	}
 }
 
 // const board = user.createBoard("Testing Board", [], [

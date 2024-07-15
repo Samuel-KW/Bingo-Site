@@ -26,8 +26,8 @@ export type Session = {
 
 export type AuthDetails = {
 	session: Session | null;
-	login: (email: string, password: string) => Promise<Session>;
-	signup: (email: string, password: string, metadata: UserMetadata) => Promise<Session>;
+	login: (email: string, password: string, captcha: string) => Promise<Session>;
+	signup: (email: string, password: string, metadata: UserMetadata, captcha: string) => Promise<Session>;
 	logout: () => void;
 } | null;
 
@@ -47,61 +47,57 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 	}, []);
 
-	const login = (email: string, password: string) => {
-		return new Promise<Session>((resolve, reject) => {
-			setTimeout(() => {
-				if (Math.random() > 0.5 || (email === "x" && password === "x")) {
-					const data: Session = {
-						user: {
-							email: email,
-							id: "x",
-							metadata: {
-								firstName: "x",
-								lastName: "x",
-								birthday: "x",
-								accountType: "x",
-								avatarUrl: "x",
-								boards: []
-							}
-						},
-						accessToken: "x",
-						refreshToken: "x",
-						expiresIn: 0,
-						tokenType: "x"
-					};
-					resolve(data);
-					setSession(data);
-				} else {
-					reject("Invalid email or password.");
-				}
-			}, 100);
+	const login = async (email: string, password: string): Promise<Session> => {
+
+		const req = await fetch("/api/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				email, password,
+				captcha: null
+			})
 		});
+
+		const data = await req.json();
+		const session = {
+			user: data.user,
+			accessToken: "",
+			refreshToken: "",
+			expiresIn: -1,
+			tokenType: ""
+		};
+
+		setSession(session);
+		return session;
 	};
 
-	const signup = (email: string, password: string, metadata: UserMetadata) => {
-		return new Promise<Session>((resolve, reject) => {
-			console.log("Sending email and password to server...", email, password);
+	const signup = async (email: string, password: string, metadata: UserMetadata, captcha: string): Promise<Session> => {
 
-			setTimeout(() => {
-				if (Math.random() > 0.5) {
-					const data: Session = {
-						user: {
-							email: email,
-							id: "x",
-							metadata: metadata
-						},
-						accessToken: "x",
-						refreshToken: "x",
-						expiresIn: 0,
-						tokenType: "x"
-					};
-					resolve(data);
-					setSession(data);
-				} else {
-					Math.random() > 0.5 ? reject("Email already in use.") : reject("Password too weak.");
-				}
-			}, 100);
+		const req = await fetch("/api/signup", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				password, email,
+				firstName: metadata.firstName,
+				lastName: metadata.lastName,
+				birthday: metadata.birthday,
+				avatarUrl: metadata.avatarUrl,
+				captcha
+			})
 		});
+
+		const data = await req.json();
+		const session = {
+			user: data.user,
+			accessToken: "",
+			refreshToken: "",
+			expiresIn: -1,
+			tokenType: ""
+		};
+		setSession(session);
+		return session
 	};
 
 	const logout = () => {

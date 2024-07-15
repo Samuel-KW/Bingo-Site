@@ -11,5 +11,4 @@ Bun.password.hash("password", {
 });
 
 const server = new Server(app);
-server.init();
 server.start(port);

@@ -28,7 +28,7 @@ export default function SignUp() {
 				accountType: "x",
 				avatarUrl: "x",
 				boards: []
-			});
+			}, "");
 			alert("Thank you for joining us! Welcome " + session.user.metadata.firstName);
 			navigate("/");
 

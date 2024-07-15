@@ -21,7 +21,7 @@ export default function LogIn() {
 		setLoading(true);
 
 		try {
-			const session = await auth.login(email, password);
+			const session = await auth.login(email, password, "");
 			alert("Logged in successfully! Welcome " + session.user.metadata.firstName);
 			navigate("/");
 
@@ -44,6 +44,7 @@ export default function LogIn() {
 						<input
 							className="inputField"
 							type="email"
+							autoComplete="username"
 							placeholder="Your email"
 							value={email}
 							required={true}
@@ -52,6 +53,7 @@ export default function LogIn() {
 						<input
 							className="inputField"
 							type="password"
+							autoComplete="current-password"
 							placeholder="Your password"
 							value={password}
 							required={true}

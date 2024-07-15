@@ -2,12 +2,17 @@ import {Express, Request, Response, NextFunction, RequestParamHandler } from "ex
 import express from "express";
 import * as path from "path";
 import cookieParser from "cookie-parser";
+import session from "express-session";
 
 import BingoDatabase, { Board, User, BingoCard } from "./Database";
 import { Verify, Hash, HashOptions } from "./Authentication";
 
+import BunStoreClass from "./BunStore";
+const BunStore = BunStoreClass(session);
+
 import LogIn from "../routes/api/login";
 import SignUp from "../routes/api/signup";
+
 
 export interface HttpError extends Error {
   status: number;
@@ -32,21 +37,19 @@ export class Server {
 
     constructor(private app: Express) {
         this.db = new BingoDatabase("./db/bingo.sqlite");
+				this.init();
 
-				this.app.use(express.json());
-				this.app.use(express.urlencoded({ extended: false }));
-				this.app.use(cookieParser());
-
-				this.app.use(express.static(path.resolve("../build")));
-
+				// Enable API access for following API routes
         this.app.all("/api/*", (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
           req.server = this;
           next();
         });
 
+				// Handle unauthenticated API routes
         this.app.post("/api/login", LogIn);
         this.app.post("/api/signup", SignUp);
 
+				// Enable authenticated API routes
         this.app.all("/api/*", (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
 
           const accessToken = req.cookies["access_token"];
@@ -67,23 +70,34 @@ export class Server {
           next();
         });
 
+				// Handle all other requests by serving the React app
         this.app.get("*", (req: Request, res: Response) => {
             res.sendFile(path.resolve("../build/index.html"));
         });
-
-				// error handler
-				this.app.use(function(err: HttpError, req: Request, res: Response, next: NextFunction) {
-
-					console.error(err.message);
-
-					// render the error page
-					res.status(err.status || 500);
-					res.render('error');
-				});
     }
 
+		async logIn (email: string, password: string): Promise<User> {
+			const user = this.db.getUserByEmail(email);
+
+			if (user === undefined)
+					throw new Error("Invalid email or password.");
+
+			const valid = await Verify(password, user.password, this.hashOptions);
+
+			if (!valid)
+					throw new Error("Invalid email or password.");
+
+			return user;
+		}
+
     async createUser (password: string, firstName: string, lastName: string, email: string, birthday: string, avatarUrl: string): Promise<User> {
-      const hash = await Hash(password, this.hashOptions);
+
+			// Verify email isn't already in use
+			const existingUser = this.db.getUserByEmail(email);
+			if (existingUser !== undefined)
+				throw new Error("Email already in use.");
+
+			const hash = await Hash(password, this.hashOptions);
       const user = User.createUser(hash, firstName, lastName, email, birthday, avatarUrl);
 
       this.db.addUser(user);
@@ -96,10 +110,40 @@ export class Server {
       return board;
     }
 
-    init (): void {
+    private init (): void {
+
+			console.log("\nInitializing server...");
+			const timeStart = Date.now();
+
       this.db.openDatabase();
       this.db.openQueries();
-    }
+			console.log("\tDatabase opened and queries initialized.");
+
+			this.app.use(express.json());
+			this.app.use(express.urlencoded({ extended: false }));
+			this.app.use(cookieParser());
+
+			this.app.use(express.static(path.resolve("../build")));
+
+			this.app.use(session({
+				secret: process.env.SESSION_SECRETS.split(" "),
+				resave: false,
+				saveUninitialized: false,
+				store: new BunStore({
+					client: this.db.getDatabase(),
+					expired: {
+						clear: true,
+						intervalMs: 900000 //ms = 15min
+					}
+				})
+			}));
+
+			console.log("\tExpress request handlers initialized.");
+
+			const dt = Date.now() - timeStart;
+			console.log(`\tServer initialized in ${dt}ms.\n`);
+
+		}
 
     start(port: number): void {
         this.app.listen(port, () => console.log(`Server listening on port ${port}!`));
