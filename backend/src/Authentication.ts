@@ -1,5 +1,42 @@
 import crypto, { verify } from "crypto";
 
+export type BingoCard = {
+	title: string;
+	description: string;
+	required: boolean;
+	completed: boolean;
+	type: "QR Code" | "Honor System" | "Given" | "User Input";
+};
+
+export type BingoBoard = {
+	id: string;
+	title: string;
+	created_at: string;
+	updated_at: string;
+	cards: [ BingoCard ] | [];
+};
+
+export type UserMetadata = {
+	firstName: string;
+	lastName: string;
+	birthday: string;
+	avatarUrl: string;
+	accountType: string;
+	boards: [ BingoBoard ] | [];
+}
+
+export type Session = {
+	user: {
+		email: string;
+		id: string;
+		metadata: UserMetadata;
+	};
+	accessToken: string;
+	refreshToken: string;
+	expiresIn: number;
+	tokenType: string;
+};
+
 // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
 export interface HashOptions {
 	algorithm: "bcrypt" | "argon2id" | "argon2d" | "argon2i"; // "argon2id"

@@ -65,7 +65,7 @@ describe("Hashing", () => {
 			passwords.push(password);
 			hashes.push(await Hash(password, options));
 		}
-
+		console.log(hashes[0]);
 		const start = Bun.nanoseconds();
 
 		for (let i = 0; i < passwords.length; i++) {
