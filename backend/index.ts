@@ -3,7 +3,6 @@ import express from "express";
 const app = express();
 
 const port = 8080;
-const pepper = process.env.PEPPER;
 
 Bun.password.hash("password", {
 	algorithm: "argon2id",
@@ -12,4 +11,5 @@ Bun.password.hash("password", {
 });
 
 const server = new Server(app);
+server.init();
 server.start(port);

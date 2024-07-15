@@ -1,4 +1,4 @@
-import crypto, { verify } from "crypto";
+import crypto from "crypto";
 
 export type BingoCard = {
 	title: string;
@@ -47,7 +47,7 @@ export interface HashOptions {
 	pepperVersion: string | undefined;
 }
 
-const regex = new RegExp(/^\$(bcrypt|argon2id|argon2d|argon2i)\$v=(\d{1,6})\$m=(\d{1,10}),t=(\d{1,3}),p=(\d{1,3})\$(.+)$/);
+// const regex = new RegExp(/^\$(bcrypt|argon2id|argon2d|argon2i)\$v=(\d{1,6})\$m=(\d{1,10}),t=(\d{1,3}),p=(\d{1,3})\$(.+)$/);
 
 export async function Verify(password: string, hash: string, options: HashOptions): Promise<boolean> {
 
@@ -80,3 +80,4 @@ export async function Hash(password: string, options: HashOptions): Promise<stri
 
 	return pepperVersion + hash + salt;
 }
+
