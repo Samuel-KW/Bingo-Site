@@ -109,7 +109,6 @@ export class Server {
 
 		private initRoutes (): void {
 
-			const parseForm = express.urlencoded({ extended: false });
 
 			// https://github.com/Psifi-Solutions/csrf-csrf
 			const {
@@ -119,15 +118,18 @@ export class Server {
 				doubleCsrfProtection, // This is the default CSRF protection middleware.
 			} = doubleCsrf(this.csrfOptions);
 
-			// Serve the React app
-			this.app.use(express.static(path.resolve("../build")));
+			const parseForm = express.urlencoded({ extended: false });
 
 			// Initialize request handlers
 			this.app.use(express.json());
 			this.app.use(cookieParser());
 			console.log("\tExpress request handlers initialized.");
 
+			// Serve the React app
+			this.app.use(express.static(path.resolve("../build")));
+			console.log("\tServing React application.");
 
+			// Generate CSRF tokens
 			this.app.get("/api/csrf", (req: Request, res: Response) => {
 				const csrf = generateToken(req, res);
 				res.json({ csrf });
@@ -146,12 +148,15 @@ export class Server {
 					}
 				})
 			}));
-
+			this.app.use(doubleCsrfProtection);
 			this.app.use(passport.authenticate('session'));
 			console.log("\tPassport session authentication initialized.");
 
 			// index
-
+			this.app.use(function (req: Request, res: Response, next: NextFunction) {
+				res.locals.csrfToken = req.csrfToken();
+				next();
+			});
 
 			// auth
 			const strategyOptions: IStrategyOptions = {

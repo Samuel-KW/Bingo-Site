@@ -41,14 +41,7 @@ const oneDay = 86400000;
 // NOTE: In Milliseconds
 const clearExpiredInterval = 900000;
 const tableName = "sessions";
-const schema = `
-  CREATE TABLE IF NOT EXISTS ${tableName}
-  (
-    sid TEXT NOT NULL PRIMARY KEY,
-    sess JSON NOT NULL,
-    expire TEXT NOT NULL
-  )
-`;
+const schema = `CREATE TABLE IF NOT EXISTS ${tableName} (sid TEXT NOT NULL PRIMARY KEY, sess JSON NOT NULL, expire TEXT NOT NULL)`;
 
 
 export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
