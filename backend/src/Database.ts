@@ -215,7 +215,6 @@ export default class BingoDatabase {
 		// Create default tables if they don't exist
 		BingoDB.run("CREATE TABLE IF NOT EXISTS users (uuid TEXT PRIMARY KEY, password TEXT, firstName TEXT, lastName TEXT, email TEXT, birthday TEXT, avatarUrl TEXT, accountType TEXT, boards TEXT)");
 		BingoDB.run("CREATE TABLE IF NOT EXISTS boards (id TEXT PRIMARY KEY, title TEXT, created_at INTEGER, updated_at INTEGER, owner TEXT, editors TEXT, cards TEXT, FOREIGN KEY(owner) REFERENCES users(uuid))");
-		BingoDB.run("CREATE TABLE IF NOT EXISTS sessions (uuid TEXT PRIMARY KEY, accessToken TEXT, refreshToken TEXT, expiresIn INTEGER, tokenType TEXT, FOREIGN KEY(uuid) REFERENCES users(uuid))");
 
 		this.db = BingoDB;
 	}

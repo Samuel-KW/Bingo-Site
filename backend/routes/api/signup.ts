@@ -36,6 +36,7 @@ export default async function SignUp (req: AuthenticatedRequest, res: Response):
 			}
 		});
 	} catch (e) {
+		console.error(e);
 		res.status(401).send("Unauthorized");
 	}
 };

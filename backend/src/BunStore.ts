@@ -1,6 +1,7 @@
 // Modified from https://github.com/attestate/better-sqlite3-session-store/
 
 import { Database, Statement } from "bun:sqlite";
+import { table } from "console";
 import Session from "express-session";
 import { SessionData } from "express-session";
 
@@ -85,8 +86,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 		clearExpiredSessions() {
 			try {
-				const query = this.client.prepare(`DELETE FROM $table WHERE datetime('now') > datetime(expire)`);
-				query.run({ table: tableName });
+				const query = this.client.query(`DELETE FROM ${tableName} WHERE datetime('now') > datetime(expire)`);
+				query.run();
 				query.finalize();
 			} catch (err) {
 				console.error(err);
@@ -108,11 +109,11 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 			const now = Date.now();
 			const expire = new Date(now + age).toISOString();
-			const entry = { table: tableName, sid, sess: JSON.stringify(sess), expire };
+			const entry = { sid, sess: JSON.stringify(sess), expire };
 
 			let res: Statement;
 			try {
-				res = this.client.prepare("INSERT OR REPLACE INTO $table VALUES ($sid, $sess, $expire)");
+				res = this.client.query(`INSERT OR REPLACE INTO ${tableName} VALUES ($sid, $sess, $expire)`);
 				res.run(entry);
 				res.finalize();
 			} catch (err) {
@@ -128,8 +129,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let res: Entry;
 
 			try {
-				req = this.client.prepare("SELECT $table FROM $table WHERE sid = $sid AND datetime('now') < datetime(expire)");
-				res = req.get({ table: tableName, sid }) as Entry;
+				req = this.client.query(`SELECT sess FROM ${tableName} WHERE sid = $sid AND datetime('now') < datetime(expire)`);
+				res = req.get({ sid }) as Entry;
 				req.finalize();
 			} catch (err) {
 				cb(err);
@@ -147,8 +148,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let req: Statement;
 
 			try {
-				req = this.client.prepare("DELETE FROM $table WHERE sid = $sid");
-				req.run({ table: tableName, sid });
+				req = this.client.query(`DELETE FROM ${tableName} WHERE sid = $sid`);
+				req.run({ sid });
 				req.finalize();
 			} catch (err) {
 				cb(err);
@@ -162,8 +163,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let res: { count: number };
 
 			try {
-				req = this.client.prepare("SELECT COUNT(*) as count FROM $table");
-				res = req.get({ table: tableName }) as { count: number };
+				req = this.client.query("SELECT COUNT(*) as count FROM " + tableName);
+				res = req.get() as { count: number };
 				req.finalize();
 			} catch (err) {
 				cb(err);
@@ -177,8 +178,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let req: Statement;
 
 			try {
-				req = this.client.prepare("DELETE FROM $table");
-				req.run({ table: tableName });
+				req = this.client.query("DELETE FROM " + tableName);
+				req.run();
 				req.finalize();
 			} catch (err) {
 				cb(err);
@@ -189,7 +190,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 		}
 
 		touch(sid: string, sess: SessionData, cb: Function = noop) {
-			const entry = { table: tableName, sid } as Entry;
+			const entry = { sid } as Entry;
 
 			if (sess && sess.cookie && sess.cookie.expires) {
 				entry.expire = new Date(sess.cookie.expires).toISOString();
@@ -200,7 +201,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 			let req: Statement;
 			try {
-				req = this.client.prepare("UPDATE $table SET expire = $expire WHERE sid = $sid AND datetime('now') < datetime(expire)");
+				req = this.client.query(`UPDATE ${tableName} SET expire = $expire WHERE sid = $sid AND datetime('now') < datetime(expire)`);
 				req.run(entry);
 				req.finalize();
 			} catch (err) {
@@ -215,8 +216,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let req: Statement;
 			let res: Entry[];
 			try {
-				req = this.client.prepare("SELECT * FROM $table");
-				res = req.all({ table: tableName }) as Entry[];
+				req = this.client.query("SELECT * FROM " + tableName);
+				res = req.all() as Entry[];
 				req.finalize();
 			} catch (err) {
 				cb(err);

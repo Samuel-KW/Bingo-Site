@@ -1,18 +1,11 @@
 
-import {Request, Response} from "express";
+import { Response } from "express";
 import { AuthenticatedRequest } from "../../src/Server";
 import passport from "passport";
 import { User } from "../../src/Database";
 
-export default async function LogIn (req: AuthenticatedRequest, res: Response): Promise<void> {
-	const body = req.body;
-	const email = body.email;
-	const password = body.password;
-	const captcha = body.captcha;
-
+export default function LogIn (req: AuthenticatedRequest, res: Response): void {
 	passport.authenticate('local', function(err: any, user: User, info: object, status: number) {
-		console.log('login.ts');
-		console.log(err, user, info, status);
 
 		if (err)
 			return res.status(500).send("Internal Server Error");

@@ -47,7 +47,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 	}, []);
 
+	const csrf = async () => {
+		const req = await fetch("/api/csrf");
+		const data = await req.json();
+		return data.csrf;
+	};
+
 	const login = async (email: string, password: string, captcha: string = ""): Promise<Session> => {
+
+		const csrfToken = await csrf();
 
 		const params = new URLSearchParams({
 			email,
@@ -59,6 +67,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 			method: "POST",
 			headers: {
 				"Content-Type": `application/x-www-form-urlencoded`,
+				"x-csrf-token": csrfToken,
+				"credentials": "same-origin"
 			},
 			body: params.toString()
 		});
@@ -78,14 +88,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 	const signup = async (email: string, password: string, metadata: UserMetadata, captcha: string = ""): Promise<Session> => {
 
-		// const body = new FormData();
-		// body.set("password", password);
-		// body.set("email", email);
-		// body.set("firstName", metadata.firstName);
-		// body.set("lastName", metadata.lastName);
-		// body.set("birthday", metadata.birthday);
-		// body.set("avatarUrl", metadata.avatarUrl);
-		// body.set("captcha", captcha);
+		const csrfToken = await csrf();
 
 		const body = {
 			password, email,
@@ -98,7 +101,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 		const req = await fetch("/api/signup", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: {
+				"Content-Type": "application/json",
+				"x-csrf-token": csrfToken,
+				"credentials": "same-origin"
+			},
 			body: JSON.stringify(body),
 		});
 		const data = await req.json();
