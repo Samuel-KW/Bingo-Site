@@ -1,8 +1,10 @@
-import {Express, Request, Response, NextFunction, RequestParamHandler } from "express";
+import {Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import * as path from "path";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import passport from "passport";
+import { IStrategyOptions, Strategy } from "passport-local";
 
 import BingoDatabase, { Board, User, BingoCard } from "./Database";
 import { Verify, Hash, HashOptions } from "./Authentication";
@@ -13,6 +15,8 @@ const BunStore = BunStoreClass(session);
 import LogIn from "../routes/api/login";
 import SignUp from "../routes/api/signup";
 
+// @format
+const noop = () => { };
 
 export interface HttpError extends Error {
   status: number;
@@ -37,55 +41,28 @@ export class Server {
 
     constructor(private app: Express) {
         this.db = new BingoDatabase("./db/bingo.sqlite");
+
+				console.log("\nInitializing server...");
+				const timeStart = Date.now();
+
 				this.init();
+				this.initRoutes();
 
-				// Enable API access for following API routes
-        this.app.all("/api/*", (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-          req.server = this;
-          next();
-        });
-
-				// Handle unauthenticated API routes
-        this.app.post("/api/login", LogIn);
-        this.app.post("/api/signup", SignUp);
-
-				// Enable authenticated API routes
-        this.app.all("/api/*", (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-
-          const accessToken = req.cookies["access_token"];
-          if (accessToken === undefined) {
-              res.status(401).send("Unauthorized");
-              return;
-          }
-
-          const user = this.db.getUser(accessToken);
-          if (user === undefined) {
-              res.status(401).send("Unauthorized");
-              return;
-          }
-
-          req.user = user;
-          console.log(req.user);
-
-          next();
-        });
-
-				// Handle all other requests by serving the React app
-        this.app.get("*", (req: Request, res: Response) => {
-            res.sendFile(path.resolve("../build/index.html"));
-        });
+				const dt = Date.now() - timeStart;
+				console.log(`\tServer initialized in ${dt}ms.\n`);
     }
 
 		async logIn (email: string, password: string): Promise<User> {
 			const user = this.db.getUserByEmail(email);
 
+			console.log("user", user);
 			if (user === undefined)
-					throw new Error("Invalid email or password.");
+					throw "Invalid email or password.";
 
 			const valid = await Verify(password, user.password, this.hashOptions);
 
 			if (!valid)
-					throw new Error("Invalid email or password.");
+					throw "Invalid email or password.";
 
 			return user;
 		}
@@ -111,20 +88,23 @@ export class Server {
     }
 
     private init (): void {
-
-			console.log("\nInitializing server...");
-			const timeStart = Date.now();
-
       this.db.openDatabase();
       this.db.openQueries();
 			console.log("\tDatabase opened and queries initialized.");
+		}
 
+		private initRoutes (): void {
+
+			// Serve the React app
+			this.app.use(express.static(path.resolve("../build")));
+
+			// Initialize request handlers
 			this.app.use(express.json());
 			this.app.use(express.urlencoded({ extended: false }));
 			this.app.use(cookieParser());
+			console.log("\tExpress request handlers initialized.");
 
-			this.app.use(express.static(path.resolve("../build")));
-
+			// Initialize session management
 			this.app.use(session({
 				secret: process.env.SESSION_SECRETS.split(" "),
 				resave: false,
@@ -137,12 +117,62 @@ export class Server {
 					}
 				})
 			}));
+			this.app.use(passport.authenticate('session'));
+			console.log("\tPassport session authentication initialized.");
 
-			console.log("\tExpress request handlers initialized.");
+			const strategyOptions: IStrategyOptions = {
+				usernameField: "email",
+				passwordField: "password",
+			};
 
-			const dt = Date.now() - timeStart;
-			console.log(`\tServer initialized in ${dt}ms.\n`);
+			// Initialize Passport authentication
+			passport.use(new Strategy(strategyOptions, (email: string, password: string, cb: Function = noop) => {
+				try {
+					console.log("strategy", email, password);
+					this.logIn(email, password)
+						.then(user => cb(null, user))
+						.catch(err => cb(err));
+				} catch (e) {
+					cb(e);
+				}
+			}));
+			console.log("\tPassport login authentication initialized.");
 
+			// Enable API access for following API routes
+			this.app.all("/api/*", (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+				req.server = this;
+				next();
+			});
+
+			// Handle unauthenticated API routes
+			this.app.post("/api/login", LogIn);
+			this.app.post("/api/signup", SignUp);
+
+			// Enable authenticated API routes
+			this.app.all("/api/*", (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+
+				const accessToken = req.cookies["access_token"];
+				if (accessToken === undefined) {
+						res.status(401).send("Unauthorized");
+						return;
+				}
+
+				const user = this.db.getUser(accessToken);
+				if (user === undefined) {
+						res.status(401).send("Unauthorized");
+						return;
+				}
+
+				req.user = user;
+				console.log(req.user);
+
+				next();
+			});
+
+			// Handle all other requests by serving the React app
+			this.app.get("*", (req: Request, res: Response) => {
+					res.sendFile(path.resolve("../build/index.html"));
+			});
 		}
 
     start(port: number): void {

@@ -85,7 +85,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 		clearExpiredSessions() {
 			try {
-				const query = this.client.query(`DELETE FROM $table WHERE datetime('now') > datetime(expire)`);
+				const query = this.client.prepare(`DELETE FROM $table WHERE datetime('now') > datetime(expire)`);
 				query.run({ table: tableName });
 				query.finalize();
 			} catch (err) {

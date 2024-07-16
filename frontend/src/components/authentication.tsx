@@ -15,7 +15,7 @@ export type UserMetadata = {
 export type Session = {
 	user: {
 		email: string;
-		id: string;
+		uuid: string;
 		metadata: UserMetadata;
 	};
 	accessToken: string;
@@ -47,18 +47,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 	}, []);
 
-	const login = async (email: string, password: string): Promise<Session> => {
+	const login = async (email: string, password: string, captcha: string = ""): Promise<Session> => {
+
+		const params = new URLSearchParams({
+			email,
+			password,
+			captcha
+		});
 
 		const req = await fetch("/api/login", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				email, password,
-				captcha: null
-			})
+			headers: {
+				"Content-Type": `application/x-www-form-urlencoded`,
+			},
+			body: params.toString()
 		});
-
 		const data = await req.json();
+
 		const session = {
 			user: data.user,
 			accessToken: "",
@@ -71,24 +76,33 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 		return session;
 	};
 
-	const signup = async (email: string, password: string, metadata: UserMetadata, captcha: string): Promise<Session> => {
+	const signup = async (email: string, password: string, metadata: UserMetadata, captcha: string = ""): Promise<Session> => {
+
+		// const body = new FormData();
+		// body.set("password", password);
+		// body.set("email", email);
+		// body.set("firstName", metadata.firstName);
+		// body.set("lastName", metadata.lastName);
+		// body.set("birthday", metadata.birthday);
+		// body.set("avatarUrl", metadata.avatarUrl);
+		// body.set("captcha", captcha);
+
+		const body = {
+			password, email,
+			firstName: metadata.firstName,
+			lastName: metadata.lastName,
+			birthday: metadata.birthday,
+			avatarUrl: metadata.avatarUrl,
+			captcha
+		};
 
 		const req = await fetch("/api/signup", {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				password, email,
-				firstName: metadata.firstName,
-				lastName: metadata.lastName,
-				birthday: metadata.birthday,
-				avatarUrl: metadata.avatarUrl,
-				captcha
-			})
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(body),
 		});
-
 		const data = await req.json();
+
 		const session = {
 			user: data.user,
 			accessToken: "",

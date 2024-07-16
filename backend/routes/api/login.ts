@@ -1,6 +1,8 @@
 
 import {Request, Response} from "express";
 import { AuthenticatedRequest } from "../../src/Server";
+import passport from "passport";
+import { User } from "../../src/Database";
 
 export default async function LogIn (req: AuthenticatedRequest, res: Response): Promise<void> {
 	const body = req.body;
@@ -8,18 +10,20 @@ export default async function LogIn (req: AuthenticatedRequest, res: Response): 
 	const password = body.password;
 	const captcha = body.captcha;
 
-	if (email === undefined || password === undefined) {
-		res.status(400).send("Bad Request");
-		return;
-	}
+	passport.authenticate('local', function(err: any, user: User, info: object, status: number) {
+		console.log('login.ts');
+		console.log(err, user, info, status);
 
-	try {
-		const user = await req.server.logIn(email, password);
+		if (err)
+			return res.status(500).send("Internal Server Error");
 
-		res.status(200).send({
+		if (!user)
+			return res.status(401).send("Unauthorized");
+
+		return res.status(200).send({
 			user: {
 				email: user.email,
-				id: user.uuid,
+				uuid: user.uuid,
 				metadata: {
 					firstName: user.firstName,
 					lastName: user.lastName,
@@ -30,7 +34,5 @@ export default async function LogIn (req: AuthenticatedRequest, res: Response): 
 				}
 			}
 		});
-	} catch (e) {
-		res.status(401).send("Unauthorized");
-	}
+	})(req, res);
 }
