@@ -1,18 +1,22 @@
 
-import { Response } from "express";
-import { AuthenticatedRequest } from "../../src/Server";
+import { Response, Request } from "express";
+import { User } from "../../Database";
 import passport from "passport";
-import { User } from "../../src/Database";
 
-export default function LogIn (req: AuthenticatedRequest, res: Response): void {
+export default function LogIn (req: Request, res: Response) {
 	passport.authenticate('local', function(err: any, user: User, info: object, status: number) {
 
-		if (err)
+		if (err) {
+			console.error("Invalid login: Internal Server Error\n\t", err);
 			return res.status(500).send("Internal Server Error");
+		}
 
-		if (!user)
+		if (!user) {
+			console.error("Invalid login: Incorrect credentials\n\t", info);
 			return res.status(401).send("Unauthorized");
+		}
 
+		console.log("User logged in:", user.email);
 		return res.status(200).send({
 			user: {
 				email: user.email,

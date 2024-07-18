@@ -8,8 +8,8 @@ import * as path from "path";
 
 import { IStrategyOptions, Strategy } from "passport-local";
 
-import BingoDatabase, { Board, User, BingoCard } from "./Database";
-import { Verify, Hash, HashOptions } from "./Authentication";
+import BingoDatabase, { Board, User, BingoCard, getBoard, getUserByEmail, getUserByUUID, addBoard, addUser } from "../Database";
+import { Verify, Hash, hashOptions, csrfOptions } from "./Authentication";
 
 import BunStoreClass from "./BunStore";
 const BunStore = BunStoreClass(session);
@@ -31,31 +31,7 @@ export interface AuthenticatedRequest extends Request {
 
 export class Server {
 
-    private db: BingoDatabase;
-    private hashOptions: HashOptions = {
-        algorithm: "argon2id",
-        timeCost: Number(process.env.HASH_TIME_COST),
-        memoryCost: Number(process.env.HASH_MEMORY_COST),
-        saltLength: Number(process.env.HASH_SALT_LENGTH),
-        pepper: process.env.PEPPER,
-        pepperVersion: process.env.PEPPER_VERSION
-    };
-
-		private csrfOptions: DoubleCsrfConfigOptions = {
-			getSecret: () => process.env.CSRF_SECRETS.split(" "), // A function that optionally takes the request and returns a secret
-			cookieName: "CSRF", // __Host-CSRF The name of the cookie to be used, recommend using Host prefix.
-			cookieOptions: {
-				sameSite: "lax",  // Recommend you make this strict if posible
-				path: "/",
-				secure: true,
-			},
-			size: 64, // The size of the generated tokens in bits
-			ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be protected.
-			getTokenFromRequest: (req: Request) => req.headers["x-csrf-token"], // A function that returns the token from the request
-		};
-
     constructor(private app: Express) {
-        this.db = new BingoDatabase("./db/bingo.sqlite");
 
 				console.log("\nInitializing server...");
 				const timeStart = Date.now();
@@ -68,43 +44,41 @@ export class Server {
     }
 
 		async logIn (email: string, password: string): Promise<User> {
-			const user = this.db.getUserByEmail(email);
+			const user = getUserByEmail(email);
 
 			if (user === undefined)
 					throw "Invalid email or password.";
 
-			const valid = await Verify(password, user.password, this.hashOptions);
+			const valid = await Verify(password, user.password, hashOptions);
 
 			if (!valid)
 					throw "Invalid email or password.";
 
-			return user;
+			return User.fromDB(user);
 		}
 
     async createUser (password: string, firstName: string, lastName: string, email: string, birthday: string, avatarUrl: string): Promise<User> {
 
 			// Verify email isn't already in use
-			const existingUser = this.db.getUserByEmail(email);
+			const existingUser = getUserByEmail(email);
 			if (existingUser !== undefined)
-				throw new Error("Email already in use.");
+				throw "Email already in use.";
 
-			const hash = await Hash(password, this.hashOptions);
-      const user = User.createUser(hash, firstName, lastName, email, birthday, avatarUrl);
+			const hash = await Hash(password, hashOptions);
+      const user = User.new(hash, firstName, lastName, email, birthday, avatarUrl);
 
-      this.db.addUser(user);
+      addUser(user.toDB());
       return user;
     }
 
     createBoard(user: User, title: string, editors: string[], cards: BingoCard[]): Board {
       const board = user.createBoard(title, editors, cards);
-      this.db.addBoard(board);
+      addBoard(board.toDB());
       return board;
     }
 
     private init (): void {
-      this.db.openDatabase();
-      this.db.openQueries();
-			console.log("\tDatabase opened and queries initialized.");
+			console.log("\tNothing to initialize here .-.");
 		}
 
 		private initRoutes (): void {
@@ -116,7 +90,7 @@ export class Server {
 				generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
 				validateRequest, // Also a convenience if you plan on making your own middleware.
 				doubleCsrfProtection, // This is the default CSRF protection middleware.
-			} = doubleCsrf(this.csrfOptions);
+			} = doubleCsrf(csrfOptions);
 
 			const parseForm = express.urlencoded({ extended: false });
 
@@ -141,7 +115,7 @@ export class Server {
 				resave: false,
 				saveUninitialized: false,
 				store: new BunStore({
-					client: this.db.getDatabase(),
+					client: BingoDatabase,
 					expired: {
 						clear: true,
 						intervalMs: 900000 //ms = 15min
@@ -214,13 +188,13 @@ export class Server {
 						return;
 				}
 
-				const user = this.db.getUser(accessToken);
+				const user = getUserByUUID(accessToken);
 				if (user === undefined) {
 						res.status(401).send("Unauthorized");
 						return;
 				}
 
-				req.user = user;
+				req.user = User.fromDB(user);
 				console.log(req.user);
 
 				next();
