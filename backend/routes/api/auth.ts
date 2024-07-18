@@ -1,16 +1,16 @@
 import { IStrategyOptions, Strategy as LocalStrategy } from "passport-local";
-import { Router } from "express";
+import express, { Router } from "express";
 import passport from "passport";
 
-import { Verify, Hash, hashOptions } from "../../src/Authentication";
 import { Board, User, DatabaseUser, getUserByEmail } from "../../Database";
-import { Server, AuthenticatedRequest } from "../../src/Server";
+import { Verify, Hash, hashOptions, csrfOptions } from "../../src/Authentication";
 
 import LogIn from "../../routes/api/login";
 import SignUp from "../../routes/api/signup";
 
 // @format
 const noop = () => { };
+
 
 /* Configure password authentication strategy.
  *
@@ -75,6 +75,8 @@ passport.deserializeUser(function(user: User, cb: Function = noop) {
 
 // Initialize the router
 const router = Router();
+
+router.use(express.urlencoded({ extended: false }));
 
 router.post("/api/login", LogIn);
 router.post("/api/signup", SignUp);

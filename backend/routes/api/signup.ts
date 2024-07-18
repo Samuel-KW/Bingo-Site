@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
-import BingoDatabase, { User } from "../../Database";
-import { Verify, Hash, hashOptions } from "../../src/Authentication";
-import { AuthenticatedRequest } from "../../src/Server";
+import { User, addUser, getUserByEmail } from "../../Database";
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "../../src/Authentication";
 
 export default function SignUp (req: Request, res: Response): Promise<void> {
-	const request = req as AuthenticatedRequest;
 
 	const body = req.body;
 	const password:  string | undefined = body.password;
@@ -21,26 +19,34 @@ export default function SignUp (req: Request, res: Response): Promise<void> {
 		return;
 	}
 
-	request.server.createUser(password, firstName, lastName, email, birthday, avatarUrl)
-		.then((user: User) => {
-			console.log("User created:", user.email);
-			res.status(200).send({
-				user: {
-					email: user.email,
-					id: user.uuid,
-					metadata: {
-						firstName: user.firstName,
-						lastName: user.lastName,
-						birthday: user.birthday,
-						accountType: user.accountType,
-						avatarUrl: user.avatarUrl,
-						boards: user.boards
-					}
+	try {
+
+		if (password.length < MIN_PASSWORD_LENGTH) throw "Password is too short";
+		else if (password.length > MAX_PASSWORD_LENGTH) throw "Password is too long";
+
+		if (getUserByEmail(email) != undefined)
+			throw "Email already in use.";
+
+		const user = User.new(password, firstName, lastName, email, birthday, avatarUrl)
+		addUser(user.toDB());
+
+		res.status(200).send({
+			user: {
+				email: user.email,
+				id: user.uuid,
+				metadata: {
+					firstName: user.firstName,
+					lastName: user.lastName,
+					birthday: user.birthday,
+					accountType: user.accountType,
+					avatarUrl: user.avatarUrl,
+					boards: user.boards
 				}
-			});
-		})
-		.catch((e: any) => {
-			console.error("Error creating user (" + email + "):", e);
-			res.status(401).send("Unauthorized");
+			}
 		});
+		console.log("Created user:", email);
+	} catch (e: unknown) {
+		res.status(401).send("Unauthorized");
+		console.error("Error creating user (" + email + "):", e);
+	}
 };
