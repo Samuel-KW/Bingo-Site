@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { User, addUser, getUserByEmail } from "../../Database";
-import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "../../src/Authentication";
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, Hash, hashOptions } from "../../src/Authentication";
 
-export default function SignUp (req: Request, res: Response): Promise<void> {
+export default async function SignUp (req: Request, res: Response): Promise<void> {
 
 	const body = req.body;
 	const password:  string | undefined = body.password;
@@ -27,7 +27,8 @@ export default function SignUp (req: Request, res: Response): Promise<void> {
 		if (getUserByEmail(email) != undefined)
 			throw "Email already in use.";
 
-		const user = User.new(password, firstName, lastName, email, birthday, avatarUrl)
+		const hash = await Hash(password, hashOptions);
+		const user = User.new(hash, firstName, lastName, email, birthday, avatarUrl)
 		addUser(user.toDB());
 
 		res.status(200).send({
@@ -44,7 +45,7 @@ export default function SignUp (req: Request, res: Response): Promise<void> {
 				}
 			}
 		});
-		console.log("Created user:", email);
+		console.info("Created user:", email);
 	} catch (e: unknown) {
 		res.status(401).send("Unauthorized");
 		console.error("Error creating user (" + email + "):", e);

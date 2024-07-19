@@ -1,10 +1,10 @@
 import express, {Express, Request, Response, NextFunction, Router } from "express";
 import { doubleCsrf } from "csrf-csrf";
-import session from "express-session";
+import session, { SessionOptions } from "express-session";
 import passport from "passport";
 
 import { verifyAuthentication } from "../../src/Authentication";
-import { csrfOptions } from "../../src/Authentication";
+import { csrfOptions, sessionOptions } from "../../src/Authentication";
 import BingoDB from "../../Database";
 
 import BunStoreClass from "../../src/BunStore";
@@ -31,23 +31,22 @@ router.get("/api/csrf", (req, res) => {
 	res.json({ csrf });
 });
 
-const SESSION_SECRET = process.env.SESSION_SECRETS?.split(" ");
-if (!SESSION_SECRET)
-	throw new Error("No session secrets provided.");
-
 // Initialize session management
-router.use(session({
-	secret: SESSION_SECRET,
-	resave: false,
-	saveUninitialized: false,
-	store: new BunStore({
-		client: BingoDB,
-		expired: {
-			clear: true,
-			intervalMs: 900000 //ms = 15min
-		}
-	})
-}));
+router.use(session(sessionOptions));
+
+// // Access the session as req.session
+// router.get('/views', function(req, res, next) {
+//   if (req.session.views) {
+//     req.session.views++
+//     res.setHeader('Content-Type', 'text/html')
+//     res.write('<p>views: ' + req.session.views + '</p>')
+//     res.write('<p>expires in: ' + (req.session.cookie.maxAge / 1000) + 's</p>')
+//     res.end()
+//   } else {
+//     req.session.views = 1
+//     res.end('welcome to the session demo. refresh!')
+//   }
+// })
 
 router.use(doubleCsrfProtection);
 

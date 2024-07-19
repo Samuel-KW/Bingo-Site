@@ -1,14 +1,36 @@
 import crypto from "crypto";
 import { DoubleCsrfConfigOptions } from "csrf-csrf";
 import { NextFunction, Request, Response } from "express";
+import session, { SessionOptions } from "express-session";
+import BingoDatabase, { Board, User, BingoCard } from "../Database";
 
-export type BingoCard = {
-	title: string;
-	description: string;
-	required: boolean;
-	completed: boolean;
-	type: "QR Code" | "Honor System" | "Given" | "User Input";
-};
+import BunStoreClass from "./BunStore";
+const BunStore = BunStoreClass(session);
+
+
+export const MIN_PASSWORD_LENGTH = Number(process.env.MIN_PASSWORD_LENGTH);
+export const MAX_PASSWORD_LENGTH = Number(process.env.MAX_PASSWORD_LENGTH);
+if (!MIN_PASSWORD_LENGTH || !MAX_PASSWORD_LENGTH)
+	throw new Error("Missing password length options.");
+
+const SESSION_SECRET = process.env.SESSION_SECRETS?.split(" ");
+if (!SESSION_SECRET)
+	throw new Error("No session secret(s) provided.");
+
+const CSRF_SECRETS = process.env.CSRF_SECRETS?.split(" ");
+if (!CSRF_SECRETS)
+	throw new Error("No CSRF secrets provided.");
+
+const HASH_TIME_COST = Number(process.env.HASH_TIME_COST);
+const HASH_MEMORY_COST = Number(process.env.HASH_MEMORY_COST);
+const HASH_SALT_LENGTH = Number(process.env.HASH_SALT_LENGTH);
+if (!HASH_TIME_COST || !HASH_MEMORY_COST || !HASH_SALT_LENGTH)
+	throw new Error("Missing hash options.");
+
+const HASH_PEPPERS = process.env.PEPPER.split(" ");
+if (!HASH_PEPPERS)
+	throw new Error("No hash pepper(s) provided.");
+
 
 export type BingoBoard = {
 	id: string;
@@ -39,69 +61,106 @@ export type Session = {
 	tokenType: string;
 };
 
-// https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
-interface HashOptions {
-	algorithm: "bcrypt" | "argon2id" | "argon2d" | "argon2i"; // "argon2id"
-	memoryCost: number; // 7168
-	timeCost: number; // 5
-	saltLength: number; // 32
-	pepper: string | undefined;
-	pepperVersion: string | undefined;
+type HashOptions = {
+	/**
+	 * The algorithm to use for hashing. If possible, use argon2id.
+	 */
+	algorithm: "bcrypt" | "argon2id" | "argon2d" | "argon2i";
+
+	/**
+	 * The memory cost to use for hashing in kilobytes.
+	 */
+	memoryCost: number;
+
+	/**
+	 * The time cost to use for hashing in iterations.
+	 */
+	timeCost: number;
+
+	/**
+	 * The length of the salt to use for hashing in bytes.
+	 */
+	saltLength: number;
+
+	/**
+	 * The pepper to use for hashing. The first pepper in the
+	 * array will be used for encoding new hashes and the
+	 * remaining peppers will be used for verifying previous
+	 * hashes.
+	 */
+	peppers: string[];
 }
-
-// const regex = new RegExp(/^\$(bcrypt|argon2id|argon2d|argon2i)\$v=(\d{1,6})\$m=(\d{1,10}),t=(\d{1,3}),p=(\d{1,3})\$(.+)$/);
-
-export const MIN_PASSWORD_LENGTH = 8;
-export const MAX_PASSWORD_LENGTH = 128;
 
 export const hashOptions: HashOptions = {
 	algorithm: "argon2id",
-	timeCost: Number(process.env.HASH_TIME_COST),
-	memoryCost: Number(process.env.HASH_MEMORY_COST),
-	saltLength: Number(process.env.HASH_SALT_LENGTH),
-	pepper: process.env.PEPPER,
-	pepperVersion: process.env.PEPPER_VERSION
+	timeCost: HASH_TIME_COST,
+	memoryCost: HASH_MEMORY_COST,
+	saltLength: HASH_SALT_LENGTH,
+	peppers: HASH_PEPPERS,
 };
 
 export const csrfOptions: DoubleCsrfConfigOptions = {
-	getSecret: () => process.env.CSRF_SECRETS.split(" "), // A function that optionally takes the request and returns a secret
+	getSecret: () => CSRF_SECRETS, // A function that optionally takes the request and returns a secret
 	cookieName: "CSRF", // __Host-CSRF The name of the cookie to be used, recommend using Host prefix.
 	cookieOptions: {
 		sameSite: "lax", // Recommend you make this strict if posible
 		path: "/",
-		secure: true,
+		secure: false,
 	},
-	size: 64, // The size of the generated tokens in bits
+	size: 64, // The size of the CSRF token in bits
 	ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be protected.
 	getTokenFromRequest: (req: Request) => req.headers["x-csrf-token"], // A function that returns the token from the request
 };
 
+export const sessionOptions: SessionOptions = {
+	secret: SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+	store: new BunStore({
+		client: BingoDatabase,
+		expired: {
+			clear: true,
+			intervalMs: 15 * 60 * 1000 //ms = 15min
+		}
+	}),
+	cookie : {
+		sameSite: "lax",
+		secure: false,
+		httpOnly: true,
+		maxAge: 15 * 60 * 1000
+	}
+};
+
+if (process.env.NODE_ENV === 'production') {
+	csrfOptions.cookieOptions.secure = true;
+  sessionOptions.cookie.secure = true;
+}
+
+// const regex = new RegExp(/^\$(bcrypt|argon2id|argon2d|argon2i)\$v=(\d{1,6})\$m=(\d{1,10}),t=(\d{1,3}),p=(\d{1,3})\$(.+)$/);
+
 export async function Verify(password: string, hash: string, options: HashOptions): Promise<boolean> {
 
-	if (password.length < MIN_PASSWORD_LENGTH) throw "Password is too short";
-	else if (password.length > MAX_PASSWORD_LENGTH) throw "Password is too long";
+	if (password.length < 1) throw "Trying to verify an empty string.";
 
-	const versionIndex = hash.indexOf("$");
-	const pepperVersion = hash.slice(0, versionIndex);
-	hash = hash.slice(versionIndex);
-
-	const pepper = pepperVersion === "0" || options.pepper === undefined ? "" : options.pepper;
-
+	// Slice off the salt from the hash
 	const salt = hash.slice(-options.saltLength);
 	hash = hash.slice(0, -options.saltLength);
 
-	return await Bun.password.verify(password + salt + pepper, hash);
+	// Verify the password with each pepper
+	for (const pepper of options.peppers) {
+		const valid = await Bun.password.verify(password + salt + pepper, hash);
+		if (valid) return true;
+	}
+	return false;
 }
 
 export async function Hash(password: string, options: HashOptions): Promise<string> {
 
-	if (password.length < MIN_PASSWORD_LENGTH) throw "Password is too short";
-	else if (password.length > MAX_PASSWORD_LENGTH) throw "Password is too long";
+	if (password.length < 1) throw "Trying to hash an empty string.";
 
 	const salt = crypto.randomBytes(options.saltLength / 2).toString("hex");
 
-	const pepperVersion = options.pepperVersion ?? "0";
-	const pepper = (pepperVersion == "0" || options.pepper === undefined) ? "" : options.pepper;
+	const pepper = options.peppers[0];
 
 	const hash = await Bun.password.hash(password + salt + pepper, {
 		algorithm: options.algorithm,
@@ -109,7 +168,7 @@ export async function Hash(password: string, options: HashOptions): Promise<stri
 		timeCost: options.timeCost
 	});
 
-	return pepperVersion + hash + salt;
+	return hash + salt;
 }
 
 type VerifyAuthOptions = {

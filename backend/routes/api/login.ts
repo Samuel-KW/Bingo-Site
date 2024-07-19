@@ -7,16 +7,16 @@ export default function LogIn (req: Request, res: Response) {
 	passport.authenticate('local', function(err: any, user: User, info: object, status: number) {
 
 		if (err) {
-			console.error("Invalid login: Internal Server Error\n\t", err);
+			console.error("Invalid login: Internal Server Error\n", err);
 			return res.status(500).send("Internal Server Error");
 		}
 
 		if (!user) {
-			console.error("Invalid login: Incorrect credentials\n\t", info);
+			console.error("Invalid login: Incorrect credentials", info);
 			return res.status(401).send("Unauthorized");
 		}
 
-		console.log("User logged in:", user.email);
+		console.info("User logged in:", user.email);
 		return res.status(200).send({
 			user: {
 				email: user.email,

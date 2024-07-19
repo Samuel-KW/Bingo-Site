@@ -32,12 +32,12 @@ passport.use(new LocalStrategy(strategyOptions, (email: string, password: string
 	const user = getUserByEmail(email);
 
 	if (user === undefined)
-		return cb("Email does not exist.");
+		return cb(null, null, { message: "Email does not exist." });
 
 	Verify(password, user.password, hashOptions)
 		.then((valid: boolean) => {
 			if (!valid)
-				return cb("Invalid email or password.");
+				return cb(null, null, { message: "Incorrect password." });
 
 			return cb(null, User.fromDB(user));
 		})
