@@ -1,0 +1,25 @@
+.container {
+	min-width: 50%;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	box-sizing: border-box;
+}
+
+.illustration, .content {
+	height: 100%;
+	float: left;
+}
+
+.content {
+	width: 60%;
+	padding: 10px;
+}
+
+.illustration {
+	width: 40%;
+
+	img {
+		height: 100%;
+		width: auto;
+	}
+}

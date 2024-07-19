@@ -7,12 +7,12 @@ const Layout = () => {
 		<>
 			<nav>
 				<ul>
-					<li><Link to="/play">Play</Link></li>
-					<li><Link to="/login">Log In</Link></li>
-					<li><Link to="/signup">Sign Up</Link></li>
 					<li><Link to="/">Home</Link></li>
+					<li><Link to="/play">Play</Link></li>
 					<li><Link to="/dashboard">Dashboard</Link></li>
 					<li><Link to="/config">Config</Link></li>
+					<li><Link to="/login">Log In</Link></li>
+					<li><Link to="/signup">Sign Up</Link></li>
 				</ul>
 			</nav>
 

@@ -7,7 +7,7 @@ function Play() {
 	const [title, setTitle] = useState("OASC Summer Camp");
 
 	return (
-		<MantineProvider>
+		<>
 			<div className="title sticky">
 				<h1>BINGO!</h1>
 			</div>
@@ -33,10 +33,10 @@ function Play() {
 			<div className="content">
 				<div className="grid-type"></div>
 				<div className="board">
-					{}
+
 				</div>
 			</div>
-		</MantineProvider>
+		</>
 	)
 };
 
