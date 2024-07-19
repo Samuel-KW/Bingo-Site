@@ -5,6 +5,7 @@ import session, { SessionOptions } from "express-session";
 import BingoDatabase, { Board, User, BingoCard } from "../Database";
 
 import BunStoreClass from "./BunStore";
+import passport from "passport";
 const BunStore = BunStoreClass(session);
 
 
@@ -101,7 +102,7 @@ export const hashOptions: HashOptions = {
 
 export const csrfOptions: DoubleCsrfConfigOptions = {
 	getSecret: () => CSRF_SECRETS, // A function that optionally takes the request and returns a secret
-	cookieName: "CSRF", // __Host-CSRF The name of the cookie to be used, recommend using Host prefix.
+	cookieName: "_Host-CSRF", // __Host-CSRF The name of the cookie to be used, recommend using Host prefix.
 	cookieOptions: {
 		sameSite: "lax", // Recommend you make this strict if posible
 		path: "/",
@@ -112,8 +113,9 @@ export const csrfOptions: DoubleCsrfConfigOptions = {
 	getTokenFromRequest: (req: Request) => req.headers["x-csrf-token"], // A function that returns the token from the request
 };
 
-export const sessionOptions: SessionOptions = {
+export const 	sessionOptions: SessionOptions = {
 	secret: SESSION_SECRET,
+	name: "_Host-sid",
 	resave: false,
 	saveUninitialized: false,
 	store: new BunStore({
@@ -188,7 +190,8 @@ export function verifyAuthentication(options: VerifyAuthOptions = {}) {
   const setReturnTo = options.setReturnTo ?? true;
 
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.isAuthenticated || !req.isAuthenticated()) {
+		console.log(req.user);
+    if (!req.user) {
       if (setReturnTo && req.session) {
         req.session.returnTo = req.originalUrl || req.url;
       }

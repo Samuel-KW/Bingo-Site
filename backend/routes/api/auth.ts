@@ -1,91 +1,15 @@
-import { IStrategyOptions, Strategy as LocalStrategy } from "passport-local";
-import express, { Router } from "express";
-import passport from "passport";
-
-import { Board, User, DatabaseUser, getUserByEmail } from "../../Database";
-import { Verify, Hash, hashOptions, csrfOptions } from "../../src/Authentication";
+import { Router } from "express";
 
 import LogIn from "../../routes/api/login";
 import SignUp from "../../routes/api/signup";
-
-// @format
-const noop = () => { };
-
-
-/* Configure password authentication strategy.
- *
- * The `LocalStrategy` authenticates users by verifying an email and password.
- * The strategy parses the email and password from the request and calls the
- * `Verify` function.
- *
- * The `Verify` function queries the database for the user record and verifies
- * the password by hashing the password supplied by the user and comparing it to
- * the hashed password stored in the database. If the comparison succeeds, the
- * user is authenticated; otherwise, not.
- */
-const strategyOptions: IStrategyOptions = {
-	usernameField: "email",
-	passwordField: "password",
-};
-
-passport.use(new LocalStrategy(strategyOptions, (email: string, password: string, cb: Function = noop) => {
-	const user = getUserByEmail(email);
-
-	if (user === undefined)
-		return cb(null, null, { message: "Email does not exist." });
-
-	Verify(password, user.password, hashOptions)
-		.then((valid: boolean) => {
-			if (!valid)
-				return cb(null, null, { message: "Incorrect password." });
-
-			return cb(null, User.fromDB(user));
-		})
-		.catch((e: any) => cb(e));
-}));
-console.log("\tPassport login authentication initialized.");
-
-/* Configure session management.
- *
- * When a login session is established, information about the user will be
- * stored in the session.  This information is supplied by the `serializeUser`
- * function, which is yielding the user information.
- *
- * As the user interacts with the app, subsequent requests will be authenticated
- * by verifying the session. The same user information that was serialized at
- * session establishment will be restored when the session is authenticated by
- * the `deserializeUser` function.
- */
-passport.serializeUser(function(user: Express.User, cb: Function = noop) {
-	console.log("serialize", user);
-	if (user instanceof User) {
-		process.nextTick(function() {
-			return cb(null, { id: user.uuid });
-		});
-	}
-});
-
-passport.deserializeUser(function(user: User, cb: Function = noop) {
-	console.log("deserialize", user);
-	process.nextTick(function() {
-		return cb(null, user);
-	});
-});
-
+import LogOut from "../../routes/api/logout";
 
 // Initialize the router
 const router = Router();
 
-router.use(express.urlencoded({ extended: false }));
-
 router.post("/api/login", LogIn);
 router.post("/api/signup", SignUp);
-
-router.post('/api/logout', function(req, res, next) {
-  req.logout(function(err) {
-    if (err) { return next(err); }
-    res.redirect('/');
-  });
-});
+router.post('/api/logout', LogOut);
+console.log("\tInitialized authentication routes.");
 
 export default router;

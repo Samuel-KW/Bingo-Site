@@ -31,6 +31,9 @@ export default async function SignUp (req: Request, res: Response): Promise<void
 		const user = User.new(hash, firstName, lastName, email, birthday, avatarUrl)
 		addUser(user.toDB());
 
+		if (req.session.user === undefined) req.session.user = { id: user.uuid };
+		else req.session.user.id = user.uuid;
+
 		res.status(200).send({
 			user: {
 				email: user.email,

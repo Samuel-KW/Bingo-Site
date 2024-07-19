@@ -1,19 +1,29 @@
-import express, {Express, Request, Response, NextFunction, Router } from "express";
+import express, { Request, Response, NextFunction, Router } from "express";
 import { doubleCsrf } from "csrf-csrf";
-import session, { SessionOptions } from "express-session";
-import passport from "passport";
+import expressSession from "express-session";
+import cookieParser from "cookie-parser";
+import path from "path";
 
-import { verifyAuthentication } from "../../src/Authentication";
-import { csrfOptions, sessionOptions } from "../../src/Authentication";
-import BingoDB from "../../Database";
+import { csrfOptions, sessionOptions, verifyAuthentication } from "../../src/Authentication";
+import { getUserByUUID, User } from "../../Database";
 
-import BunStoreClass from "../../src/BunStore";
-const BunStore = BunStoreClass(session);
 
-const verifyAuth = verifyAuthentication();
+declare module "express-session" {
+  interface SessionData {
+    user: {
+			id: string;
+		};
+  }
+
+	interface Locals {
+		user: User;
+		csrfToken: string;
+	}
+}
 
 const router = Router();
 
+const verifyAuth = verifyAuthentication();
 
 // https://github.com/Psifi-Solutions/csrf-csrf
 const {
@@ -23,44 +33,41 @@ const {
 	doubleCsrfProtection, // This is the default CSRF protection middleware.
 } = doubleCsrf(csrfOptions);
 
-const parseForm = express.urlencoded({ extended: false });
+// Initialize request handlers
+router.use(cookieParser(sessionOptions.secret));
+router.use(expressSession(sessionOptions));
+router.use(express.urlencoded({ extended: false }));
+router.use(express.json());
+console.log("\tInitialized Express middleware.");
+
+
+// Initialize CSRF protection
+router.use(doubleCsrfProtection);
+
+router.use(function (req: Request, res: Response, next: NextFunction) {
+
+	const user = req.session.user;
+	if (user?.id !== undefined)
+		req.user = getUserByUUID(user.id);
+
+	res.locals.csrfToken = req.csrfToken();
+	next();
+});
+console.log("\tSession authentication initialized.");
+
+// Serve the React app
+router.use(express.static(path.resolve("../build")));
+console.log("\tServing React application.");
+
 
 // Generate CSRF tokens
 router.get("/api/csrf", (req, res) => {
 	const csrf = generateToken(req, res);
 	res.json({ csrf });
 });
-
-// Initialize session management
-router.use(session(sessionOptions));
-
-// // Access the session as req.session
-// router.get('/views', function(req, res, next) {
-//   if (req.session.views) {
-//     req.session.views++
-//     res.setHeader('Content-Type', 'text/html')
-//     res.write('<p>views: ' + req.session.views + '</p>')
-//     res.write('<p>expires in: ' + (req.session.cookie.maxAge / 1000) + 's</p>')
-//     res.end()
-//   } else {
-//     req.session.views = 1
-//     res.end('welcome to the session demo. refresh!')
-//   }
-// })
-
-router.use(doubleCsrfProtection);
-
-router.use(passport.authenticate('session'));
-console.log("\tPassport session authentication initialized.");
-
-// index
-router.use(function (req: Request, res: Response, next: NextFunction) {
-	res.locals.csrfToken = req.csrfToken();
-	next();
-});
+console.log("\tDouble CSRF authentication initialized.");
 
 router.get("/admin", verifyAuth, (req: Request, res: Response) => {
-	console.log(req.isAuthenticated());
 	res.send("Hello, admin!");
 });
 

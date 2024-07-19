@@ -79,14 +79,9 @@ export class Server {
 
 		private initRoutes (): void {
 
-			// Initialize request handlers
-			this.app.use(express.json());
-			this.app.use(cookieParser());
-			console.log("\tExpress request handlers initialized.");
-
-			// Serve the React app
-			this.app.use(express.static(path.resolve("../build")));
-			console.log("\tServing React application.");
+			// Ensure requests are secure in production
+			if (process.env.NODE_ENV === 'production')
+				this.app.enable('trust proxy');
 
 			this.app.use(pageRouter);
 			this.app.use(authRouter);
