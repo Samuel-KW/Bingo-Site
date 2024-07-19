@@ -190,7 +190,6 @@ export function verifyAuthentication(options: VerifyAuthOptions = {}) {
   const setReturnTo = options.setReturnTo ?? true;
 
   return (req: Request, res: Response, next: NextFunction) => {
-		console.log(req.user);
     if (!req.user) {
       if (setReturnTo && req.session) {
         req.session.returnTo = req.originalUrl || req.url;
