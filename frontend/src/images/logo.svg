@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<radialGradient id="b" cx="250" cy="250" r="250" gradientUnits="userSpaceOnUse">
+			<stop stop-color="rgb(91,148,223)" offset="0"/>
+			<stop stop-color="rgb(35,97,177)" offset="1"/>
+		</radialGradient>
+		<radialGradient id="a" cx="136.4" cy="250" r="165" gradientUnits="userSpaceOnUse">
+			<stop stop-color="rgb(255,255,255)" offset="0"/>
+			<stop stop-color="rgb(204,204,204)" offset="1"/>
+		</radialGradient>
+	</defs>
+	<ellipse cx="250" cy="250" rx="250" ry="250" fill="url(#b)"/>
+	<ellipse cx="250" cy="250" rx="195" ry="195" fill="none" stroke="#cfcfcf" stroke-width="16px"/>
+	<ellipse cx="250" cy="250" rx="165" ry="165" fill="url(#a)"/>
+	<polygon points="250,150 275,225 350,225 290,275 310,350 250,300 190,350 210,275 150,225 225,225"/>
+</svg>

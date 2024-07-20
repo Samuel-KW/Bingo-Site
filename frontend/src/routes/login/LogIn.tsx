@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, TextInput, Text, Image, Center, Card, Title, Divider } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 import { useAuth } from "../../components/authentication.tsx";
 
 import LoginImage from "./login.svg";
 
-// import "./LogIn.css";
-import "../signup/SignUp.css";
+import "./LogIn.css";
 
 export default function LogIn() {
 	const [loading, setLoading] = useState(false);
@@ -66,15 +65,16 @@ export default function LogIn() {
 	};
 
 	return (
-		<div>
-			<Group justify="center">
-				<span className="container">
-					<div className="content">
+		<Center>
+			<Card shadow="xl" p="lg" radius="md" withBorder>
+				<Group justify="center" gap="xs" grow>
+					<div>
 						<div>
-							<h1 className="header">Login</h1>
-							<p className="description">Don't have an account yet? <Link to="/signup">Sign Up</Link></p>
+							<Title order={2}>Sign Up</Title>
+							<Text>Don't have an account? <Link to="/signup">Sign Up</Link></Text>
+							<Divider my="xs" />
 						</div>
-						<form className="form-login" onSubmit={form.onSubmit((values) => handleLogin(values))}>
+						<form onSubmit={form.onSubmit((values) => handleLogin(values))}>
 							<div>
 								<TextInput
 									withAsterisk
@@ -86,9 +86,10 @@ export default function LogIn() {
 								/>
 
 								<TextInput
+									mt="xs"
 									withAsterisk
 									label="Password"
-									autoComplete="current-password"
+									autoComplete="new-password"
 									placeholder="Your password"
 									type="password"
 									key={form.key('password')}
@@ -96,8 +97,8 @@ export default function LogIn() {
 								/>
 
 								<Checkbox
+									mt="lg"
 									required
-									mt="md"
 									label="I agree to the terms of service"
 									key={form.key('termsOfService')}
 									{...form.getInputProps('termsOfService', { type: 'checkbox' })}
@@ -109,11 +110,12 @@ export default function LogIn() {
 							</div>
 						</form>
 					</div>
-					<div className="illustration">
-						<img src={LoginImage} />
+
+					<div>
+						<Image src={LoginImage} />
 					</div>
-				</span>
-			</Group>
-		</div>
+				</Group>
+			</Card>
+		</Center>
 	);
 }

@@ -1,14 +1,14 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../components/authentication.tsx';
 
-import { Button, Checkbox, Group, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, TextInput, Center, Image, Text, Title, Divider, Box, Card } from '@mantine/core';
 import { useForm, isEmail, hasLength, matches } from '@mantine/form';
 
 import SignipImage from "./signup.svg";
 
-import './SignUp.css'
+// import './SignUp.css'
 
 export default function SignUp() {
 	const [loading, setLoading] = useState(false)
@@ -43,7 +43,6 @@ export default function SignUp() {
 		}
 	};
 
-
 	const form = useForm({
 		name: "signup-form",
     mode: "uncontrolled",
@@ -75,15 +74,16 @@ export default function SignUp() {
 	const names = ["Peanut","Giraffe","Cat","Dog","Walnut","Hippo","Penguin","Panda","Lion","Tiger","Bear","Elephant","Kangaroo","Koala","Gorilla","Monkey","Zebra","Rhino","Horse","Donkey","Cow","Pig","Sheep","Goat","Chicken","Duck","Goose","Turkey","Pheasant","Partridge","Quail","Ostrich","Emu","Rhea","Cassowary","Kiwi","Flamingo","Pelican","Stork","Crane","Heron","Egret","Ibis","Spoonbill","Vulture","Eagle","Hawk","Falcon","Owl","Osprey","Kite","Harrier","Buzzard","Kestrel","Merlin","Sparrowhawk","Goshawk","Peregrine","Hobby","Redstart","Robin","Wren","Blackbird","Songthrush","Mistlethrush","Fieldfare","Redwing","Whinchat","Stonechat","Wheatear","Dunnock","Nightingale","Swallow","Housemartin","Sandmartin","Cuckoo","Woodpigeon","Kingfisher","Dove"];
 
 	return (
-		<div>
-			<Group justify="center">
-				<span className="container">
-					<div className="content">
+		<Center>
+			<Card shadow="xl" p="lg" radius="md" withBorder>
+				<Group justify="center" gap="xs" grow>
+					<div>
 						<div>
-							<h1 className="header">Sign Up</h1>
-							<p className="description">Already have an account? <Link to="/login">Log In</Link></p>
+							<Title order={2}>Sign Up</Title>
+							<Text>Already have an account? <Link to="/login">Log In</Link></Text>
+							<Divider my="xs" />
 						</div>
-						<form className="form-login" onSubmit={form.onSubmit((values) => handleSignUp(values))}>
+						<form onSubmit={form.onSubmit((values) => handleSignUp(values))}>
 							<div>
 								<TextInput
 									withAsterisk
@@ -95,6 +95,7 @@ export default function SignUp() {
 								/>
 
 								<TextInput
+									mt="xs"
 									withAsterisk
 									label="Password"
 									autoComplete="new-password"
@@ -105,6 +106,7 @@ export default function SignUp() {
 								/>
 
 								<TextInput
+									mt="xs"
 									label="First Name"
 									autoComplete="given-name"
 									placeholder="Mysterious"
@@ -113,6 +115,7 @@ export default function SignUp() {
 								/>
 
 								<TextInput
+									mt="xs"
 									label="Last Name"
 									autoComplete="family-name"
 									placeholder={names[Math.floor(Math.random() * names.length)]}
@@ -121,6 +124,7 @@ export default function SignUp() {
 								/>
 
 								<TextInput
+									mt="xs"
 									type="date"
 									label="Birthday"
 									autoComplete="bday"
@@ -129,8 +133,8 @@ export default function SignUp() {
 								/>
 
 								<Checkbox
+									mt="lg"
 									required
-									mt="md"
 									label="I agree to the terms of service"
 									key={form.key('termsOfService')}
 									{...form.getInputProps('termsOfService', { type: 'checkbox' })}
@@ -142,11 +146,12 @@ export default function SignUp() {
 							</div>
 						</form>
 					</div>
-					<div className="illustration">
-						<img src={SignipImage} />
+
+					<div>
+						<Image src={SignipImage} />
 					</div>
-				</span>
-			</Group>
-		</div>
+				</Group>
+			</Card>
+		</Center>
 	);
 }
