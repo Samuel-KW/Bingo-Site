@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../components/authentication.tsx';
 
-import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
-import { useForm, } from '@mantine/form';
+import { Button, Checkbox, Group, TextInput } from '@mantine/core';
+import { useForm, isEmail, hasLength, matches } from '@mantine/form';
 
 import SignipImage from "./signup.svg";
 
@@ -43,6 +43,7 @@ export default function SignUp() {
 		}
 	};
 
+
 	const form = useForm({
 		name: "signup-form",
     mode: "uncontrolled",
@@ -56,13 +57,6 @@ export default function SignUp() {
     },
 
     validate: {
-      email: (value) => {
-				if (!value) return "Email is required";
-				if (value.length < 3) return "Email must be at least 3 characters long";
-				if (value.length > 320) return "Email can not be longer than 320 characters";
-				if (!/^\S+@\S+$/.test(value)) return "Invalid email";
-				return null;
-			},
 			password: (value) => {
 				if (value.length < 8) return "Password must be at least 8 characters long";
 				if (value.length > 128) return "Password can not be longer than 128 characters";
@@ -71,21 +65,14 @@ export default function SignUp() {
 				if (!/[0-9]/.test(value)) return "Password must contain at least one number";
 				return null;
 			},
-			firstName: (value) => {
-				if (value.length < 1) return "First name must be at least 1 character long";
-				if (value.length > 128) return "First name can not be longer than 128 characters";
-			},
-			lastName: (value) => {
-				if (value.length < 1) return "Last name must be at least 1 character long";
-				if (value.length > 128) return "Last name can not be longer than 128 characters";
-			},
-			birthday: (value) => {
-				if (value.length < 8) return "Birthday must be at least 8 characters long";
-				if (value.length > 128) return "Birthday can not be longer than 128 characters";
-				if (!/^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/.test(value)) return "Birthday must be in the format MM/DD/YYYY";
-			}
+      email: isEmail('Invalid email'),
+			firstName: hasLength({ min: 1, max: 128 }, 'First name must be 1-128 characters long'),
+			lastName: hasLength({ min: 1, max: 128 }, 'Last name must be 1-128 characters long'),
+			birthday: matches(/^((19|20)?[0-9]{2}[- /.](0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01]))*$/, "Birthday must be in the format YYYY-MM-DD"),
     }
   });
+
+	const names = ["Peanut","Giraffe","Cat","Dog","Walnut","Hippo","Penguin","Panda","Lion","Tiger","Bear","Elephant","Kangaroo","Koala","Gorilla","Monkey","Zebra","Rhino","Horse","Donkey","Cow","Pig","Sheep","Goat","Chicken","Duck","Goose","Turkey","Pheasant","Partridge","Quail","Ostrich","Emu","Rhea","Cassowary","Kiwi","Flamingo","Pelican","Stork","Crane","Heron","Egret","Ibis","Spoonbill","Vulture","Eagle","Hawk","Falcon","Owl","Osprey","Kite","Harrier","Buzzard","Kestrel","Merlin","Sparrowhawk","Goshawk","Peregrine","Hobby","Redstart","Robin","Wren","Blackbird","Songthrush","Mistlethrush","Fieldfare","Redwing","Whinchat","Stonechat","Wheatear","Dunnock","Nightingale","Swallow","Housemartin","Sandmartin","Cuckoo","Woodpigeon","Kingfisher","Dove"];
 
 	return (
 		<div>
@@ -110,7 +97,7 @@ export default function SignUp() {
 								<TextInput
 									withAsterisk
 									label="Password"
-									autoComplete="current-password"
+									autoComplete="new-password"
 									placeholder="Your password"
 									type="password"
 									key={form.key('password')}
@@ -120,7 +107,7 @@ export default function SignUp() {
 								<TextInput
 									label="First Name"
 									autoComplete="given-name"
-									placeholder="Your first name"
+									placeholder="Mysterious"
 									key={form.key('firstName')}
 									{...form.getInputProps('firstName')}
 								/>
@@ -128,15 +115,15 @@ export default function SignUp() {
 								<TextInput
 									label="Last Name"
 									autoComplete="family-name"
-									placeholder="Your last name"
+									placeholder={names[Math.floor(Math.random() * names.length)]}
 									key={form.key('lastName')}
 									{...form.getInputProps('lastName')}
 								/>
 
 								<TextInput
+									type="date"
 									label="Birthday"
 									autoComplete="bday"
-									placeholder="MM/DD/YYYY"
 									key={form.key('birthday')}
 									{...form.getInputProps('birthday')}
 								/>

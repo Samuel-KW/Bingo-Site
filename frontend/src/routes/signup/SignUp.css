@@ -1,5 +1,5 @@
 .container {
-	min-width: 50%;
+	min-width: 70%;
 	border: 1px solid #ccc;
 	border-radius: 5px;
 	box-sizing: border-box;
@@ -11,12 +11,12 @@
 }
 
 .content {
-	width: 60%;
+	width: 50%;
 	padding: 10px;
 }
 
 .illustration {
-	width: 40%;
+	width: 50%;
 
 	img {
 		height: 100%;

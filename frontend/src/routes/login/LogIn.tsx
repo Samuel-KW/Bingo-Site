@@ -8,7 +8,8 @@ import { useAuth } from "../../components/authentication.tsx";
 
 import LoginImage from "./login.svg";
 
-import "./LogIn.css";
+// import "./LogIn.css";
+import "../signup/SignUp.css";
 
 export default function LogIn() {
 	const [loading, setLoading] = useState(false);
