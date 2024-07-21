@@ -141,7 +141,7 @@ export default function SignUp() {
 								/>
 
 								<Group justify="flex-end" mt="md">
-									<Button type="submit" disabled={loading}>{loading ? <span>Loading</span> : <span>Log In</span>}</Button>
+									<Button type="submit" disabled={loading}>{loading ? <span>Loading</span> : <span>Sign Up</span>}</Button>
 								</Group>
 							</div>
 						</form>

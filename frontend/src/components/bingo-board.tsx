@@ -1,10 +1,10 @@
 import React from "react";
 import { Flex } from "@mantine/core";
 
-import styles from "./bingo-card.module.css";
+// import styles from "./bingo-card.module.css";
 import Card, { BingoCard } from "./bingo-card";
 
-const noop = () => {};
+// const noop = () => {};
 
 
 export type BingoBoard = {

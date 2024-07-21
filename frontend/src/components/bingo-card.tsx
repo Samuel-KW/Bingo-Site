@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Menu, Title } from "@mantine/core";
+import { Card, Title } from "@mantine/core";
 
 import styles from "./bingo-card.module.css";
 

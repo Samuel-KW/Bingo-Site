@@ -70,7 +70,7 @@ export default function LogIn() {
 				<Group justify="center" gap="xs" grow>
 					<div>
 						<div>
-							<Title order={2}>Sign Up</Title>
+							<Title order={2}>Log In</Title>
 							<Text>Don't have an account? <Link to="/signup">Sign Up</Link></Text>
 							<Divider my="xs" />
 						</div>
