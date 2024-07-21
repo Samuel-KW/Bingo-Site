@@ -16,6 +16,8 @@ import Play from "./routes/play/Play";
 import SignUp from "./routes/signup/SignUp";
 import LogIn from "./routes/login/LogIn";
 import Account from "./routes/account/Account";
+import Game from "./routes/game/Game";
+
 import AuthProvider from "./components/authentication";
 
 const theme = createTheme({
@@ -29,7 +31,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 				<Routes>
 					<Route path="/" element={<Layout />}>
 						<Route index element={<Home />} />
-						<Route path="play" element={<AuthProvider><Play /></AuthProvider>} />
+						<Route path="/play">
+							<Route index element={<Play />} />
+							<Route path=":id" element={<Game />} />
+						</Route>
 						<Route path="login" element={<AuthProvider><LogIn /></AuthProvider>} />
 						<Route path="signup" element={<AuthProvider><SignUp /></AuthProvider>} />
 						<Route path="account" element={<AuthProvider><Account /></AuthProvider>} />

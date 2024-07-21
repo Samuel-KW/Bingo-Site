@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useContext, createContext, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom';
 
-import { BingoBoard } from './bingo-card.tsx';
+import { BingoBoard } from './bingo-board.tsx';
 
 export type UserMetadata = {
 	firstName: string;

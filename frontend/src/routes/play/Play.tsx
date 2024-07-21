@@ -1,42 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, Title, Text } from '@mantine/core';
+
+import { BingoBoard, fetchBingoBoards } from '../../components/bingo-board';
+
 import './Play.css';
 
-import MenuSortGrid from "../../components/menu-sort-grid";
-import { Accordion } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-
 function Play() {
-	const [checked, { toggle }] = useDisclosure(false);
-	const [title, setTitle] = useState("OASC Summer Camp");
+
+	const bingoBoards: BingoBoard[] = [];
+
+	const [boards, setBoards] = useState<BingoBoard[]>([]);
+
+	const navigate = useNavigate();
+
+
+  useEffect(() => {
+    fetchBingoBoards()
+			.then(data => {
+				setBoards(data);
+			})
+			.catch(error => {
+				console.error(error);
+			});
+  }, [bingoBoards]);
 
 	return (
 		<>
-			<div className="title sticky">
-				<h1>BINGO!</h1>
-			</div>
-
-			<div>
-				<h2>{title}</h2>
-				<Accordion>
-					<Accordion.Item value="item-1">
-						<Accordion.Control>Instructions</Accordion.Control>
-						<Accordion.Panel>
-							<p>This website tracks your readiness for camp! The first 10 campers to have a blackout will get a prize!</p>
-
-							<h3>Instructions</h3>
-							<p>To fill in the bingo boxes, look for QR codes to scan or click a box for more instructions</p>
-							<p>If you're having any bingo problems find JC Leina in the Grove</p>
-
-							<strong>Good luck!</strong>
-						</Accordion.Panel>
-					</Accordion.Item>
-				</Accordion>
-			</div>
+			<h1>BINGO!</h1>
 
 			<div className="content">
-				<MenuSortGrid onClick={toggle} checked={checked} aria-label="Toggle card layout style" />
 				<div className="board">
-
+					{boards.map(board => (
+						<Card key={board.id} onClick={() => void navigate("/play/" + board.id)}>
+							<Title order={3}>{board.title}</Title>
+							<Text>{(new Date(board.created_at)).toLocaleDateString()}</Text>
+						</Card>
+					))}
 				</div>
 			</div>
 		</>

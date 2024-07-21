@@ -1,0 +1,16 @@
+.nav {
+	a {
+		color: #b7b4b4;
+		text-decoration: none;
+		padding: 10px 15px;
+		display: block;
+		font-size: 1.2em;
+		font-weight: 500;
+		transition: 0.3s;
+	}
+
+	a:hover {
+		background-color: #7d7c7c;
+		color: #151515;
+	}
+}
