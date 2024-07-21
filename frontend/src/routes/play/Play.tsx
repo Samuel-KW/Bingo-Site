@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import './Play.css';
 
-import { Accordion, MantineProvider } from '@mantine/core';
+import MenuSortGrid from "../../components/menu-sort-grid";
+import { Accordion } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 function Play() {
+	const [checked, { toggle }] = useDisclosure(false);
 	const [title, setTitle] = useState("OASC Summer Camp");
 
 	return (
@@ -31,7 +34,7 @@ function Play() {
 			</div>
 
 			<div className="content">
-				<div className="grid-type"></div>
+				<MenuSortGrid onClick={toggle} checked={checked} aria-label="Toggle card layout style" />
 				<div className="board">
 
 				</div>

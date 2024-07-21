@@ -1,0 +1,108 @@
+:where([data-mantine-color-scheme='dark']) .sortGrid {
+	--burger-color: var(--mantine-color-white);
+}
+
+:where([data-mantine-color-scheme='light']) .sortGrid {
+	--burger-color: var(--mantine-color-black);
+}
+
+.sortGrid {
+	--burger-size-xs: calc(0.75rem * var(--mantine-scale));
+  --burger-size-sm: calc(1.125rem * var(--mantine-scale));
+  --burger-size-md: calc(1.5rem * var(--mantine-scale));
+  --burger-size-lg: calc(2.125rem * var(--mantine-scale));
+  --burger-size-xl: calc(2.625rem * var(--mantine-scale));
+
+  --burger-size: var(--burger-size-md);
+	--burger-gap: calc(var(--burger-size) / 10);
+  --burger-line-size: calc(var(--burger-size) / 12);
+
+  width: calc(var(--burger-size) + var(--mantine-spacing-xs));
+  height: calc(var(--burger-size) + var(--mantine-spacing-xs));
+  margin: calc(var(--mantine-spacing-xs) / 2);
+
+	cursor: pointer;
+	display: inline-block;
+	position: relative;
+
+	appearance: none;
+	background-color: transparent;
+	border: 0;
+  padding: 0;
+	text-decoration: none;
+  color: inherit;
+  touch-action: manipulation;
+
+	span {
+		animation-timing-function: ease-in-out;
+		animation-play-state: paused;
+		animation-duration: .4s;
+		animation-fill-mode: both;
+
+		position: absolute;
+		display: inline-block;
+		background-color: var(--burger-color);
+		border-radius: 2px;
+
+		box-sizing: border-box;
+		top: 0; left: 0;
+		width: calc(50% - 2 * var(--burger-gap));
+		height: calc(50% - 2 * var(--burger-gap));
+		margin: var(--burger-gap);
+
+		&:nth-child(1) {
+			transition: width 250ms ease, height 250ms ease, top 250ms ease;
+		}
+
+		&:nth-child(2) {
+			left: 50%;
+			background-color: transparent;
+			border: var(--burger-line-size) solid var(--burger-color);
+			transition: border-width 100ms 250ms ease;
+		}
+
+		&:nth-child(3) {
+			top: 50%;
+			transition: width 250ms ease, height 250ms 250ms ease, top 250ms ease;
+		}
+
+		&:nth-child(4) {
+			top: 50%;
+			left: 50%;
+			transition: width 250ms ease, height 250ms 250ms ease, top 250ms 250ms ease, left 250ms ease;
+		}
+	}
+}
+
+.sortGrid[data-checked] span {
+
+	--burger-height: calc(var(--burger-size) / 8);
+	--burger-height-real: calc(var(--burger-height) + 2 * var(--burger-gap));
+	--burger-center: calc(50% - (var(--burger-height-real) / 2));
+
+	width: calc(100% - 2 * var(--burger-gap));
+	height: var(--burger-height);
+
+	&:nth-child(1) {
+		top: calc(var(--burger-center) - var(--burger-height-real));
+		transition: width 250ms ease, height 250ms ease, top 250ms ease;
+	}
+
+	&:nth-child(2) {
+		width: calc(50% - 2 * var(--burger-gap));
+		height: calc(50% - 2 * var(--burger-gap));
+		border-width: 0px;
+		transition: border-width 100ms ease;
+	}
+
+	&:nth-child(3) {
+		top: calc(var(--burger-center));
+		transition: width 250ms 250ms ease, height 250ms ease, top 250ms ease;
+	}
+
+	&:nth-child(4) {
+		top: calc(var(--burger-center) + var(--burger-height-real));
+		left: 0;
+		transition: width 250ms 250ms ease, height 250ms ease, top 250ms ease, left 250ms 250ms ease;
+	}
+}
