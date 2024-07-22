@@ -1,11 +1,12 @@
 import React from "react";
-import { Flex } from "@mantine/core";
+import { Center, SimpleGrid } from "@mantine/core";
 
-// import styles from "./bingo-card.module.css";
 import Card, { BingoCard } from "./bingo-card";
+import MenuSortGrid from "./menu-sort-grid";
 
-// const noop = () => {};
+import styles from "./bingo-board.module.css";
 
+const noop = () => {};
 
 export type BingoBoard = {
 	id: string;
@@ -23,10 +24,8 @@ interface BingoBoardProps {
 	updated_at: number;
 	owner: string;
 	cards: BingoCard[];
-}
-
-function showDialog(card: BingoCard) {
-	alert("You clicked a card: " + card.title);
+	onClick: (card: BingoCard) => void;
+	isGrid: boolean;
 }
 
 export async function fetchBingoBoards(): Promise<BingoBoard[]> {
@@ -93,7 +92,9 @@ export default class BingoBoardComponent extends React.Component<BingoBoardProps
 		created_at: -1,
 		updated_at: -1,
 		owner: "No owner",
-		cards: []
+		cards: [],
+		onClick: noop,
+		isGrid: true
 	};
 
 	constructor(props: BingoBoardProps) {
@@ -105,22 +106,39 @@ export default class BingoBoardComponent extends React.Component<BingoBoardProps
 			created_at: props.created_at ?? this.state.created_at,
 			updated_at: props.updated_at ?? this.state.updated_at,
 			owner: props.owner ?? this.state.owner,
-			cards: props.cards ?? this.state.cards
+			cards: props.cards ?? this.state.cards,
+			isGrid: props.isGrid ?? this.state.isGrid,
+			onClick: props.onClick ?? this.state.onClick
 		};
+
+		this.toggleGrid = this.toggleGrid.bind(this);
+	}
+
+	toggleGrid() {
+		this.setState({ isGrid: !this.state.isGrid });
 	}
 
 	render() {
+		const size = Math.ceil(Math.sqrt(this.state.cards.length));
 		return (
-			<Flex>
-					{this.state.cards.map(card => <Card key={card.id}
-							onClick={() => void showDialog(card)}
+			<>
+				<Center>
+					<MenuSortGrid onClick={this.toggleGrid} checked={this.state.isGrid} aria-label="Toggle card layout style" />
+				</Center>
+
+				<Center>
+					<SimpleGrid className={styles.board} spacing="xs" verticalSpacing="xs" cols={this.state.isGrid ? size : 1}>
+						{this.state.cards.map(card => <Card key={card.id}
+							onClick={() => this.state.onClick(card)}
 							title={card.title}
 							description={card.description}
 							required={card.required}
 							completed={card.completed}
 							type={card.type}/>
-					)}
-			</Flex>
+						)}
+					</SimpleGrid>
+				</Center>
+			</>
 		);
 	}
 };

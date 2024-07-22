@@ -1,12 +1,45 @@
-import { useEffect, useState } from 'react';
+import { FormEvent, FormEventHandler, useEffect, useState } from 'react';
 
-import { Accordion, Title, Text, Skeleton } from '@mantine/core';
+import { Accordion, Title, Text, Skeleton, Drawer, Button, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
 import Board, { BingoBoard, fetchBingoBoard } from '../../components/bingo-board';
-import MenuSortGrid from "../../components/menu-sort-grid";
 
 import './Game.module.css';
+import { BingoCard } from '../../components/bingo-card';
+
+
+function getTypeElement (type: BingoCard["type"], onSubmit: (event: FormEvent<HTMLFormElement>, result: boolean | EventTarget) => any) {
+	switch (type) {
+		case "QR Code":
+			return <Text mt="md" size="sm" c="var(--mantine-color-gray-5)">Scan the QR code to complete this task.</Text>
+
+		case "Honor System":
+			return <form onSubmit={(e) => onSubmit(e, true)}>
+				<Button mt="md" variant="filled" type="submit">Mark as Complete</Button>
+			</form>
+
+		case "Given":
+			return <form onSubmit={(e) => onSubmit(e, true)}>
+				<Button mt="md" variant="filled" type="submit">Done</Button>
+			</form>
+
+		case "User Input":
+			return <form onSubmit={(e) => onSubmit(e, e.target)}>
+				<Textarea mt="md"
+					label="Input label"
+					withAsterisk
+					description="Enter your response..."
+					placeholder="Your message"
+				/>
+
+				<Button mt="xs" type="submit">Submit</Button>
+			</form>;
+
+		default:
+			return <Text mt="md" size="sm" c="var(--mantine-color-gray-5)">Unknown Type</Text>;
+	}
+}
 
 function Game() {
 
@@ -14,8 +47,32 @@ function Game() {
 	if (!id)
 		throw new Error("No board ID found in URL");
 
-	const [checked, { toggle }] = useDisclosure(false);
 	const [board, setBoard] = useState<BingoBoard>();
+
+	const [opened, { open, close }] = useDisclosure(false);
+	const [title, setTitle] = useState<string>("");
+	const [description, setDescription] = useState<string>("");
+	const [type, setType] = useState<BingoCard["type"]>("Given");
+
+	const showBingoDetails = (card: BingoCard) => {
+		setTitle(card.title);
+		setDescription(card.description);
+		setType(card.type);
+		open();
+	};
+
+	const submitBingoCard = (event: FormEvent<HTMLFormElement>, result: boolean | EventTarget) => {
+		event.preventDefault();
+
+		if (result === true) {
+			console.log("Marked as complete");
+		} else if (result instanceof HTMLFormElement) {
+			const value = result.querySelector("textarea")?.value.trim();
+			console.log("Submitted: " + value);
+		}
+
+		close();
+	};
 
 	useEffect(() => {
 		fetchBingoBoard(id)
@@ -29,6 +86,16 @@ function Game() {
 
 	return (
 		<>
+			<Drawer opened={opened} onClose={close}
+							position="bottom" size="md"
+							title={title}
+							overlayProps={{ backgroundOpacity: 0.7, blur: 1 }}
+							closeButtonProps={{ "aria-label": "Close modal" }}
+			>
+				<Text>{description}</Text>
+				{getTypeElement(type, submitBingoCard)}
+      </Drawer>
+
 			<div>
 				<Accordion>
 					<Accordion.Item value="item-1">
@@ -47,9 +114,8 @@ function Game() {
 			</div>
 
 			<div className="content">
-				<MenuSortGrid onClick={toggle} checked={checked} aria-label="Toggle card layout style" />
 				<div className="board">
-					{ board ? <Board {...board} /> : <Skeleton height={20} radius="xl" /> }
+					{ board ? <Board onClick={card => showBingoDetails(card)} isGrid={true} {...board} /> : <Skeleton height={20} radius="xl" /> }
 				</div>
 			</div>
 		</>

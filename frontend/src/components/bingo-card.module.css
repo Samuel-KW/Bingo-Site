@@ -11,12 +11,15 @@
 
 	transition: border 250ms ease, opacity 250ms ease;
 	border: 3px solid var(--border-card);
-
-	margin: var(--mantine-spacing-xs);
 	text-align: center;
+	opacity: 1;
+
+	padding: var(--mantine-spacing-xs);
 	display: inline-block;
 	position: relative;
-	opacity: 1;
+	cursor: pointer;
+
+	aspect-ratio: 1 / 1;
 
 	&:hover {
 		border: 3px solid var(--border-card-hover);
@@ -45,6 +48,4 @@
 			opacity: 1;
 		}
 	}
-
-
 }
