@@ -1,5 +1,5 @@
-import React from "react";
-import { Card, Title } from "@mantine/core";
+import { Card, Title, Box, BoxProps, Center, SimpleGrid, useProps } from '@mantine/core';
+import { useDisclosure } from "@mantine/hooks";
 
 import styles from "./bingo-card.module.css";
 
@@ -14,49 +14,54 @@ export type BingoCard = {
 	id?: number;
 };
 
-export interface BingoCardProps {
+export interface BingoCardStates extends BoxProps {
+	title: string;
+	description: string;
+	required: boolean;
+	completed: boolean;
+	type: BingoCard["type"];
+	id: number;
+	onClick: (event?: React.MouseEvent<HTMLDivElement>, props?: BingoCardProps) => void;
+};
+
+export interface BingoCardProps extends BoxProps {
 	title?: string;
 	description?: string;
 	required?: boolean;
 	completed?: boolean;
 	type?: "QR Code" | "Honor System" | "Given" | "User Input";
 	id?: number;
-	onClick?: () => void;
+	onClick?: (event?: React.MouseEvent<HTMLDivElement>, props?: BingoCardProps) => void;
 };
 
-export default class BingoCardComponent extends React.Component<BingoCardProps>{
-	state: BingoCardProps = {
-		title: "No title",
-		description: "No description",
-		required: false,
-		completed: false,
-		type: "Given",
-		id: 0,
-		onClick: noop
-	};
+const defaultProps = {
+	title: "No title.",
+	description: "No description.",
+	required: false,
+	completed: false,
+	type: "Given",
+	id: 0,
+	onClick: noop
+} as BingoCardStates;
 
-	constructor(props: BingoCardProps) {
-		super(props);
+function BingoCard (_props: BingoCardProps) {
 
-		this.state = {
-			title: props.title ?? this.state.title,
-			description: props.description ?? this.state.description,
-			required: props.required ?? this.state.required,
-			completed: props.completed ?? this.state.completed,
-			type: props.type ?? this.state.type,
-			id: props.id ?? this.state.id,
-			onClick: props.onClick ?? noop
-		};
-	}
+	const {
+		title,
+		description,
+		required,
+		completed,
+		type,
+		id,
+		onClick,
+		...others
+	} = useProps("BingoCard", _props, defaultProps);
 
-	render() {
-		const completed = this.state.completed || undefined;
-		const required = this.state.required || undefined;
+	return (
+		<Card shadow="lg" onClick={(evt) => onClick(evt, { id, title, description, required, completed, type })} data-required={required} data-completed={completed} {...others}>
+			<Title order={3} className={styles.title}>{title}</Title>
+		</Card>
+	);
+}
 
-		return (
-			<Card shadow="lg" onClick={this.state.onClick} className={styles.card} data-required={required} data-completed={completed}>
-				<Title order={3} className={styles.title}>{this.state.title}</Title>
-			</Card>
-		);
-	}
-};
+export default BingoCard;

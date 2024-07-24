@@ -1,4 +1,4 @@
-import { FormEvent, FormEventHandler, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 import { Accordion, Title, Text, Skeleton, Drawer, Button, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
