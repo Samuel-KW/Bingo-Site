@@ -136,7 +136,7 @@ function BingoBoard (_props: BingoBoardProps) {
 			</Center>
 
 			<Center>
-				<SimpleGrid maw={1} spacing="xs" verticalSpacing="xs" cols={_isGrid ? size : 1}>
+				<SimpleGrid maw="80%" spacing="xs" verticalSpacing="xs" cols={_isGrid ? size : 1}>
 					{cards.map(card => <Card key={card.id}
 						onClick={() => onCardClick(card)}
 						title={card.title}

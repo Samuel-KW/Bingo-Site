@@ -1,5 +1,4 @@
-import { Card, Title, Box, BoxProps, Center, SimpleGrid, useProps } from '@mantine/core';
-import { useDisclosure } from "@mantine/hooks";
+import { Card, Title, BoxProps, useProps, Box } from '@mantine/core';
 
 import styles from "./bingo-card.module.css";
 
@@ -11,28 +10,14 @@ export type BingoCard = {
 	required: boolean;
 	completed: boolean;
 	type: "QR Code" | "Honor System" | "Given" | "User Input";
-	id?: number;
+	id: number;
 };
 
-export interface BingoCardStates extends BoxProps {
-	title: string;
-	description: string;
-	required: boolean;
-	completed: boolean;
-	type: BingoCard["type"];
-	id: number;
+export interface BingoCardStates extends BoxProps, BingoCard {
 	onClick: (event?: React.MouseEvent<HTMLDivElement>, props?: BingoCardProps) => void;
 };
 
-export interface BingoCardProps extends BoxProps {
-	title?: string;
-	description?: string;
-	required?: boolean;
-	completed?: boolean;
-	type?: "QR Code" | "Honor System" | "Given" | "User Input";
-	id?: number;
-	onClick?: (event?: React.MouseEvent<HTMLDivElement>, props?: BingoCardProps) => void;
-};
+export interface BingoCardProps extends Partial<BingoCardStates> {};
 
 const defaultProps = {
 	title: "No title.",
@@ -58,9 +43,12 @@ function BingoCard (_props: BingoCardProps) {
 	} = useProps("BingoCard", _props, defaultProps);
 
 	return (
-		<Card shadow="lg" onClick={(evt) => onClick(evt, { id, title, description, required, completed, type })} data-required={required} data-completed={completed} {...others}>
-			<Title order={3} className={styles.title}>{title}</Title>
-		</Card>
+		<Box {...others}>
+			<Card shadow="lg" onClick={(evt) => onClick(evt, { id, title, description, required, completed, type })} data-required={required} data-completed={completed} className={styles.card}>
+				<Title order={3} className={styles.title}>{title}</Title>
+			</Card>
+		</Box>
+
 	);
 }
 
