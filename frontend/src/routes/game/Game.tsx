@@ -115,7 +115,7 @@ function Game() {
 
 			<div className="content">
 				<div className="board">
-					{ board ? <Board onClick={card => showBingoDetails(card)} isGrid={true} {...board} /> : <Skeleton height={20} radius="xl" /> }
+					{ board ? <Board onCardClick={(card: BingoCard) => showBingoDetails(card)} isGrid={true} {...board} /> : <Skeleton height={20} mt={20} radius="xl" /> }
 				</div>
 			</div>
 		</>
