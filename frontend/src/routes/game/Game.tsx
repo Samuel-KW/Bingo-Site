@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 
 import { Accordion, Title, Text, Drawer, Button, Textarea } from '@mantine/core';
-import { Notifications, showNotification } from '@mantine/notifications';
+import { notifications } from '@mantine/notifications';
 import { useDisclosure } from '@mantine/hooks';
 
 import Board, { BingoBoard, fetchBingoBoard } from '../../components/bingo-board';
@@ -44,7 +44,6 @@ function getTypeElement (type: BingoCard["type"], onSubmit: (event: FormEvent<HT
 }
 
 function Game() {
-
 	const id = window.location.pathname.split("/").pop() || "";
 	if (!id)
 		throw new Error("No board ID found in URL");
@@ -77,29 +76,29 @@ function Game() {
 	};
 
 	useEffect(() => {
-		fetchBingoBoard(id)
+
+		const abortController = new AbortController();
+
+		fetchBingoBoard(id, abortController)
 			.then((data: BingoBoard) => {
 				setBoard(data);
-
 			})
 			.catch(error => {
-				console.error(error);
-
-				console.log(showNotification )
-
-				showNotification({
-					autoClose: 15 * 1000,
-					title: "Unable to load content",
-					message: "An error occurred while loading the bingo board.",
-					color: "red",
-				});
+				if (error.name !== "AbortError") {
+					notifications.show({
+						autoClose: false,
+						title: "Unable to load content",
+						message: "An error occurred while loading the bingo board.",
+						color: "red",
+					});
+				}
 			});
-	}, []);
+
+		return () => abortController.abort();
+	}, [id]);
 
 	return (
 		<>
-			<Notifications content="hello"/>
-
 			<Drawer opened={opened} onClose={close}
 							position="bottom" size="md"
 							title={title}

@@ -4,6 +4,8 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+
 import { createTheme, MantineProvider } from '@mantine/core';
 
 import Layout from "./routes/layout/Layout";
@@ -19,6 +21,7 @@ import Account from "./routes/account/Account";
 import Game from "./routes/game/Game";
 
 import AuthProvider from "./components/authentication";
+import { Notifications } from "@mantine/notifications";
 
 const theme = createTheme({
 	fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;",
@@ -44,6 +47,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 					</Route>
 				</Routes>
 			</BrowserRouter>
+			<Notifications position="top-left" zIndex={1000}  />
 		</MantineProvider>
 	</React.StrictMode>,
 )

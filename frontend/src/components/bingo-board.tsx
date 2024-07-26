@@ -14,8 +14,8 @@ export async function fetchBingoBoards(): Promise<BingoBoard[]> {
 	return data as BingoBoard[];
 }
 
-export async function fetchBingoBoard(id: string): Promise<BingoBoard> {
-	const response = await fetch(`/api/bingo/${id}`);
+export async function fetchBingoBoard(id: string, abortController: AbortController): Promise<BingoBoard> {
+	const response = await fetch(`/api/bingo/${id}`, { signal: abortController.signal });
 	const data = await response.json();
 
 	for (let i = 0; i < data.cards.length; i++) {
