@@ -87,7 +87,7 @@ function Game() {
 				if (error.name !== "AbortError") {
 					notifications.show({
 						autoClose: false,
-						title: "Unable to load content",
+						title: "Unable to load board content",
 						message: "An error occurred while loading the bingo board.",
 						color: "red",
 					});

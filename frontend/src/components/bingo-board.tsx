@@ -8,8 +8,8 @@ import MenuSortGrid from "./menu-sort-grid";
 
 const noop = () => {};
 
-export async function fetchBingoBoards(): Promise<BingoBoard[]> {
-	const response = await fetch("/api/boards");
+export async function fetchBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
+	const response = await fetch("/api/boards", { signal: abortController.signal });
 	const data = await response.json();
 	return data as BingoBoard[];
 }
