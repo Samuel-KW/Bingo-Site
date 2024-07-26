@@ -1,14 +1,15 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from "react";
 
-import { Accordion, Title, Text, Drawer, Button, Textarea } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { useDisclosure } from '@mantine/hooks';
+import { Accordion, Title, Text, Drawer, Button, Textarea } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import { useDisclosure } from "@mantine/hooks";
 
-import Board, { BingoBoard, fetchBingoBoard } from '../../components/bingo-board';
-import { loadingBingoBoard } from '../../components/loading';
+import Board, { BingoBoard, fetchBingoBoard } from "../../components/bingo-board";
+import { loadingBingoBoard } from "../../components/loading";
 
-import './Game.module.css';
-import { BingoCard } from '../../components/bingo-card';
+import "./Game.module.css";
+import { BingoCard } from "../../components/bingo-card";
+import Markdown from "react-markdown";
 
 
 function getTypeElement (type: BingoCard["type"], onSubmit: (event: FormEvent<HTMLFormElement>, result: boolean | EventTarget) => any) {
@@ -82,10 +83,12 @@ function Game() {
 		fetchBingoBoard(id, abortController)
 			.then((data: BingoBoard) => {
 				setBoard(data);
+				notifications.hide("load-board-error");
 			})
 			.catch(error => {
 				if (error.name !== "AbortError") {
 					notifications.show({
+						id: "load-board-error",
 						autoClose: false,
 						title: "Unable to load board content",
 						message: "An error occurred while loading the bingo board.",
@@ -105,7 +108,7 @@ function Game() {
 							overlayProps={{ backgroundOpacity: 0.7, blur: 1 }}
 							closeButtonProps={{ "aria-label": "Close modal" }}
 			>
-				<Text>{description}</Text>
+				<Markdown>{description}</Markdown>
 				{getTypeElement(type, submitBingoCard)}
       </Drawer>
 

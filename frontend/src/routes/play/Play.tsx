@@ -25,11 +25,13 @@ function Play() {
     fetchBingoBoards(abortController)
 			.then(data => {
 				setBoards(data);
+				notifications.hide("load-boards-error");
 			})
 			.catch(error => {
 
 				if (error.name !== "AbortError") {
 					notifications.show({
+						id: "load-boards-error",
 						autoClose: false,
 						title: "Unable to load boards",
 						message: "An error occurred while loading your accounts bingo board.",

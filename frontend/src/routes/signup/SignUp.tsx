@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../components/authentication.tsx';
 
-import { Button, Checkbox, Group, TextInput, Center, Image, Text, Title, Divider, Card } from '@mantine/core';
+import { Button, Checkbox, Group, TextInput, Center, Image, Text, Title, Divider, Card, PasswordInput } from '@mantine/core';
 import { useForm, isEmail, hasLength, matches } from '@mantine/form';
 
 import SignipImage from "./signup.svg";
@@ -94,7 +94,7 @@ export default function SignUp() {
 									{...form.getInputProps('email')}
 								/>
 
-								<TextInput
+								<PasswordInput
 									mt="xs"
 									withAsterisk
 									label="Password"

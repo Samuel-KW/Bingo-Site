@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Button, Checkbox, Group, TextInput, Text, Image, Center, Card, Title, Divider } from '@mantine/core';
+import { Button, Checkbox, Group, TextInput, Text, Image, Center, Card, Title, Divider, PasswordInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 import { useAuth } from "../../components/authentication.tsx";
@@ -85,7 +85,7 @@ export default function LogIn() {
 									{...form.getInputProps('email')}
 								/>
 
-								<TextInput
+								<PasswordInput
 									mt="xs"
 									withAsterisk
 									label="Password"

@@ -33,12 +33,13 @@ const Layout = () => {
 				</AppShell.Header>
 
 				<AppShell.Navbar className={styles.nav}>
-					<Link to="/" onClick={mobile.close}>Home</Link>
-					<Link to="/play" onClick={mobile.close}>Play</Link>
-					<Link to="/dashboard" onClick={mobile.close}>Dashboard</Link>
-					<Link to="/config" onClick={mobile.close}>Config</Link>
-					<Link to="/login" onClick={mobile.close}>Log In</Link>
-					<Link to="/signup" onClick={mobile.close}>Sign Up</Link>
+					<Text variant="Link" component={Link} to="/" onClick={mobile.close}>Home</Text>
+					<Text variant="Link" component={Link} to="/play" onClick={mobile.close}>Play</Text>
+					<Text variant="Link" component={Link} to="/account/dashboard" onClick={mobile.close}>Dashboard</Text>
+					<Text variant="Link" component={Link} to="/account/config" onClick={mobile.close}>Config</Text>
+					<Text variant="Link" component={Link} to="/account/login" onClick={mobile.close}>Log In</Text>
+					<Text variant="Link" component={Link} to="/account/signup" onClick={mobile.close}>Sign Up</Text>
+					<Text variant="Link" component={Link} to="/account/logout" onClick={mobile.close}>Log Out</Text>
 				</AppShell.Navbar>
 
 				<AppShell.Main pt={`calc(${rem(60)} + var(--mantine-spacing-md))`}>

@@ -42,7 +42,6 @@ function BingoCard (_props: BingoCardProps) {
 		...others
 	} = useProps("BingoCard", defaultProps, _props);
 
-	console.log(title, description, required, completed, type, id, onClick, others);
 	return (
 		<Box {...others}>
 			<Card shadow="lg" onClick={(evt) => onClick(evt, { id, title, description, required, completed, type })} data-required={required} data-completed={completed} className={styles.card}>

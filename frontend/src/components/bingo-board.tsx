@@ -8,11 +8,17 @@ import MenuSortGrid from "./menu-sort-grid";
 
 const noop = () => {};
 
+export async function fetchOwnedBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
+	const response = await fetch("/api/ownedBoards", { signal: abortController.signal });
+	const data = await response.json();
+	return data as BingoBoard[];
+};
+
 export async function fetchBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
 	const response = await fetch("/api/boards", { signal: abortController.signal });
 	const data = await response.json();
 	return data as BingoBoard[];
-}
+};
 
 export async function fetchBingoBoard(id: string, abortController: AbortController): Promise<BingoBoard> {
 	const response = await fetch(`/api/bingo/${id}`, { signal: abortController.signal });
@@ -31,7 +37,7 @@ export async function fetchBingoBoard(id: string, abortController: AbortControll
 	}
 
 	return data as BingoBoard;
-}
+};
 
 export async function updateBingoBoard(id: string, board: BingoBoard): Promise<void> {
 	const response = await fetch(`/api/bingo/${id}`, {
@@ -43,7 +49,7 @@ export async function updateBingoBoard(id: string, board: BingoBoard): Promise<v
 	});
 	const data = await response.json();
 	return data;
-}
+};
 
 export async function createBingoBoard(board: BingoBoard): Promise<void> {
 	const response = await fetch(`/api/bingo`, {
@@ -55,7 +61,7 @@ export async function createBingoBoard(board: BingoBoard): Promise<void> {
 	});
 	const data = await response.json();
 	return data;
-}
+};
 
 export async function deleteBingoBoard(id: string): Promise<void> {
 	const response = await fetch(`/api/bingo/${id}`, {
@@ -65,33 +71,31 @@ export async function deleteBingoBoard(id: string): Promise<void> {
 	return data;
 };
 
-export type BingoBoard = {
+export interface BingoBoard {
+
+  /** Bingo board ID */
 	id: string;
+
+	/** Bingo board title */
 	title: string;
+
+	/** Bingo board description */
+	description: string;
+
+	/** Bingo board creation date */
 	created_at: number;
+
+	/** Bingo board last update date */
 	updated_at: number;
+
+	/** Bingo board owner UUID */
 	owner: string;
+
+	/** Bingo board cards */
 	cards: BingoCard[];
 };
 
-export interface BingoBoardProps extends BoxProps {
-  /** Bingo board ID */
-  id?: string;
-
-	/** Bingo board title */
-	title?: string;
-
-	/** Bingo board creation date */
-	created_at?: number;
-
-	/** Bingo board last update date */
-	updated_at?: number;
-
-	/** Bingo board owner UUID */
-	owner?: string;
-
-	/** Bingo board cards */
-	cards?: BingoCard[];
+export interface BingoBoardProps extends BoxProps, Partial<BingoBoard> {
 
 	/** Callback when a card is clicked */
 	onCardClick?: (card: BingoCard) => void;
@@ -123,7 +127,7 @@ function BingoBoard (_props: BingoBoardProps) {
 		isGrid,
 		onCardClick,
 		...others
-	} = useProps('BingoBoard', defaultProps, _props);
+	} = useProps("BingoBoard", defaultProps, _props);
 
 	const [_isGrid, grid] = useDisclosure(isGrid);
 

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
@@ -22,6 +22,7 @@ import Game from "./routes/game/Game";
 
 import AuthProvider from "./components/authentication";
 import { Notifications } from "@mantine/notifications";
+import CreateBoard from "./routes/createboard/CreateBoard";
 
 const theme = createTheme({
 	fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;",
@@ -34,20 +35,36 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 				<Routes>
 					<Route path="/" element={<Layout />}>
 						<Route index element={<Home />} />
-						<Route path="/play">
+
+						{/* All game routes have session information */}
+						<Route path="/play" element={<AuthProvider><Outlet/></AuthProvider>}>
 							<Route index element={<Play />} />
 							<Route path=":id" element={<Game />} />
 						</Route>
-						<Route path="login" element={<AuthProvider><LogIn /></AuthProvider>} />
-						<Route path="signup" element={<AuthProvider><SignUp /></AuthProvider>} />
-						<Route path="account" element={<AuthProvider><Account /></AuthProvider>} />
-						<Route path="dashboard" element={<AuthProvider><Dashboard /></AuthProvider>} />
-						<Route path="config" element={<Config />} />
-						<Route path="*" element={<NoPage />} />
+
+						{/* All account related routes have session information */}
+						<Route path="/account" element={<AuthProvider><Outlet /></AuthProvider>}>
+							<Route path="login" element={<LogIn />} />
+							<Route path="signup" element={<SignUp />} />
+							<Route path="account" element={<Account />} />
+							<Route path="dashboard" element={<Dashboard />} />
+
+							{/* Handle board configurations */}
+							<Route path="/account/config">
+								<Route index element={<Config />} />
+								<Route path=":id" element={<CreateBoard />} />
+							</Route>
+						</Route>
+
 					</Route>
+
+					{/* Handle unknown pages */}
+					<Route path="*" element={<NoPage />} />
+
 				</Routes>
 			</BrowserRouter>
-			<Notifications position="top-left" zIndex={1000}  />
+
+			<Notifications position="top-left" zIndex={1000} />
 		</MantineProvider>
 	</React.StrictMode>,
 )
