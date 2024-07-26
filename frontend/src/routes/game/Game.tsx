@@ -1,9 +1,11 @@
 import { FormEvent, useEffect, useState } from 'react';
 
-import { Accordion, Title, Text, Skeleton, Drawer, Button, Textarea } from '@mantine/core';
+import { Accordion, Title, Text, Drawer, Button, Textarea } from '@mantine/core';
+import { Notifications, showNotification } from '@mantine/notifications';
 import { useDisclosure } from '@mantine/hooks';
 
 import Board, { BingoBoard, fetchBingoBoard } from '../../components/bingo-board';
+import { loadingBingoBoard } from '../../components/loading';
 
 import './Game.module.css';
 import { BingoCard } from '../../components/bingo-card';
@@ -78,14 +80,26 @@ function Game() {
 		fetchBingoBoard(id)
 			.then((data: BingoBoard) => {
 				setBoard(data);
+
 			})
 			.catch(error => {
 				console.error(error);
+
+				console.log(showNotification )
+
+				showNotification({
+					autoClose: 15 * 1000,
+					title: "Unable to load content",
+					message: "An error occurred while loading the bingo board.",
+					color: "red",
+				});
 			});
 	}, []);
 
 	return (
 		<>
+			<Notifications content="hello"/>
+
 			<Drawer opened={opened} onClose={close}
 							position="bottom" size="md"
 							title={title}
@@ -115,7 +129,7 @@ function Game() {
 
 			<div className="content">
 				<div className="board">
-					{ board ? <Board onCardClick={(card: BingoCard) => showBingoDetails(card)} isGrid={true} {...board} /> : <Skeleton height={20} mt={20} radius="xl" /> }
+					{ board ? <Board onCardClick={(card: BingoCard) => showBingoDetails(card)} isGrid={true} {...board} /> : loadingBingoBoard }
 				</div>
 			</div>
 		</>
