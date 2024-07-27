@@ -1,10 +1,11 @@
+import { Title } from '@mantine/core';
 import './Dashboard.css';
 
 
 function Dashboard() {
 	return (
 		<>
-			<h1>Dashboard</h1>
+			<Title>Dashboard</Title>
 		</>
 	);
 }

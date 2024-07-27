@@ -1,5 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
-import { AppShell, Burger, Group, rem, Avatar, Text } from "@mantine/core";
+import { AppShell, Burger, Group, rem, Avatar, Text, Title } from "@mantine/core";
 import { useDisclosure, useHeadroom } from "@mantine/hooks";
 
 import Logo from "../../images/logo.svg";
@@ -28,7 +28,7 @@ const Layout = () => {
 						<Burger opened={mobileOpened} onClick={mobile.toggle} hiddenFrom="sm" size="sm" />
 						<Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
 						<Avatar src={Logo} alt="Logo" />
-						<Text>Bingo!</Text>
+						<Title order={2} className={styles.title}>Bingo Lounge</Title>
 					</Group>
 				</AppShell.Header>
 

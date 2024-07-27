@@ -1,20 +1,17 @@
-import { useState } from 'react'
-import './Home.css'
+import { Title, Text } from '@mantine/core';
+import './Home.css';
+import { Link } from 'react-router-dom';
 
 function Home() {
-	const [count, setCount] = useState(0)
 
 	return (
 		<>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<button onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
+			<Title>Welcome to the bingo Lounge!</Title>
+			<Text>Trying to join a bingo game? <Link to="/play">Click here!</Link></Text>
+			<Text>Want to create a new bingo board? <Link to="/account/config">Click here!</Link></Text>
+
+			<Text mt="lg">New user? <Link to="/account/signup">Sign Up!</Link></Text>
+			<Text>Already have an account? <Link to="/account/login">Sign in!</Link></Text>
 		</>
 	)
 }

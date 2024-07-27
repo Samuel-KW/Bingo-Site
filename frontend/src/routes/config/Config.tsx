@@ -44,9 +44,9 @@ function Config() {
 
 	return (
 		<>
-			<h1>Your boards</h1>
+			<Title>Your boards</Title>
 			{boards === undefined ? loadingBingoBoard : boards.map(board => (
-				<Card key={board.id} onClick={() => void navigate("/account/config/" + board.id)}>
+				<Card mt="lg" key={board.id} onClick={() => void navigate("/account/config/" + board.id)}>
 					<Title order={3}>{board.title}</Title>
 					<Text>{(new Date(board.created_at)).toLocaleDateString()}</Text>
 				</Card>

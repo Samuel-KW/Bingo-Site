@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+
+import { createTheme, MantineProvider } from '@mantine/core';
+import { Notifications } from "@mantine/notifications";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-
-import { createTheme, MantineProvider } from '@mantine/core';
 
 import Layout from "./routes/layout/Layout";
 import Config from "./routes/config/Config";
@@ -21,11 +21,14 @@ import Account from "./routes/account/Account";
 import Game from "./routes/game/Game";
 
 import AuthProvider from "./components/authentication";
-import { Notifications } from "@mantine/notifications";
 import CreateBoard from "./routes/createboard/CreateBoard";
 
 const theme = createTheme({
 	fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;",
+	headings: {
+    fontFamily: "Quicksand, serif"
+
+	}
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

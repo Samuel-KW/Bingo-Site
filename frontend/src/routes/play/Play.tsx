@@ -42,12 +42,12 @@ function Play() {
 
 	return (
 		<>
-			<h1>BINGO!</h1>
+			<Title>BINGO!</Title>
 
 			<div className={styles.content}>
 				<div className={styles.board}>
 					{boards === undefined ? loadingBingoBoard : boards.map(board => (
-						<Card key={board.id} onClick={() => void navigate("/play/" + board.id)}>
+						<Card mt="lg" key={board.id} onClick={() => void navigate("/play/" + board.id)}>
 							<Title order={3}>{board.title}</Title>
 							<Text>{(new Date(board.created_at)).toLocaleDateString()}</Text>
 						</Card>

@@ -185,7 +185,7 @@ function CreateBoard() {
 
 	return (
 		<>
-			<Title order={1}>Create a new board</Title>
+			<Title>Create a new board</Title>
 			<form onSubmit={formBoard.onSubmit(values => handleInputBoard(values))}>
 				<TextInput label="Title" placeholder="Enter a title for the board" key={formBoard.key("title")} {...formBoard.getInputProps("title")}/>
 				<Textarea label="Description" mt="sm" placeholder="Enter a description for the board" key={formBoard.key("description")} {...formBoard.getInputProps("description")} />

@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-	<defs>
-		<radialGradient id="b" cx="250" cy="250" r="250" gradientUnits="userSpaceOnUse">
-			<stop stop-color="rgb(91,148,223)" offset="0"/>
-			<stop stop-color="rgb(35,97,177)" offset="1"/>
-		</radialGradient>
-		<radialGradient id="a" cx="136.4" cy="250" r="165" gradientUnits="userSpaceOnUse">
-			<stop stop-color="rgb(255,255,255)" offset="0"/>
-			<stop stop-color="rgb(204,204,204)" offset="1"/>
-		</radialGradient>
-	</defs>
-	<ellipse cx="250" cy="250" rx="250" ry="250" fill="url(#b)"/>
-	<ellipse cx="250" cy="250" rx="195" ry="195" fill="none" stroke="#cfcfcf" stroke-width="16px"/>
-	<ellipse cx="250" cy="250" rx="165" ry="165" fill="url(#a)"/>
-	<polygon points="250,150 275,225 350,225 290,275 310,350 250,300 190,350 210,275 150,225 225,225"/>
+<svg viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+	<circle cx="256" cy="256" r="256" fill="#8568ff" />
+	<circle cx="256" cy="256" r="216" fill="#c2b5f9" />
+	<circle cx="256" cy="256" r="164" fill="transparent" stroke="#8568ff" stroke-width="25" />
+	<path d="M 182 370 L 256 142 L 330 370 L 136 229 L 376 229" fill="#2b2c2f" />
+	<path d="M 437 75 a 1 1 0 0 1 -362 362 Z" fill="#fff" style="mix-blend-mode:soft-light"/>
 </svg>

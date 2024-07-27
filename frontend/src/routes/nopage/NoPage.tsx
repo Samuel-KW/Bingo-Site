@@ -1,8 +1,10 @@
+import { Title } from "@mantine/core"
+
 function NoPage() {
 
 	return (
 		<>
-			<h1>No page found</h1>
+			<Title p={10}>No page found</Title>
 		</>
 	)
 }
