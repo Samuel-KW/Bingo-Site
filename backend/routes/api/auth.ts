@@ -6,10 +6,10 @@ import LogOut from "../../routes/api/logout";
 import { GetOwnedBoards } from "./GetOwnedBoards";
 import { GetBoards } from "../../routes/api/GetBoards";
 import { CreateBoard } from "../../routes/api/CreateBoard";
+import { BoardLookup } from "../../routes/api/BoardLookup";
 import { generateToken, verifyAuthentication } from "src/Authentication";
 
 import { Request, Response } from "express";
-import { AuthenticatedRequest } from "src/Server";
 import { getAllBoards, getAllUsers } from "Database";
 
 // Initialize the router
@@ -33,6 +33,7 @@ router.get("/api/boards", (req: Request, res: Response) => {
 });
 
 // Initialize API routes
+router.get("/api/bingo/:id", BoardLookup);
 router.get("/api/getParticipatingBoards", verifyAuth, GetBoards);
 router.get("/api/getOwnedBoards", verifyAuth, GetOwnedBoards);
 

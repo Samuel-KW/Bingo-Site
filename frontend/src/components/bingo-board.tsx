@@ -75,9 +75,9 @@ export async function fetchBingoBoard(id: string, abortController: AbortControll
 	const response = await fetch(`/api/bingo/${id}`, { signal: abortController.signal });
 	const data = await response.json();
 
-	for (let i = 0; i < data.cards.length; i++) {
-		const card = data.cards[i];
-		data.cards[i] = {
+	const cards = JSON.parse(data.cards);
+	data.cards = cards.map((card: string[], i: number) => {
+		return {
 			title: card[0],
 			description: card[1],
 			required: card[2],
@@ -85,7 +85,9 @@ export async function fetchBingoBoard(id: string, abortController: AbortControll
 			type: card[3],
 			id: i
 		};
-	}
+	});
+
+	data.players = JSON.parse(data.players);
 
 	return data as BingoBoard;
 };

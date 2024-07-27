@@ -1,6 +1,16 @@
 import { Database, Statement } from "bun:sqlite";
 import { randomUUID } from "crypto";
 
+export interface GameProgress {
+
+	/* UUID of the game */
+	board_uuid: string;
+
+	/* Current progress of the game */
+	progress: (0 | 1 | string)[]
+
+}
+
 export interface BoardPlayerStats {
 
 	/* UUID of the player */
@@ -20,6 +30,7 @@ export interface DatabaseUser {
 	avatarUrl: string;
 	accountType: string;
 	boards: string;
+	games: string;
 };
 
 export interface DatabaseBoard {
@@ -98,11 +109,12 @@ export class User {
 		public birthday: string,
 		public avatarUrl: string,
 		public accountType: string,
-		public boards: string[]
+		public boards: string[],
+		public games: GameProgress[]
 	) { }
 
 	static new(password: string, firstName: string, lastName: string, email: string, birthday: string, avatarUrl: string): User {
-		return new User(randomUUID(), password, firstName, lastName, email, birthday, avatarUrl, "user", []);
+		return new User(randomUUID(), password, firstName, lastName, email, birthday, avatarUrl, "user", [], []);
 	}
 
 	static fromDB(user: DatabaseUser): User {
@@ -115,7 +127,8 @@ export class User {
 			user.birthday,
 			user.avatarUrl,
 			user.accountType,
-			user.boards.split(",")
+			user.boards.split(","),
+			JSON.parse(user.games)
 		);
 	}
 
@@ -129,7 +142,8 @@ export class User {
 			birthday: this.birthday,
 			avatarUrl: this.avatarUrl,
 			accountType: this.accountType,
-			boards: this.boards.join(",")
+			boards: this.boards.join(","),
+			games: JSON.stringify(this.games)
 		};
 	}
 
@@ -154,7 +168,7 @@ const db = new Database(DATABASE_FILE, {
 db.exec("PRAGMA journal_mode = WAL;");
 
 // Create default tables if they don't exist
-db.run(`CREATE TABLE IF NOT EXISTS ${DB_USERS} (uuid TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, firstName TEXT, lastName TEXT, email TEXT NOT NULL, birthday TEXT, avatarUrl TEXT, accountType TEXT NOT NULL, boards JSON NOT NULL)`);
+db.run(`CREATE TABLE IF NOT EXISTS ${DB_USERS} (uuid TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, firstName TEXT, lastName TEXT, email TEXT NOT NULL, birthday TEXT, avatarUrl TEXT, accountType TEXT NOT NULL, boards JSON NOT NULL, games JSON NOT NULL)`);
 db.run(`CREATE TABLE IF NOT EXISTS ${DB_BOARDS} (id TEXT NOT NULL PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, owner TEXT NOT NULL, editors JSON NOT NULL, cards JSON NOT NULL, players JSON NOT NULL, FOREIGN KEY(owner) REFERENCES ${DB_USERS}(uuid))`);
 
 export class Query {
@@ -176,7 +190,7 @@ export class Query {
 		Query.getUserByEmail = db.prepare(`SELECT * FROM ${DB_USERS} WHERE email = $email`);
 		Query.getUserByUUID = db.prepare(`SELECT * FROM ${DB_USERS} WHERE uuid = $uuid`);
 		Query.getBoardByID = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id = $id`);
-		Query.createUser = db.prepare(`INSERT OR IGNORE INTO ${DB_USERS} (uuid, password, firstName, lastName, email, birthday, avatarUrl, accountType, boards) VALUES ($uuid, $password, $firstName, $lastName, $email, $birthday, $avatarUrl, $accountType, $boards)`);
+		Query.createUser = db.prepare(`INSERT OR IGNORE INTO ${DB_USERS} (uuid, password, firstName, lastName, email, birthday, avatarUrl, accountType, boards, games) VALUES ($uuid, $password, $firstName, $lastName, $email, $birthday, $avatarUrl, $accountType, $boards, $games)`);
 		Query.createBoard = db.prepare(`INSERT OR IGNORE INTO ${DB_BOARDS} (id, title, description, created_at, updated_at, owner, editors, cards, players) VALUES ($id, $title, $description, $created_at, $updated_at, $owner, $editors, $cards, $players)`);
 
 		Query.isOpen = true;
