@@ -83,7 +83,7 @@ export default function SignUp() {
 							<Text>Already have an account? <Link to="/login">Log In</Link></Text>
 							<Divider my="xs" />
 						</div>
-						<form onSubmit={form.onSubmit((values) => handleSignUp(values))}>
+						<form onSubmit={form.onSubmit((values) => handleSignUp(values))} autoComplete="on">
 							<div>
 								<TextInput
 									withAsterisk

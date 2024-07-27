@@ -74,7 +74,7 @@ export default function LogIn() {
 							<Text>Don't have an account? <Link to="/signup">Sign Up</Link></Text>
 							<Divider my="xs" />
 						</div>
-						<form onSubmit={form.onSubmit((values) => handleLogin(values))}>
+						<form onSubmit={form.onSubmit((values) => handleLogin(values))} autoComplete="on">
 							<div>
 								<TextInput
 									withAsterisk
@@ -89,7 +89,7 @@ export default function LogIn() {
 									mt="xs"
 									withAsterisk
 									label="Password"
-									autoComplete="new-password"
+									autoComplete="current-password"
 									placeholder="Your password"
 									type="password"
 									key={form.key('password')}

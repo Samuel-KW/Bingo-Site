@@ -1,11 +1,11 @@
 import crypto from "crypto";
-import { DoubleCsrfConfigOptions } from "csrf-csrf";
+import { doubleCsrf, DoubleCsrfConfigOptions } from "csrf-csrf";
 import { NextFunction, Request, Response } from "express";
 import session, { SessionOptions } from "express-session";
-import BingoDatabase, { Board, User, BingoCard } from "../Database";
+import BingoDatabase, { BingoCard } from "../Database";
 
 import BunStoreClass from "./BunStore";
-import passport from "passport";
+import { AuthenticatedRequest } from "./Server";
 const BunStore = BunStoreClass(session);
 
 
@@ -31,7 +31,6 @@ if (!HASH_TIME_COST || !HASH_MEMORY_COST || !HASH_SALT_LENGTH)
 const HASH_PEPPERS = process.env.PEPPER.split(" ");
 if (!HASH_PEPPERS)
 	throw new Error("No hash pepper(s) provided.");
-
 
 export type BingoBoard = {
 	id: string;
@@ -138,6 +137,14 @@ if (process.env.NODE_ENV === 'production') {
   sessionOptions.cookie.secure = true;
 }
 
+// https://github.com/Psifi-Solutions/csrf-csrf
+export const {
+	invalidCsrfTokenError, // This is just for convenience if you plan on making your own middleware.
+	generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
+	validateRequest, // Also a convenience if you plan on making your own middleware.
+	doubleCsrfProtection, // This is the default CSRF protection middleware.
+} = doubleCsrf(csrfOptions);
+
 // const regex = new RegExp(/^\$(bcrypt|argon2id|argon2d|argon2i)\$v=(\d{1,6})\$m=(\d{1,10}),t=(\d{1,3}),p=(\d{1,3})\$(.+)$/);
 
 export async function Verify(password: string, hash: string, options: HashOptions): Promise<boolean> {
@@ -178,7 +185,7 @@ type VerifyAuthOptions = {
 	setReturnTo?: boolean;
 };
 
-declare module 'express-session' {
+declare module "express-session" {
   interface SessionData {
     returnTo?: string;
   }
@@ -186,15 +193,16 @@ declare module 'express-session' {
 
 export function verifyAuthentication(options: VerifyAuthOptions = {}) {
 
-  const url = options.redirectTo ?? '/login';
+  const url = options.redirectTo ?? "/login";
   const setReturnTo = options.setReturnTo ?? true;
 
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
+  return (req: AuthenticatedRequest | Request, res: Response, next: NextFunction) => {
+    if (typeof req.session === "undefined" || !req.session.user) {
       if (setReturnTo && req.session) {
         req.session.returnTo = req.originalUrl || req.url;
+				return res.redirect(url);
       }
-      return res.redirect(url);
+			return res.status(401).send("Unauthorized");
     }
     next();
   }

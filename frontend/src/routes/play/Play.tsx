@@ -11,12 +11,9 @@ import styles from './Play.module.css';
 
 function Play() {
 
-	const bingoBoards: BingoBoard[] = [];
-
-	const [boards, setBoards] = useState<BingoBoard[]>([]);
+	const [boards, setBoards] = useState<BingoBoard[]>();
 
 	const navigate = useNavigate();
-
 
   useEffect(() => {
 
@@ -41,7 +38,7 @@ function Play() {
 			});
 
 		return () => abortController.abort();
-  }, [bingoBoards]);
+  }, []);
 
 	return (
 		<>
@@ -49,12 +46,12 @@ function Play() {
 
 			<div className={styles.content}>
 				<div className={styles.board}>
-					{boards.length ? boards.map(board => (
+					{boards === undefined ? loadingBingoBoard : boards.map(board => (
 						<Card key={board.id} onClick={() => void navigate("/play/" + board.id)}>
 							<Title order={3}>{board.title}</Title>
 							<Text>{(new Date(board.created_at)).toLocaleDateString()}</Text>
 						</Card>
-					)) : loadingBingoBoard}
+					))}
 				</div>
 			</div>
 		</>

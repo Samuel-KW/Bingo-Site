@@ -8,67 +8,22 @@ import MenuSortGrid from "./menu-sort-grid";
 
 const noop = () => {};
 
-export async function fetchOwnedBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
-	const response = await fetch("/api/ownedBoards", { signal: abortController.signal });
-	const data = await response.json();
-	return data as BingoBoard[];
+export interface ServerBingoBoard {
+	title: string,
+	description: string,
+	editors: string[],
+	cards: [
+		string, // Title
+		string, // Description
+		boolean, // Required
+		"QR Code" | "Honor System" | "Given" | "User Input" // Type
+	][]
 };
 
-export async function fetchBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
-	const response = await fetch("/api/boards", { signal: abortController.signal });
-	const data = await response.json();
-	return data as BingoBoard[];
-};
-
-export async function fetchBingoBoard(id: string, abortController: AbortController): Promise<BingoBoard> {
-	const response = await fetch(`/api/bingo/${id}`, { signal: abortController.signal });
-	const data = await response.json();
-
-	for (let i = 0; i < data.cards.length; i++) {
-		const card = data.cards[i];
-		data.cards[i] = {
-			title: card[0],
-			description: card[1],
-			required: card[2],
-			completed: false,
-			type: card[3],
-			id: i
-		};
-	}
-
-	return data as BingoBoard;
-};
-
-export async function updateBingoBoard(id: string, board: BingoBoard): Promise<void> {
-	const response = await fetch(`/api/bingo/${id}`, {
-		method: "PATCH",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify(board)
-	});
-	const data = await response.json();
-	return data;
-};
-
-export async function createBingoBoard(board: BingoBoard): Promise<void> {
-	const response = await fetch(`/api/bingo`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify(board)
-	});
-	const data = await response.json();
-	return data;
-};
-
-export async function deleteBingoBoard(id: string): Promise<void> {
-	const response = await fetch(`/api/bingo/${id}`, {
-		method: "DELETE"
-	});
-	const data = await response.json();
-	return data;
+const csrf = async () => {
+	const req = await fetch("/api/csrf");
+	const data = await req.json();
+	return data.csrf;
 };
 
 export interface BingoBoard {
@@ -103,6 +58,86 @@ export interface BingoBoardProps extends BoxProps, Partial<BingoBoard> {
 	/** Whether to display the board in a grid layout */
 	isGrid?: boolean;
 }
+
+export async function fetchOwnedBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
+	const response = await fetch("/api/getOwnedBoards", { signal: abortController.signal });
+	const data = await response.json();
+	return data as BingoBoard[];
+};
+
+export async function fetchBingoBoards(abortController: AbortController): Promise<BingoBoard[]> {
+	const response = await fetch("/api/getParticipatingBoards", { signal: abortController.signal });
+	const data = await response.json();
+	return data as BingoBoard[];
+};
+
+export async function fetchBingoBoard(id: string, abortController: AbortController): Promise<BingoBoard> {
+	const response = await fetch(`/api/bingo/${id}`, { signal: abortController.signal });
+	const data = await response.json();
+
+	for (let i = 0; i < data.cards.length; i++) {
+		const card = data.cards[i];
+		data.cards[i] = {
+			title: card[0],
+			description: card[1],
+			required: card[2],
+			completed: false,
+			type: card[3],
+			id: i
+		};
+	}
+
+	return data as BingoBoard;
+};
+
+export async function updateBingoBoard(id: string, board: BingoBoard, abortController: AbortController): Promise<void> {
+	const csrfToken = await csrf();
+
+	const response = await fetch(`/api/bingo/${id}`, {
+		signal: abortController.signal,
+		method: "PATCH",
+		headers: {
+			"Content-Type": "application/json",
+			"x-csrf-token": csrfToken,
+			"credentials": "same-origin"
+		},
+		body: JSON.stringify(board)
+	});
+	const data = await response.json();
+	return data;
+};
+
+export async function createBingoBoard(board: ServerBingoBoard, abortController: AbortController): Promise<void> {
+	const csrfToken = await csrf();
+
+	const response = await fetch(`/api/createBoard`, {
+		signal: abortController.signal,
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"x-csrf-token": csrfToken,
+			"credentials": "same-origin"
+		},
+		body: JSON.stringify(board)
+	});
+	const data = await response.json();
+	return data;
+};
+
+export async function deleteBingoBoard(id: string, abortController: AbortController): Promise<void> {
+	const csrfToken = await csrf();
+
+	const response = await fetch(`/api/bingo/${id}`, {
+		signal: abortController.signal,
+		method: "DELETE",
+		headers: {
+			"x-csrf-token": csrfToken,
+			"credentials": "same-origin"
+		}
+	});
+	const data = await response.json();
+	return data;
+};
 
 const defaultProps = {
 	id: "",
