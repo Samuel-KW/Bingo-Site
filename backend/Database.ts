@@ -1,6 +1,7 @@
 import { Database, Statement } from "bun:sqlite";
 import { randomUUID } from "crypto";
-import { BingoBoard, BingoCard, BoardPlayerStats, DatabaseBingoBoard, DatabaseBingoUser, GameProgress } from "src/Types";
+import { DatabaseBingoUser, BingoUser, BingoBoard, BingoCard, DatabaseBingoBoard, BoardPlayerStats } from "routes/api/Validation";
+import { GameProgress } from "src/Types";
 
 export class Board {
 	constructor(
@@ -107,7 +108,12 @@ export class User {
 		};
 	}
 
-	createBoard(title: string, description: string, editors: string[], cards: BingoCard[]): Board {
+	createBoard(params: Partial<BingoBoard>={}): Board {
+		const { title, description, editors=[], cards=[] } = params;
+
+		if (title === undefined || description === undefined)
+			throw new Error("Title and description are required to create a new board.");
+
 		const board = Board.new({ title, description, owner: this.uuid, editors, cards });
 		this.boards.push(board.id);
 		return board;

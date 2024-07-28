@@ -2,13 +2,12 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "../../src/Server";
 import { addBoard, Board, updateUserBoards } from "../../Database";
 
-import { z } from "zod";
-import { BingoBoardSchema } from "./Validation";
+import { BingoBoard } from "./Validation";
 
 export function CreateBoard (req: AuthenticatedRequest, res: Response) {
 	const body = req.body;
 
-	const result = BingoBoardSchema.safeParse(body);
+	const result = BingoBoard.safeParse(body);
 
 	if (!result.success) {
 		console.error("Error creating board:", result.error);
