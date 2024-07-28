@@ -4,7 +4,7 @@ import session from "express-session";
 
 import * as path from "path";
 
-import BingoDatabase, { Board, User, BingoCard, getBoard, getUserByEmail, getUserByUUID, addBoard, addUser, DatabaseUser } from "../Database";
+import BingoDatabase, { Board, User, DatabaseBingoCard, getBoard, getUserByEmail, getUserByUUID, addBoard, addUser, DatabaseUser } from "../Database";
 import { Verify, Hash, hashOptions, csrfOptions } from "./Authentication";
 
 import pageRouter from "../routes/api/pages";
@@ -67,7 +67,7 @@ export class Server {
       return user;
     }
 
-    createBoard(user: User, title: string, description: string, editors: string[], cards: BingoCard[]): Board {
+    createBoard(user: User, title: string, description: string, editors: string[], cards: DatabaseBingoCard[]): Board {
       const board = user.createBoard(title, description, editors, cards);
       addBoard(board.toDB());
       return board;

@@ -2,12 +2,12 @@ import crypto from "crypto";
 import { doubleCsrf, DoubleCsrfConfigOptions } from "csrf-csrf";
 import { NextFunction, Request, Response } from "express";
 import session, { SessionOptions } from "express-session";
-import BingoDatabase, { BingoCard } from "../Database";
+import BingoDatabase from "../Database";
+import { BingoBoard, UserMetadata, HashOptions } from "./Types";
 
 import BunStoreClass from "./BunStore";
 import { AuthenticatedRequest } from "./Server";
 const BunStore = BunStoreClass(session);
-
 
 export const MIN_PASSWORD_LENGTH = Number(process.env.MIN_PASSWORD_LENGTH);
 export const MAX_PASSWORD_LENGTH = Number(process.env.MAX_PASSWORD_LENGTH);
@@ -32,64 +32,7 @@ const HASH_PEPPERS = process.env.PEPPER.split(" ");
 if (!HASH_PEPPERS)
 	throw new Error("No hash pepper(s) provided.");
 
-export type BingoBoard = {
-	id: string;
-	title: string;
-	created_at: string;
-	updated_at: string;
-	cards: [ BingoCard ] | [];
-};
 
-export type UserMetadata = {
-	firstName: string;
-	lastName: string;
-	birthday: string;
-	avatarUrl: string;
-	accountType: string;
-	boards: [ BingoBoard ] | [];
-};
-
-export type Session = {
-	user: {
-		email: string;
-		id: string;
-		metadata: UserMetadata;
-	};
-	accessToken: string;
-	refreshToken: string;
-	expiresIn: number;
-	tokenType: string;
-};
-
-type HashOptions = {
-	/**
-	 * The algorithm to use for hashing. If possible, use argon2id.
-	 */
-	algorithm: "bcrypt" | "argon2id" | "argon2d" | "argon2i";
-
-	/**
-	 * The memory cost to use for hashing in kilobytes.
-	 */
-	memoryCost: number;
-
-	/**
-	 * The time cost to use for hashing in iterations.
-	 */
-	timeCost: number;
-
-	/**
-	 * The length of the salt to use for hashing in bytes.
-	 */
-	saltLength: number;
-
-	/**
-	 * The pepper to use for hashing. The first pepper in the
-	 * array will be used for encoding new hashes and the
-	 * remaining peppers will be used for verifying previous
-	 * hashes.
-	 */
-	peppers: string[];
-}
 
 export const hashOptions: HashOptions = {
 	algorithm: "argon2id",
@@ -121,18 +64,18 @@ export const 	sessionOptions: SessionOptions = {
 		client: BingoDatabase,
 		expired: {
 			clear: true,
-			intervalMs: 15 * 60 * 1000 //ms = 15min
+			intervalMs: 24 * 60 * 60 * 1000 //ms = 1 day
 		}
 	}),
 	cookie : {
 		sameSite: "lax",
 		secure: false,
 		httpOnly: true,
-		maxAge: 15 * 60 * 1000
+		maxAge: 24 * 60 * 60 * 1000
 	}
 };
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
 	csrfOptions.cookieOptions.secure = true;
   sessionOptions.cookie.secure = true;
 }

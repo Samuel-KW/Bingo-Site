@@ -1,56 +1,6 @@
 import { Database, Statement } from "bun:sqlite";
 import { randomUUID } from "crypto";
-
-export interface GameProgress {
-
-	/* UUID of the game */
-	board_uuid: string;
-
-	/* Current progress of the game */
-	progress: (0 | 1 | string)[]
-
-}
-
-export interface BoardPlayerStats {
-
-	/* UUID of the player */
-	player: string;
-
-	/* Bingo card details */
-	cards: boolean[]
-}
-
-export interface DatabaseUser {
-	uuid: string;
-	password: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	birthday: string;
-	avatarUrl: string;
-	accountType: string;
-	boards: string;
-	games: string;
-};
-
-export interface DatabaseBoard {
-	id: string;
-	title: string;
-	description: string;
-	created_at: number;
-	updated_at: number;
-	owner: string;
-	editors: string;
-	cards: string;
-	players: string;
-};
-
-export type BingoCard = [
-	string, // Title
-	string, // Description
-	boolean, // Required
-	"QR Code" | "Honor System" | "Given" | "User Input" // Type
-];
+import { BingoBoard, BingoCard, BoardPlayerStats, DatabaseBingoBoard, DatabaseBingoUser, GameProgress } from "src/Types";
 
 export class Board {
 	constructor(
@@ -65,7 +15,7 @@ export class Board {
 		public players: BoardPlayerStats[]
 	) { }
 
-	toDB(): DatabaseBoard {
+	toDB(): DatabaseBingoBoard {
 		return {
 			id: this.id,
 			title: this.title,
@@ -73,13 +23,13 @@ export class Board {
 			created_at: this.createdAt,
 			updated_at: this.updatedAt,
 			owner: this.owner,
-			editors: this.editors.join(","),
+			editors: JSON.stringify(this.editors),
 			cards: JSON.stringify(this.cards),
 			players: JSON.stringify(this.players)
 		};
 	}
 
-	static fromDB(board: DatabaseBoard): Board {
+	static fromDB(board: DatabaseBingoBoard): Board {
 		return new Board(
 			board.id,
 			board.title,
@@ -87,13 +37,18 @@ export class Board {
 			board.created_at,
 			board.updated_at,
 			board.owner,
-			board.editors.split(","),
+			JSON.parse(board.editors),
 			JSON.parse(board.cards),
 			JSON.parse(board.players)
 		);
 	}
 
-	static new(title: string, description: string, owner: string, editors: string[], cards: BingoCard[]): Board {
+	static new(params: Partial<BingoBoard>): Board {
+		const { title, description, owner, editors=[], cards=[] } = params;
+
+		if (title === undefined || description === undefined || owner === undefined)
+			throw new Error("Title, description, and owner are required to create a new board.");
+
 		const now = Date.now();
 		return new Board(randomUUID(), title, description, now, now, owner, editors, cards, []);
 	}
@@ -103,21 +58,26 @@ export class User {
 	constructor(
 		public uuid: string,
 		public password: string,
-		public firstName: string,
-		public lastName: string,
+		public firstName: string | undefined,
+		public lastName: string | undefined,
 		public email: string,
-		public birthday: string,
-		public avatarUrl: string,
-		public accountType: string,
+		public birthday: string | undefined,
+		public avatarUrl: string | undefined,
+		public accountType: "user" | "admin",
 		public boards: string[],
 		public games: GameProgress[]
 	) { }
 
-	static new(password: string, firstName: string, lastName: string, email: string, birthday: string, avatarUrl: string): User {
+	static new(params: Partial<User>={}): User {
+		const { password, firstName, lastName, email, birthday, avatarUrl } = params;
+
+		if (password === undefined || email === undefined)
+			throw new Error("Password and email are required to create a new user.");
+
 		return new User(randomUUID(), password, firstName, lastName, email, birthday, avatarUrl, "user", [], []);
 	}
 
-	static fromDB(user: DatabaseUser): User {
+	static fromDB(user: DatabaseBingoUser): User {
 		return new User(
 			user.uuid,
 			user.password,
@@ -127,12 +87,12 @@ export class User {
 			user.birthday,
 			user.avatarUrl,
 			user.accountType,
-			user.boards.split(","),
+			JSON.parse(user.boards),
 			JSON.parse(user.games)
 		);
 	}
 
-	toDB(): DatabaseUser {
+	toDB(): DatabaseBingoUser {
 		return {
 			uuid: this.uuid,
 			password: this.password,
@@ -142,13 +102,13 @@ export class User {
 			birthday: this.birthday,
 			avatarUrl: this.avatarUrl,
 			accountType: this.accountType,
-			boards: this.boards.join(","),
+			boards: JSON.stringify(this.boards),
 			games: JSON.stringify(this.games)
 		};
 	}
 
 	createBoard(title: string, description: string, editors: string[], cards: BingoCard[]): Board {
-		const board = Board.new(title, description, this.uuid, editors, cards);
+		const board = Board.new({ title, description, owner: this.uuid, editors, cards });
 		this.boards.push(board.id);
 		return board;
 	}
@@ -219,7 +179,7 @@ Query.open();
  * @param board Board object to add
  * @returns void
  */
-export const addBoard = (board: DatabaseBoard) => {
+export const addBoard = (board: DatabaseBingoBoard) => {
 	Query.createBoard.run(board);
 };
 
@@ -228,38 +188,50 @@ export const addBoard = (board: DatabaseBoard) => {
  * @param user User object to add
  * @returns void
  */
-export const addUser = (user: DatabaseUser) => {
+export const addUser = (user: DatabaseBingoUser) => {
 	Query.createUser.run(user);
 };
 
 /**
  * Get a board by its ID
  * @param id Board ID to search for
- * @returns DatabaseBoard object if found, otherwise undefined
+ * @returns DatabaseBingoBoard object if found, otherwise undefined
  */
-export const getBoard = (id: string): DatabaseBoard | undefined => {
+export const getBoard = (id: string): DatabaseBingoBoard | undefined => {
 	const response: unknown = Query.getBoardByID.get({ id });
 
 	if (response === undefined || response === null)
 		return undefined;
 
-	return response as DatabaseBoard;
+	return response as DatabaseBingoBoard;
+};
+
+/**
+ * Delete a board by its ID
+ * @param id Board ID to delete
+ */
+export const deleteBoard = (id: string) => {
+	db.prepare(`DELETE FROM ${DB_BOARDS} WHERE id = $id`).run({ id });
+};
+
+export const updateBoard = (board: DatabaseBingoBoard) => {
+	board.updated_at = Date.now();
+	db.prepare(`UPDATE ${DB_BOARDS} SET title = $title, description = $description, updated_at = $updated_at, owner = $owner, editors = $editors, cards = $cards, players = $players WHERE id = $id`).run({...board});
 };
 
 /**
  * Get a list of boards by their IDs
  * @param ids Array of board IDs to search for
- * @returns Array of DatabaseBoard objects
+ * @returns Array of DatabaseBingoBoard objects
  */
-export const getBoards = (ids: string[]): DatabaseBoard[] => {
+export const getBoards = (ids: string[]): DatabaseBingoBoard[] => {
 	const list = ids.map(() => "?").join(",");
-	console.log(list);
 	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id IN (${list})`).all(...ids);
 
 	if (response === undefined || response === null)
 		return [];
 
-	return response as DatabaseBoard[];
+	return response as DatabaseBingoBoard[];
 };
 
 
@@ -267,29 +239,29 @@ export const getBoards = (ids: string[]): DatabaseBoard[] => {
  * Get a list of boards owned by a user
  * @param owner User UUID to search for
  * @param limit Maximum number of boards to return
- * @returns Array of DatabaseBoard objects
+ * @returns Array of DatabaseBingoBoard objects
  */
-export const getOwnedBoards = (owner: string, limit: number = 10): DatabaseBoard[] => {
+export const getOwnedBoards = (owner: string, limit: number = 10): DatabaseBingoBoard[] => {
 	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE owner = $owner LIMIT $limit`).all({ owner, limit });
 
 	if (response === undefined || response === null)
 		return [];
 
-	return response as DatabaseBoard[];
+	return response as DatabaseBingoBoard[];
 }
 
 /**
  * Get a user by their email
  * @param email Email to search for
- * @returns DatabaseUser object if found, otherwise undefined
+ * @returns DatabaseBingoUser object if found, otherwise undefined
  */
-export const getUserByEmail = (email: string): DatabaseUser | undefined => {
+export const getUserByEmail = (email: string): DatabaseBingoUser | undefined => {
 	const response: unknown = Query.getUserByEmail.get({ email });
 
 	if (response === undefined || response === null)
 		return undefined;
 
-	return response as DatabaseUser;
+	return response as DatabaseBingoUser;
 };
 
 /**
@@ -304,39 +276,39 @@ export const updateUserBoards = (uuid: string, boards: string[]) => {
 
 /**
  * Get all boards in the database
- * @returns Array of DatabaseBoard objects
+ * @returns Array of DatabaseBingoBoard objects
  */
-export const getAllBoards = (): DatabaseBoard[] => {
+export const getAllBoards = (): DatabaseBingoBoard[] => {
 	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS}`).all();
 
 	if (response === undefined || response === null)
 		return [];
 
-	return response as DatabaseBoard[];
+	return response as DatabaseBingoBoard[];
 };
 
-export const getAllUsers = (): DatabaseUser[] => {
+export const getAllUsers = (): DatabaseBingoUser[] => {
 
 	const response: unknown = db.prepare(`SELECT * FROM ${DB_USERS}`).all();
 
 	if (response === undefined || response === null)
 		return [];
 
-	return response as DatabaseUser[];
+	return response as DatabaseBingoUser[];
 }
 
 /**
  * Get a user by their UUID
  * @param uuid User UUID to search for
- * @returns DatabaseUser object if found, otherwise undefined
+ * @returns DatabaseBingoUser object if found, otherwise undefined
  */
-export const getUserByUUID = (uuid: string): DatabaseUser | undefined => {
+export const getUserByUUID = (uuid: string): DatabaseBingoUser | undefined => {
 	const response: unknown = Query.getUserByUUID.get({ uuid });
 
 	if (response === undefined || response === null)
 		return undefined;
 
-	return response as DatabaseUser;
+	return response as DatabaseBingoUser;
 };
 
 export default db;

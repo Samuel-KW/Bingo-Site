@@ -34,6 +34,7 @@ router.get("/api/boards", (req: Request, res: Response) => {
 
 // Initialize API routes
 router.get("/api/bingo/:id", BoardLookup);
+
 router.get("/api/getParticipatingBoards", verifyAuth, GetBoards);
 router.get("/api/getOwnedBoards", verifyAuth, GetOwnedBoards);
 
