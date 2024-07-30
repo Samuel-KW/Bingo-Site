@@ -1,15 +1,14 @@
 import { Database, Statement } from "bun:sqlite";
 import { randomUUID } from "crypto";
 import { DatabaseBingoUser, BingoUser, BingoBoard, BingoCard, DatabaseBingoBoard, BoardPlayerStats } from "routes/api/Validation";
-import { GameProgress } from "src/Types";
 
-export class Board {
+export class Board implements BingoBoard {
 	constructor(
 		public id: string,
 		public title: string,
 		public description: string,
-		public createdAt: number,
-		public updatedAt: number,
+		public created_at: number,
+		public updated_at: number,
 		public owner: string,
 		public editors: string[],
 		public cards: BingoCard[],
@@ -21,8 +20,8 @@ export class Board {
 			id: this.id,
 			title: this.title,
 			description: this.description,
-			created_at: this.createdAt,
-			updated_at: this.updatedAt,
+			created_at: this.created_at,
+			updated_at: this.updated_at,
 			owner: this.owner,
 			editors: JSON.stringify(this.editors),
 			cards: JSON.stringify(this.cards),
@@ -55,7 +54,7 @@ export class Board {
 	}
 }
 
-export class User {
+export class User implements BingoUser {
 	constructor(
 		public uuid: string,
 		public password: string,
@@ -66,7 +65,7 @@ export class User {
 		public avatarUrl: string | undefined,
 		public accountType: "user" | "admin",
 		public boards: string[],
-		public games: GameProgress[]
+		public games: BoardPlayerStats[]
 	) { }
 
 	static new(params: Partial<User>={}): User {
@@ -110,9 +109,6 @@ export class User {
 
 	createBoard(params: Partial<BingoBoard>={}): Board {
 		const { title, description, editors=[], cards=[] } = params;
-
-		if (title === undefined || description === undefined)
-			throw new Error("Title and description are required to create a new board.");
 
 		const board = Board.new({ title, description, owner: this.uuid, editors, cards });
 		this.boards.push(board.id);
@@ -185,8 +181,20 @@ Query.open();
  * @param board Board object to add
  * @returns void
  */
-export const addBoard = (board: DatabaseBingoBoard) => {
-	Query.createBoard.run(board);
+export const addBoard = (board: BingoBoard) => {
+	const now = Date.now();
+
+	Query.createBoard.run({
+		id: board.id,
+		title: board.title,
+		description: board.description,
+		created_at: now,
+		updated_at: now,
+		owner: board.owner,
+		editors: JSON.stringify(board.editors),
+		cards: JSON.stringify(board.cards),
+		players: JSON.stringify(board.players)
+	});
 };
 
 /**
@@ -194,8 +202,19 @@ export const addBoard = (board: DatabaseBingoBoard) => {
  * @param user User object to add
  * @returns void
  */
-export const addUser = (user: DatabaseBingoUser) => {
-	Query.createUser.run(user);
+export const addUser = (user: BingoUser) => {
+	Query.createUser.run({
+		uuid: user.uuid,
+		password: user.password,
+		firstName: user.firstName,
+		lastName: user.lastName,
+		email: user.email,
+		birthday: user.birthday,
+		avatarUrl: user.avatarUrl,
+		accountType: user.accountType,
+		boards: JSON.stringify(user.boards),
+		games: JSON.stringify(user.games)
+	});
 };
 
 /**
@@ -203,14 +222,21 @@ export const addUser = (user: DatabaseBingoUser) => {
  * @param id Board ID to search for
  * @returns DatabaseBingoBoard object if found, otherwise undefined
  */
-export const getBoard = (id: string): DatabaseBingoBoard | undefined => {
-	const response: unknown = Query.getBoardByID.get({ id });
+export const getBoard = (id: string): BingoBoard | undefined => {
+	const response: unknown | null = Query.getBoardByID.get({ id });
 
 	if (response === undefined || response === null)
 		return undefined;
 
-	return response as DatabaseBingoBoard;
-};
+	const board = response as DatabaseBingoBoard;
+
+	return {
+		...board,
+		editors: JSON.parse(board.editors),
+		cards: JSON.parse(board.cards),
+		players: JSON.parse(board.players),
+	}
+}
 
 /**
  * Delete a board by its ID
@@ -220,9 +246,21 @@ export const deleteBoard = (id: string) => {
 	db.prepare(`DELETE FROM ${DB_BOARDS} WHERE id = $id`).run({ id });
 };
 
-export const updateBoard = (board: DatabaseBingoBoard) => {
-	board.updated_at = Date.now();
-	db.prepare(`UPDATE ${DB_BOARDS} SET title = $title, description = $description, updated_at = $updated_at, owner = $owner, editors = $editors, cards = $cards, players = $players WHERE id = $id`).run({...board});
+/**
+ * Update a board in the database
+ * @param board Board object to update
+ */
+export const updateBoard = (board: BingoBoard) => {
+	const data: DatabaseBingoBoard = {
+		...board,
+		updated_at: Date.now(),
+		editors: JSON.stringify(board.editors),
+		cards: JSON.stringify(board.cards),
+		players: JSON.stringify(board.players)
+	};
+
+	db.prepare(`UPDATE ${DB_BOARDS} SET title = $title, description = $description, updated_at = $updated_at, owner = $owner, editors = $editors, cards = $cards, players = $players WHERE id = $id`)
+		.run({...data});
 };
 
 /**
@@ -230,14 +268,24 @@ export const updateBoard = (board: DatabaseBingoBoard) => {
  * @param ids Array of board IDs to search for
  * @returns Array of DatabaseBingoBoard objects
  */
-export const getBoards = (ids: string[]): DatabaseBingoBoard[] => {
+export const getBoards = (ids: string[]): BingoBoard[] => {
 	const list = ids.map(() => "?").join(",");
-	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id IN (${list})`).all(...ids);
+	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id IN (${list})`)
+		.all(...list);
 
 	if (response === undefined || response === null)
 		return [];
 
-	return response as DatabaseBingoBoard[];
+	const boards = response as DatabaseBingoBoard[];
+
+	return boards.map(board => {
+		return {
+			...board,
+			editors: JSON.parse(board.editors),
+			cards: JSON.parse(board.cards),
+			players: JSON.parse(board.players)
+		};
+	});
 };
 
 
@@ -247,13 +295,22 @@ export const getBoards = (ids: string[]): DatabaseBingoBoard[] => {
  * @param limit Maximum number of boards to return
  * @returns Array of DatabaseBingoBoard objects
  */
-export const getOwnedBoards = (owner: string, limit: number = 10): DatabaseBingoBoard[] => {
+export const getOwnedBoards = (owner: string, limit: number = 10): BingoBoard[] => {
 	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE owner = $owner LIMIT $limit`).all({ owner, limit });
 
 	if (response === undefined || response === null)
 		return [];
 
-	return response as DatabaseBingoBoard[];
+	const boards = response as DatabaseBingoBoard[];
+	console.log(boards);
+	return boards.map(board => {
+		return {
+			...board,
+			editors: JSON.parse(board.editors),
+			cards: JSON.parse(board.cards),
+			players: JSON.parse(board.players)
+		};
+	});
 }
 
 /**
@@ -261,13 +318,19 @@ export const getOwnedBoards = (owner: string, limit: number = 10): DatabaseBingo
  * @param email Email to search for
  * @returns DatabaseBingoUser object if found, otherwise undefined
  */
-export const getUserByEmail = (email: string): DatabaseBingoUser | undefined => {
+export const getUserByEmail = (email: string): BingoUser | undefined => {
 	const response: unknown = Query.getUserByEmail.get({ email });
 
 	if (response === undefined || response === null)
 		return undefined;
 
-	return response as DatabaseBingoUser;
+	const user = response as DatabaseBingoUser;
+
+	return {
+		...user,
+		boards: JSON.parse(user.boards),
+		games: JSON.parse(user.games)
+	};
 };
 
 /**
@@ -276,8 +339,7 @@ export const getUserByEmail = (email: string): DatabaseBingoUser | undefined => 
  * @param boards New list of board IDs
  */
 export const updateUserBoards = (uuid: string, boards: string[]) => {
-	const str = boards.join(",");
-	db.prepare(`UPDATE ${DB_USERS} SET boards = $boards WHERE uuid = $uuid`).run({ uuid, boards: str });
+	db.prepare(`UPDATE ${DB_USERS} SET boards = $boards WHERE uuid = $uuid`).run({ uuid, boards: JSON.stringify(boards) });
 };
 
 /**
@@ -308,13 +370,19 @@ export const getAllUsers = (): DatabaseBingoUser[] => {
  * @param uuid User UUID to search for
  * @returns DatabaseBingoUser object if found, otherwise undefined
  */
-export const getUserByUUID = (uuid: string): DatabaseBingoUser | undefined => {
+export const getUserByUUID = (uuid: string): BingoUser | undefined => {
 	const response: unknown = Query.getUserByUUID.get({ uuid });
 
-	if (response === undefined || response === null)
+	if (!response)
 		return undefined;
 
-	return response as DatabaseBingoUser;
+	const user = response as DatabaseBingoUser;
+
+	return {
+		...user,
+		boards: JSON.parse(user.boards),
+		games: JSON.parse(user.games)
+	};
 };
 
 export default db;

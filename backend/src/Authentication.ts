@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { doubleCsrf, DoubleCsrfConfigOptions } from "csrf-csrf";
+import { doubleCsrf, DoubleCsrfConfigOptions, RequestMethod } from "csrf-csrf";
 import { NextFunction, Request, Response } from "express";
 import session, { SessionOptions } from "express-session";
 import BingoDatabase from "../Database";
@@ -28,7 +28,7 @@ const HASH_SALT_LENGTH = Number(process.env.HASH_SALT_LENGTH);
 if (!HASH_TIME_COST || !HASH_MEMORY_COST || !HASH_SALT_LENGTH)
 	throw new Error("Missing hash options.");
 
-const HASH_PEPPERS = process.env.PEPPER.split(" ");
+const HASH_PEPPERS = process.env.PEPPER?.split(" ");
 if (!HASH_PEPPERS)
 	throw new Error("No hash pepper(s) provided.");
 
@@ -42,20 +42,20 @@ export const hashOptions: HashOptions = {
 	peppers: HASH_PEPPERS,
 };
 
-export const csrfOptions: DoubleCsrfConfigOptions = {
+export const csrfOptions = {
 	getSecret: () => CSRF_SECRETS, // A function that optionally takes the request and returns a secret
 	cookieName: "_Host-CSRF", // __Host-CSRF The name of the cookie to be used, recommend using Host prefix.
 	cookieOptions: {
-		sameSite: "lax", // Recommend you make this strict if posible
+		sameSite: "lax" as "lax" | "strict" | "none", // Recommend you make this strict if posible
 		path: "/",
 		secure: false,
 	},
 	size: 64, // The size of the CSRF token in bits
-	ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be protected.
+	ignoredMethods: ["GET", "HEAD", "OPTIONS"] as RequestMethod[], // A list of request methods that will not be protected.
 	getTokenFromRequest: (req: Request) => req.headers["x-csrf-token"], // A function that returns the token from the request
 };
 
-export const 	sessionOptions: SessionOptions = {
+export const sessionOptions = {
 	secret: SESSION_SECRET,
 	name: "_Host-sid",
 	resave: false,
@@ -67,8 +67,8 @@ export const 	sessionOptions: SessionOptions = {
 			intervalMs: 24 * 60 * 60 * 1000 //ms = 1 day
 		}
 	}),
-	cookie : {
-		sameSite: "lax",
+	cookie: {
+		sameSite: "lax" as "lax" | "strict" | "none",
 		secure: false,
 		httpOnly: true,
 		maxAge: 24 * 60 * 60 * 1000
@@ -123,30 +123,6 @@ export async function Hash(password: string, options: HashOptions): Promise<stri
 	return hash + salt;
 }
 
-type VerifyAuthOptions = {
-	redirectTo?: string;
-	setReturnTo?: boolean;
-};
-
-declare module "express-session" {
-  interface SessionData {
-    returnTo?: string;
-  }
-}
-
-export function verifyAuthentication(options: VerifyAuthOptions = {}) {
-
-  const url = options.redirectTo ?? "/login";
-  const setReturnTo = options.setReturnTo ?? true;
-
-  return (req: AuthenticatedRequest | Request, res: Response, next: NextFunction) => {
-    if (typeof req.session === "undefined" || !req.session.user) {
-      if (setReturnTo && req.session) {
-        req.session.returnTo = req.originalUrl || req.url;
-				return res.redirect(url);
-      }
-			return res.status(401).send("Unauthorized");
-    }
-    next();
-  }
+export function isAuthenticated(req: Request): req is AuthenticatedRequest {
+	return req.session?.user !== undefined && "user" in req.session;
 }

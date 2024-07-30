@@ -12,12 +12,12 @@ export interface ServerBingoBoard {
 	title: string,
 	description: string,
 	editors: string[],
-	cards: [
-		string, // Title
-		string, // Description
-		boolean, // Required
-		"QR Code" | "Honor System" | "Given" | "User Input" // Type
-	][]
+	cards: {
+		title: string,
+		description: string,
+		required: boolean,
+		type: "QR Code" | "Honor System" | "Given" | "User Input"
+	}[]
 };
 
 const csrf = async () => {
@@ -45,6 +45,15 @@ export interface BingoBoard {
 
 	/** Bingo board owner UUID */
 	owner: string;
+
+	/** Bingo board editors UUIDs */
+	editors: string[];
+
+	/** Bingo board players */
+	players: {
+		player: string;
+		cards: (boolean | string)[];
+	}[];
 
 	/** Bingo board cards */
 	cards: BingoCard[];
@@ -75,8 +84,7 @@ export async function fetchBingoBoard(id: string, abortController: AbortControll
 	const response = await fetch(`/api/bingo/${id}`, { signal: abortController.signal });
 	const data = await response.json();
 
-	const cards = JSON.parse(data.cards);
-	data.cards = cards.map((card: string[], i: number) => {
+	data.cards = data.cards.map((card: string[], i: number) => {
 		return {
 			title: card[0],
 			description: card[1],

@@ -4,13 +4,14 @@ import session from "express-session";
 
 import * as path from "path";
 
-import BingoDatabase, { Board, User, DatabaseBingoCard, getBoard, getUserByEmail, getUserByUUID, addBoard, addUser, DatabaseUser } from "../Database";
+import BingoDatabase, { Board, User, getBoard, getUserByEmail, getUserByUUID, addBoard, addUser } from "../Database";
 import { Verify, Hash, hashOptions, csrfOptions } from "./Authentication";
 
 import pageRouter from "../routes/api/pages";
 import authRouter from "../routes/api/auth";
 
 import BunStoreClass from "./BunStore";
+import { BingoBoard, BingoUser, DatabaseBingoUser } from "routes/api/Validation";
 const BunStore = BunStoreClass(session);
 
 // @format
@@ -20,9 +21,12 @@ export interface HttpError extends Error {
   status: number;
 }
 
+export interface SessionRequest extends Request {
+  user: User | undefined;
+}
+
 export interface AuthenticatedRequest extends Request {
-  user: DatabaseUser;
-  server: Server;
+  user: User;
 }
 
 export class Server {
@@ -39,7 +43,7 @@ export class Server {
 				console.log(`\tServer initialized in ${dt}ms.\n`);
     }
 
-		async logIn (email: string, password: string): Promise<User> {
+		async logIn (email: string, password: string): Promise<BingoUser> {
 			const user = getUserByEmail(email);
 
 			if (user === undefined)
@@ -50,10 +54,14 @@ export class Server {
 			if (!valid)
 					throw "Invalid email or password.";
 
-			return User.fromDB(user);
+			return user;
 		}
 
-    async createUser (password: string, firstName: string, lastName: string, email: string, birthday: string, avatarUrl: string): Promise<User> {
+    async createUser (params: Partial<BingoUser>={}): Promise<User> {
+			const { password, firstName, lastName, email, birthday, avatarUrl } = params;
+
+			if (password === undefined || email === undefined)
+				throw "Password and email are required fields";
 
 			// Verify email isn't already in use
 			const existingUser = getUserByEmail(email);
@@ -61,15 +69,20 @@ export class Server {
 				throw "Email already in use.";
 
 			const hash = await Hash(password, hashOptions);
-      const user = User.new(hash, firstName, lastName, email, birthday, avatarUrl);
+      const user = User.new({ email, password: hash, firstName, lastName, birthday, avatarUrl });
 
-      addUser(user.toDB());
+      addUser(user);
       return user;
     }
 
-    createBoard(user: User, title: string, description: string, editors: string[], cards: DatabaseBingoCard[]): Board {
-      const board = user.createBoard(title, description, editors, cards);
-      addBoard(board.toDB());
+    createBoard(user: User, params: Partial<BingoBoard>={}): Board {
+			const { title, description, editors, cards } = params;
+
+			if (title === undefined || description === undefined)
+				throw "Title and description are required.";
+
+      const board = user.createBoard({ title, description, editors, cards });
+      addBoard(board);
       return board;
     }
 

@@ -1,8 +1,14 @@
-import { Response } from "express";
-import { AuthenticatedRequest } from "../../src/Server";
+import { Response, Request } from "express";
 import { getOwnedBoards } from "../../Database";
+import { isAuthenticated } from "src/Authentication";
 
-export function GetOwnedBoards (req: AuthenticatedRequest, res: Response) {
+export function GetOwnedBoards (req: Request, res: Response) {
+
+	if (!isAuthenticated(req)) {
+		res.status(401).send("Unauthorized");
+		return;
+	}
+
 	const body = req.body;
 	const limit: number = body.limit ?? 10;
 

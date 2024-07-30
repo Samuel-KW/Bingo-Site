@@ -1,16 +1,22 @@
-import { Response } from "express";
-import { AuthenticatedRequest } from "../../src/Server";
+import { Response, Request } from "express";
 import { addBoard, Board, updateUserBoards } from "../../Database";
 
-import { BingoBoard } from "./Validation";
+import { UserCreateBingoBoard } from "./Validation";
+import { isAuthenticated } from "src/Authentication";
 
-export function CreateBoard (req: AuthenticatedRequest, res: Response) {
-	const body = req.body;
+export function CreateBoard (req: Request, res: Response) {
 
-	const result = BingoBoard.safeParse(body);
+	if (!isAuthenticated(req)) {
+		res.status(401).send("Unauthorized");
+		return;
+	}
+
+	const result = UserCreateBingoBoard.safeParse(req.body);
 
 	if (!result.success) {
-		console.error("Error creating board:", result.error);
+		console.error("Error creating board:");
+		console.log(req.body);
+		console.log(result.error);
 		res.status(400).send("Bad Request");
 		return;
 	}
@@ -22,13 +28,13 @@ export function CreateBoard (req: AuthenticatedRequest, res: Response) {
 	const board = Board.new({ title, description, owner: uuid, editors, cards });
 
 	// Add board to user profile
-	const ids = JSON.parse(req.user.boards);
+	const ids = req.user.boards;
 	ids.push(board.id);
 
 	// Save board
 	updateUserBoards(uuid, ids);
-	addBoard(board.toDB());
-
+	addBoard(board);
+	console.log("User ", uuid, " created board ", board.id);
 	res.json(board);
 
 }

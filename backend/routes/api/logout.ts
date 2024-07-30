@@ -1,13 +1,16 @@
-import { NextFunction, Response } from "express";
-import { AuthenticatedRequest } from "src/Server";
+import { NextFunction, Response, Request } from "express";
 
-export default function LogOut (req: AuthenticatedRequest, res: Response, next: NextFunction): void {
-	console.log("Logging out user:", req.session.user);
+export default function LogOut (req: Request, res: Response, next: NextFunction): void {
 
-	req.session.destroy(err => {
-		if (err) return next(err);
+	if ("session" in req) {
+		console.log("Logging out user:", req.session.user);
 
-		console.info("Session destroyed.");
-		res.redirect("/login");
-	});
+		req.session.destroy(err => {
+			if (err) return next(err);
+
+			console.info("Session destroyed.");
+		});
+	}
+
+	res.redirect("/login");
 }

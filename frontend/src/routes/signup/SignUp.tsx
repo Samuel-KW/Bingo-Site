@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/authentication.tsx';
 
 import { Button, Checkbox, Group, TextInput, Center, Image, Text, Title, Divider, Card, PasswordInput } from '@mantine/core';
-import { useForm, isEmail, hasLength, matches } from '@mantine/form';
+import { useForm, isEmail, hasLength } from '@mantine/form';
 
 import SignipImage from "./signup.svg";
 
@@ -58,16 +58,15 @@ export default function SignUp() {
     validate: {
 			password: (value) => {
 				if (value.length < 8) return "Password must be at least 8 characters long";
-				if (value.length > 128) return "Password can not be longer than 128 characters";
+				if (value.length > 128) return "Password may not exceed 128 characters";
 				if (!/[a-z]/.test(value)) return "Password must contain at least one lowercase letter";
 				if (!/[A-Z]/.test(value)) return "Password must contain at least one uppercase letter";
 				if (!/[0-9]/.test(value)) return "Password must contain at least one number";
 				return null;
 			},
       email: isEmail('Invalid email'),
-			firstName: hasLength({ min: 1, max: 128 }, 'First name must be 1-128 characters long'),
-			lastName: hasLength({ min: 1, max: 128 }, 'Last name must be 1-128 characters long'),
-			birthday: matches(/^((19|20)?[0-9]{2}[- /.](0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01]))*$/, "Birthday must be in the format YYYY-MM-DD"),
+			firstName: hasLength({ max: 128 }, 'First name may not exceed 128 characters'),
+			lastName: hasLength({ max: 128 }, 'Last name may not exceed 128 characters'),
     }
   });
 
@@ -90,8 +89,8 @@ export default function SignUp() {
 									label="Email"
 									autoComplete="email"
 									placeholder="your@email.com"
-									key={form.key('email')}
-									{...form.getInputProps('email')}
+									key={form.key("email")}
+									{...form.getInputProps("email")}
 								/>
 
 								<PasswordInput
@@ -101,8 +100,8 @@ export default function SignUp() {
 									autoComplete="new-password"
 									placeholder="Your password"
 									type="password"
-									key={form.key('password')}
-									{...form.getInputProps('password')}
+									key={form.key("password")}
+									{...form.getInputProps("password")}
 								/>
 
 								<TextInput
@@ -110,8 +109,8 @@ export default function SignUp() {
 									label="First Name"
 									autoComplete="given-name"
 									placeholder="Mysterious"
-									key={form.key('firstName')}
-									{...form.getInputProps('firstName')}
+									key={form.key("firstName")}
+									{...form.getInputProps("firstName")}
 								/>
 
 								<TextInput
@@ -119,8 +118,8 @@ export default function SignUp() {
 									label="Last Name"
 									autoComplete="family-name"
 									placeholder={names[Math.floor(Math.random() * names.length)]}
-									key={form.key('lastName')}
-									{...form.getInputProps('lastName')}
+									key={form.key("lastName")}
+									{...form.getInputProps("lastName")}
 								/>
 
 								<TextInput
@@ -128,16 +127,16 @@ export default function SignUp() {
 									type="date"
 									label="Birthday"
 									autoComplete="bday"
-									key={form.key('birthday')}
-									{...form.getInputProps('birthday')}
+									key={form.key("birthday")}
+									{...form.getInputProps("birthday")}
 								/>
 
 								<Checkbox
 									mt="lg"
 									required
 									label="I agree to the terms of service"
-									key={form.key('termsOfService')}
-									{...form.getInputProps('termsOfService', { type: 'checkbox' })}
+									key={form.key("termsOfService")}
+									{...form.getInputProps("termsOfService", { type: "checkbox" })}
 								/>
 
 								<Group justify="flex-end" mt="md">

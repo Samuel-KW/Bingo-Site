@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Button, Checkbox, Group, TextInput, Text, Image, Center, Card, Title, Divider, PasswordInput } from '@mantine/core';
+import { Button,  Group, TextInput, Text, Image, Center, Card, Title, Divider, PasswordInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 import { useAuth } from "../../components/authentication.tsx";
@@ -23,8 +23,7 @@ export default function LogIn() {
     mode: "uncontrolled",
     initialValues: {
       email: "",
-			password: "",
-      termsOfService: false,
+			password: ""
     },
 
     validate: {
@@ -94,14 +93,6 @@ export default function LogIn() {
 									type="password"
 									key={form.key('password')}
 									{...form.getInputProps('password')}
-								/>
-
-								<Checkbox
-									mt="lg"
-									required
-									label="I agree to the terms of service"
-									key={form.key('termsOfService')}
-									{...form.getInputProps('termsOfService', { type: 'checkbox' })}
 								/>
 
 								<Group justify="flex-end" mt="md">

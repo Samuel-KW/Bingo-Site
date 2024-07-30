@@ -7,15 +7,13 @@ import { GetOwnedBoards } from "./GetOwnedBoards";
 import { GetBoards } from "../../routes/api/GetBoards";
 import { CreateBoard } from "../../routes/api/CreateBoard";
 import { BoardLookup } from "../../routes/api/BoardLookup";
-import { generateToken, verifyAuthentication } from "src/Authentication";
+import { generateToken } from "src/Authentication";
 
 import { Request, Response } from "express";
 import { getAllBoards, getAllUsers } from "Database";
 
 // Initialize the router
 const router = Router();
-
-const verifyAuth = verifyAuthentication({ setReturnTo: false });
 
 // Generate CSRF tokens
 router.get("/api/csrf", (req: Request, res) => {
@@ -35,10 +33,10 @@ router.get("/api/boards", (req: Request, res: Response) => {
 // Initialize API routes
 router.get("/api/bingo/:id", BoardLookup);
 
-router.get("/api/getParticipatingBoards", verifyAuth, GetBoards);
-router.get("/api/getOwnedBoards", verifyAuth, GetOwnedBoards);
+router.get("/api/getParticipatingBoards", GetBoards);
+router.get("/api/getOwnedBoards", GetOwnedBoards);
 
-router.post("/api/createBoard", verifyAuth, CreateBoard);
+router.post("/api/createBoard", CreateBoard);
 
 router.post("/api/login", LogIn);
 router.post("/api/signup", SignUp);

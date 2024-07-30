@@ -92,11 +92,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 		const body = {
 			password, email,
-			firstName: metadata.firstName,
-			lastName: metadata.lastName,
-			birthday: metadata.birthday,
-			avatarUrl: metadata.avatarUrl,
-			captcha
+			firstName: metadata.firstName || undefined,
+			lastName: metadata.lastName || undefined,
+			birthday: metadata.birthday || undefined,
+			avatarUrl: metadata.avatarUrl || undefined,
+			captcha: captcha || undefined
 		};
 
 		const req = await fetch("/api/signup", {
@@ -117,6 +117,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 			expiresIn: -1,
 			tokenType: ""
 		};
+
 		setSession(session);
 		return session
 	};

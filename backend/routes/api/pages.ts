@@ -4,9 +4,9 @@ import expressSession from "express-session";
 import cookieParser from "cookie-parser";
 import path from "path";
 
-import { csrfOptions, doubleCsrfProtection, sessionOptions, verifyAuthentication } from "../../src/Authentication";
+import { csrfOptions, doubleCsrfProtection, generateToken, sessionOptions } from "../../src/Authentication";
 import { getUserByUUID, User } from "../../Database";
-import { AuthenticatedRequest } from "src/Server";
+import { SessionRequest } from "src/Server";
 
 declare module "express-session" {
   interface SessionData {
@@ -23,10 +23,6 @@ declare module "express-session" {
 
 const router = Router();
 
-const verifyAuth = verifyAuthentication();
-
-
-
 // Initialize request handlers
 router.use(cookieParser(sessionOptions.secret));
 router.use(expressSession(sessionOptions));
@@ -39,23 +35,33 @@ console.log("\tInitialized Express middleware.");
 router.use(doubleCsrfProtection);
 
 
-// Initialize session authentication
+// Serve the React app
+router.use(express.static(path.resolve("../build")));
+console.log("\tServing React application.");
+
+
+// Initialize session authentication, add user object to request
 router.use(function (req: Request, res: Response, next: NextFunction) {
 
-	const authenticatedRequest = req as AuthenticatedRequest;
-	const user = authenticatedRequest.session.user;
+		const request = req as SessionRequest;
+		const user = request.session.user;
 
-	if (user?.id !== undefined)
-		authenticatedRequest.user = getUserByUUID(user.id);
+		// If the user is authenticated, set the user object
+		if (user?.id !== undefined) {
+			const dbUser = getUserByUUID(user.id);
 
-	res.locals.csrfToken = authenticatedRequest.csrfToken();
-	next();
+			if (dbUser !== undefined)
+				request.user = User.new(dbUser);
+		}
+
+		// Generate CSRF token
+		res.locals.csrfToken = generateToken(req, res);
+
+		next();
 });
 console.log("\tSession authentication initialized.");
 
 
-// Serve the React app
-router.use(express.static(path.resolve("../build")));
-console.log("\tServing React application.");
+
 
 export default router;
