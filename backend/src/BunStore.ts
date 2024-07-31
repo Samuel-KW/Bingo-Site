@@ -79,18 +79,14 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 		clearExpiredSessions() {
 			try {
-				const query = this.client.query(`DELETE FROM ${tableName} WHERE datetime('now') > datetime(expire)`);
-				query.run();
-				query.finalize();
+				this.client.run(`DELETE FROM ${tableName} WHERE datetime('now') > datetime(expire)`);
 			} catch (err) {
 				console.error(err);
 			}
 		}
 
 		createDb() {
-			const query = this.client.query(schema);
-			query.run();
-			query.finalize();
+			this.client.run(schema);
 		}
 
 		set(sid: string, sess: SessionData, cb: Function = noop): void {
@@ -102,19 +98,16 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 			const now = Date.now();
 			const expire = new Date(now + age).toISOString();
-			const entry = { sid, sess: JSON.stringify(sess), expire };
+			const entry = [ sid, JSON.stringify(sess), expire ];
 
-			let res: Statement;
 			try {
-				res = this.client.query(`INSERT OR REPLACE INTO ${tableName} VALUES ($sid, $sess, $expire)`);
-				res.run(entry);
-				res.finalize();
+				this.client.prepare(`INSERT OR REPLACE INTO ${tableName} VALUES (?, ?, ?)`, entry);
 			} catch (err) {
 				cb(err);
 				return;
 			}
 
-			cb(null, res);
+			cb(null, undefined);
 		}
 
 		get(sid: string, cb: Function = noop) {
@@ -122,7 +115,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let res: Entry;
 
 			try {
-				req = this.client.query(`SELECT sess FROM ${tableName} WHERE sid = $sid AND datetime('now') < datetime(expire)`);
+				req = this.client.prepare(`SELECT sess FROM ${tableName} WHERE sid = $sid AND datetime('now') < datetime(expire)`);
 				res = req.get({ sid }) as Entry;
 				req.finalize();
 			} catch (err) {
@@ -138,12 +131,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 		}
 
 		destroy(sid: string, cb: Function = noop) {
-			let req: Statement;
-
 			try {
-				req = this.client.query(`DELETE FROM ${tableName} WHERE sid = $sid`);
-				req.run({ sid });
-				req.finalize();
+				this.client.run(`DELETE FROM ${tableName} WHERE sid = ?`, [ sid ]);
 			} catch (err) {
 				cb(err);
 				return;
@@ -156,7 +145,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let res: { count: number };
 
 			try {
-				req = this.client.query("SELECT COUNT(*) as count FROM " + tableName);
+				req = this.client.prepare("SELECT COUNT(*) as count FROM " + tableName);
 				res = req.get() as { count: number };
 				req.finalize();
 			} catch (err) {
@@ -168,12 +157,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 		}
 
 		clear(cb: Function = noop) {
-			let req: Statement;
-
 			try {
-				req = this.client.query("DELETE FROM " + tableName);
-				req.run();
-				req.finalize();
+				this.client.run("DELETE FROM " + tableName);
 			} catch (err) {
 				cb(err);
 				return;
@@ -192,11 +177,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 				entry.expire = new Date(now + oneDay).toISOString();
 			}
 
-			let req: Statement;
 			try {
-				req = this.client.query(`UPDATE ${tableName} SET expire = $expire WHERE sid = $sid AND datetime('now') < datetime(expire)`);
-				req.run(entry);
-				req.finalize();
+				this.client.run(`UPDATE ${tableName} SET expire = $expire WHERE sid = $sid AND datetime('now') < datetime(expire)`);
 			} catch (err) {
 				cb(err);
 				return;
@@ -209,7 +191,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			let req: Statement;
 			let res: Entry[];
 			try {
-				req = this.client.query("SELECT * FROM " + tableName);
+				req = this.client.prepare("SELECT * FROM " + tableName);
 				res = req.all() as Entry[];
 				req.finalize();
 			} catch (err) {
