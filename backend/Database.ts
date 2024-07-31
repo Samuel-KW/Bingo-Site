@@ -1,125 +1,68 @@
 import { Database, Statement } from "bun:sqlite";
-import { randomUUID } from "crypto";
-import { DatabaseBingoUser, BingoUser, BingoBoard, BingoCard, DatabaseBingoBoard, BoardPlayerStats } from "routes/api/Validation";
-
-export class Board implements BingoBoard {
-	constructor(
-		public id: string,
-		public title: string,
-		public description: string,
-		public created_at: number,
-		public updated_at: number,
-		public owner: string,
-		public editors: string[],
-		public cards: BingoCard[],
-		public players: BoardPlayerStats[]
-	) { }
-
-	toDB(): DatabaseBingoBoard {
-		return {
-			id: this.id,
-			title: this.title,
-			description: this.description,
-			created_at: this.created_at,
-			updated_at: this.updated_at,
-			owner: this.owner,
-			editors: JSON.stringify(this.editors),
-			cards: JSON.stringify(this.cards),
-			players: JSON.stringify(this.players)
-		};
-	}
-
-	static fromDB(board: DatabaseBingoBoard): Board {
-		return new Board(
-			board.id,
-			board.title,
-			board.description,
-			board.created_at,
-			board.updated_at,
-			board.owner,
-			JSON.parse(board.editors),
-			JSON.parse(board.cards),
-			JSON.parse(board.players)
-		);
-	}
-
-	static new(params: Partial<BingoBoard>): Board {
-		const { title, description, owner, editors=[], cards=[] } = params;
-
-		if (title === undefined || description === undefined || owner === undefined)
-			throw new Error("Title, description, and owner are required to create a new board.");
-
-		const now = Date.now();
-		return new Board(randomUUID(), title, description, now, now, owner, editors, cards, []);
-	}
-}
-
-export class User implements BingoUser {
-	constructor(
-		public uuid: string,
-		public password: string,
-		public firstName: string | undefined,
-		public lastName: string | undefined,
-		public email: string,
-		public birthday: string | undefined,
-		public avatarUrl: string | undefined,
-		public accountType: "user" | "admin",
-		public boards: string[],
-		public games: BoardPlayerStats[]
-	) { }
-
-	static new(params: Partial<User>={}): User {
-		const { password, firstName, lastName, email, birthday, avatarUrl } = params;
-
-		if (password === undefined || email === undefined)
-			throw new Error("Password and email are required to create a new user.");
-
-		return new User(randomUUID(), password, firstName, lastName, email, birthday, avatarUrl, "user", [], []);
-	}
-
-	static fromDB(user: DatabaseBingoUser): User {
-		return new User(
-			user.uuid,
-			user.password,
-			user.firstName,
-			user.lastName,
-			user.email,
-			user.birthday,
-			user.avatarUrl,
-			user.accountType,
-			JSON.parse(user.boards),
-			JSON.parse(user.games)
-		);
-	}
-
-	toDB(): DatabaseBingoUser {
-		return {
-			uuid: this.uuid,
-			password: this.password,
-			firstName: this.firstName,
-			lastName: this.lastName,
-			email: this.email,
-			birthday: this.birthday,
-			avatarUrl: this.avatarUrl,
-			accountType: this.accountType,
-			boards: JSON.stringify(this.boards),
-			games: JSON.stringify(this.games)
-		};
-	}
-
-	createBoard(params: Partial<BingoBoard>={}): Board {
-		const { title, description, editors=[], cards=[] } = params;
-
-		const board = Board.new({ title, description, owner: this.uuid, editors, cards });
-		this.boards.push(board.id);
-		return board;
-	}
-}
+import { BingoUser, BingoBoard, DatabaseBingoBoard } from "routes/api/Validation";
+import { DatabaseBoard } from "src/Board";
+import { DatabaseUser } from "src/User";
 
 const DATABASE_FILE = "./db/" + (process.env.DATABASE_FILE ?? "db.sqlite");
 const DB_USERS = "users";
 const DB_BOARDS = "boards";
 console.log("Writing to database file:", DATABASE_FILE);
+
+interface TableDefinition {
+  name: string;
+  columns: {
+    [key: string]: {
+      type: string;
+      primaryKey?: boolean;
+      notNull?: boolean;
+    };
+  };
+}
+
+function generateTableQuery(params: TableDefinition): string {
+  const columnsDef = Object.entries(params.columns)
+    .map(([columnName, columnDef]) => {
+      const type = columnDef.type;
+      const primaryKey = columnDef.primaryKey ? " PRIMARY KEY" : "";
+      const notNull = columnDef.notNull ? " NOT NULL" : "";
+
+      return `${columnName} ${type}${primaryKey}${notNull}`;
+    })
+    .join(", ");
+
+  return `CREATE TABLE IF NOT EXISTS ${params.name} (${columnsDef})`;
+}
+
+const tableUsers: TableDefinition = {
+  name: DB_USERS,
+  columns: {
+    uuid:					{ type: "TEXT", notNull: true, primaryKey: true, },
+    password:			{ type: "TEXT", notNull: true },
+    firstName:		{ type: "TEXT" },
+    lastName:			{ type: "TEXT" },
+    email:				{ type: "TEXT", notNull: true },
+    birthday:			{ type: "TEXT" },
+    avatarUrl:		{ type: "TEXT" },
+    accountType:	{ type: "TEXT" },
+    boards: 			{ type: "JSON" },
+    games:				{ type: "JSON" }
+  }
+};
+
+const tableBoards: TableDefinition = {
+  name: DB_BOARDS,
+  columns: {
+		id:						{ type: "TEXT", 		notNull: true, primaryKey: true, },
+    title:				{ type: "TEXT", 		notNull: true },
+    description:	{ type: "TEXT", 		notNull: true },
+    created_at:		{ type: "INTEGER",	notNull: true },
+    updated_at:		{ type: "INTEGER",	notNull: true },
+    owner:				{ type: "TEXT", 		notNull: true },
+    editors:			{ type: "JSON" },
+    cards:				{ type: "JSON", 		notNull: true },
+    players:			{ type: "JSON" }
+  }
+};
 
 const db = new Database(DATABASE_FILE, {
 	create: true,
@@ -130,18 +73,19 @@ const db = new Database(DATABASE_FILE, {
 db.exec("PRAGMA journal_mode = WAL;");
 
 // Create default tables if they don't exist
-db.run(`CREATE TABLE IF NOT EXISTS ${DB_USERS} (uuid TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL, firstName TEXT, lastName TEXT, email TEXT NOT NULL, birthday TEXT, avatarUrl TEXT, accountType TEXT NOT NULL, boards JSON NOT NULL, games JSON NOT NULL)`);
-db.run(`CREATE TABLE IF NOT EXISTS ${DB_BOARDS} (id TEXT NOT NULL PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, owner TEXT NOT NULL, editors JSON NOT NULL, cards JSON NOT NULL, players JSON NOT NULL, FOREIGN KEY(owner) REFERENCES ${DB_USERS}(uuid))`);
+db.run(generateTableQuery(tableUsers));
+db.run(generateTableQuery(tableBoards));
 
 export class Query {
 
-	public static getUserByEmail: Statement;
-	public static getUserByUUID: Statement;
-	public static getBoardByID: Statement;
+	public static getUserByEmail: Statement<DatabaseUser>;
+	public static getUserByUUID: Statement<DatabaseUser>;
+	public static getBoardByID: Statement<DatabaseBoard>;
 	public static createUser: Statement;
 	public static createBoard: Statement;
 
 	public static isOpen = false;
+	public static db = db;
 
 	/**
 	 * Prepares common SQL queries
@@ -149,11 +93,15 @@ export class Query {
 	 * @static
 	 */
 	public static open () {
-		Query.getUserByEmail = db.prepare(`SELECT * FROM ${DB_USERS} WHERE email = $email`);
-		Query.getUserByUUID = db.prepare(`SELECT * FROM ${DB_USERS} WHERE uuid = $uuid`);
-		Query.getBoardByID = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id = $id`);
-		Query.createUser = db.prepare(`INSERT OR IGNORE INTO ${DB_USERS} (uuid, password, firstName, lastName, email, birthday, avatarUrl, accountType, boards, games) VALUES ($uuid, $password, $firstName, $lastName, $email, $birthday, $avatarUrl, $accountType, $boards, $games)`);
-		Query.createBoard = db.prepare(`INSERT OR IGNORE INTO ${DB_BOARDS} (id, title, description, created_at, updated_at, owner, editors, cards, players) VALUES ($id, $title, $description, $created_at, $updated_at, $owner, $editors, $cards, $players)`);
+
+		const tablesUsers = Object.keys(tableUsers.columns);
+		const tablesBoards = Object.keys(tableBoards.columns);
+
+		Query.getUserByEmail = db.prepare(`SELECT * FROM ${DB_USERS} WHERE email = $email`).as(DatabaseUser);
+		Query.getUserByUUID = db.prepare(`SELECT * FROM ${DB_USERS} WHERE uuid = $uuid`).as(DatabaseUser);
+		Query.getBoardByID = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id = $id`).as(DatabaseBoard);
+		Query.createUser = db.prepare(`INSERT OR IGNORE INTO ${DB_USERS} (${tablesUsers.join(", ")}) VALUES (${tablesUsers.map(v => "$" + v).join(", ")})`);
+		Query.createBoard = db.prepare(`INSERT OR IGNORE INTO ${DB_BOARDS} (${tablesBoards.join(", ")}) VALUES (${tablesBoards.map(v => "$" + v).join(", ")})`);
 
 		Query.isOpen = true;
 	}
@@ -173,8 +121,6 @@ export class Query {
 		Query.isOpen = false;
 	}
 };
-
-Query.open();
 
 /**
  * Add a board to the database
@@ -220,30 +166,20 @@ export const addUser = (user: BingoUser) => {
 /**
  * Get a board by its ID
  * @param id Board ID to search for
- * @returns DatabaseBingoBoard object if found, otherwise undefined
+ * @returns DatabaseBoard object if found, otherwise null
  */
-export const getBoard = (id: string): BingoBoard | undefined => {
-	const response: unknown | null = Query.getBoardByID.get({ id });
-
-	if (response === undefined || response === null)
-		return undefined;
-
-	const board = response as DatabaseBingoBoard;
-
-	return {
-		...board,
-		editors: JSON.parse(board.editors),
-		cards: JSON.parse(board.cards),
-		players: JSON.parse(board.players),
-	}
-}
+export const getBoard = (id: string): DatabaseBoard | null => {
+	return Query.getBoardByID
+		.get({ id });
+};
 
 /**
  * Delete a board by its ID
  * @param id Board ID to delete
  */
 export const deleteBoard = (id: string) => {
-	db.prepare(`DELETE FROM ${DB_BOARDS} WHERE id = $id`).run({ id });
+	db.prepare(`DELETE FROM ${DB_BOARDS} WHERE id = $id`)
+		.run({ id });
 };
 
 /**
@@ -259,7 +195,8 @@ export const updateBoard = (board: BingoBoard) => {
 		players: JSON.stringify(board.players)
 	};
 
-	db.prepare(`UPDATE ${DB_BOARDS} SET title = $title, description = $description, updated_at = $updated_at, owner = $owner, editors = $editors, cards = $cards, players = $players WHERE id = $id`)
+	const keys = Object.keys(data);
+	db.prepare(`UPDATE ${DB_BOARDS} SET ${keys.map(k => `${k} = $${k}`).join(", ")} WHERE id = $id`)
 		.run({...data});
 };
 
@@ -268,26 +205,13 @@ export const updateBoard = (board: BingoBoard) => {
  * @param ids Array of board IDs to search for
  * @returns Array of DatabaseBingoBoard objects
  */
-export const getBoards = (ids: string[]): BingoBoard[] => {
+export const getBoards = (ids: string[]): DatabaseBoard[] => {
 	const list = ids.map(() => "?").join(",");
-	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id IN (${list})`)
+
+	return db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE id IN (${list})`)
+		.as(DatabaseBoard)
 		.all(...list);
-
-	if (response === undefined || response === null)
-		return [];
-
-	const boards = response as DatabaseBingoBoard[];
-
-	return boards.map(board => {
-		return {
-			...board,
-			editors: JSON.parse(board.editors),
-			cards: JSON.parse(board.cards),
-			players: JSON.parse(board.players)
-		};
-	});
 };
-
 
 /**
  * Get a list of boards owned by a user
@@ -295,42 +219,20 @@ export const getBoards = (ids: string[]): BingoBoard[] => {
  * @param limit Maximum number of boards to return
  * @returns Array of DatabaseBingoBoard objects
  */
-export const getOwnedBoards = (owner: string, limit: number = 10): BingoBoard[] => {
-	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE owner = $owner LIMIT $limit`).all({ owner, limit });
-
-	if (response === undefined || response === null)
-		return [];
-
-	const boards = response as DatabaseBingoBoard[];
-	console.log(boards);
-	return boards.map(board => {
-		return {
-			...board,
-			editors: JSON.parse(board.editors),
-			cards: JSON.parse(board.cards),
-			players: JSON.parse(board.players)
-		};
-	});
+export const getOwnedBoards = (owner: string, limit: number = 10): DatabaseBoard[] => {
+	return db.prepare(`SELECT * FROM ${DB_BOARDS} WHERE owner = $owner LIMIT $limit`)
+		.as(DatabaseBoard)
+		.all({ owner, limit });
 }
 
 /**
  * Get a user by their email
  * @param email Email to search for
- * @returns DatabaseBingoUser object if found, otherwise undefined
+ * @returns DatabaseUser object if found, otherwise undefined
  */
-export const getUserByEmail = (email: string): BingoUser | undefined => {
-	const response: unknown = Query.getUserByEmail.get({ email });
-
-	if (response === undefined || response === null)
-		return undefined;
-
-	const user = response as DatabaseBingoUser;
-
-	return {
-		...user,
-		boards: JSON.parse(user.boards),
-		games: JSON.parse(user.games)
-	};
+export const getUserByEmail = (email: string): DatabaseUser | null => {
+	return Query.getUserByEmail
+		.get({ email });
 };
 
 /**
@@ -339,51 +241,40 @@ export const getUserByEmail = (email: string): BingoUser | undefined => {
  * @param boards New list of board IDs
  */
 export const updateUserBoards = (uuid: string, boards: string[]) => {
-	db.prepare(`UPDATE ${DB_USERS} SET boards = $boards WHERE uuid = $uuid`).run({ uuid, boards: JSON.stringify(boards) });
+	db.prepare(`UPDATE ${DB_USERS} SET boards = $boards WHERE uuid = $uuid`)
+		.run({ uuid, boards: JSON.stringify(boards) });
 };
 
 /**
  * Get all boards in the database
- * @returns Array of DatabaseBingoBoard objects
+ * @returns Array of DatabaseBoard objects
  */
-export const getAllBoards = (): DatabaseBingoBoard[] => {
-	const response: unknown = db.prepare(`SELECT * FROM ${DB_BOARDS}`).all();
-
-	if (response === undefined || response === null)
-		return [];
-
-	return response as DatabaseBingoBoard[];
+export const getAllBoards = (): DatabaseBoard[] => {
+	return db.prepare(`SELECT * FROM ${DB_BOARDS}`)
+		.as(DatabaseBoard)
+		.all();
 };
 
-export const getAllUsers = (): DatabaseBingoUser[] => {
 
-	const response: unknown = db.prepare(`SELECT * FROM ${DB_USERS}`).all();
-
-	if (response === undefined || response === null)
-		return [];
-
-	return response as DatabaseBingoUser[];
+/**
+ * Get a user by their UUID
+ * @returns Array of DatabaseUser objects
+ */
+export const getAllUsers = (): DatabaseUser[] => {
+	return db.prepare(`SELECT * FROM ${DB_USERS}`)
+		.as(DatabaseUser)
+		.all();
 }
 
 /**
  * Get a user by their UUID
  * @param uuid User UUID to search for
- * @returns DatabaseBingoUser object if found, otherwise undefined
+ * @returns DatabaseUser if found, otherwise undefined
  */
-export const getUserByUUID = (uuid: string): BingoUser | undefined => {
-	const response: unknown = Query.getUserByUUID.get({ uuid });
-
-	if (!response)
-		return undefined;
-
-	const user = response as DatabaseBingoUser;
-
-	return {
-		...user,
-		boards: JSON.parse(user.boards),
-		games: JSON.parse(user.games)
-	};
+export const getUserByUUID = (uuid: string): DatabaseUser | null => {
+	return Query.getUserByUUID.get({ uuid });
 };
 
+Query.open();
 export default db;
 

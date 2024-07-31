@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+		"stress": "cd backend && bun run stress",
     "start": "cd backend && bun start",
     "build": "cd frontend && bun run build",
     "prod": "bun run build && bun run start",

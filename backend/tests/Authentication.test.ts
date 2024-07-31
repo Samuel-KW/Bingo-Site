@@ -1,10 +1,10 @@
 import { expect, test, describe } from "bun:test";
-import { Hash, Verify, HashOptions } from "../src/Authentication";
+import { Hash, Verify } from "../src/Authentication";
+import { HashOptions } from "../src/Types";
 
 describe("Hashing", () => {
 
-	const pepper = process.env.PEPPER;
-	const pepperVersion = process.env.PEPPER_VERSION;
+	const peppers = process.env.PEPPERS?.split(" ") ?? [];
 	const timeCost = Number(process.env.HASH_TIME_COST);
 	const memoryCost = Number(process.env.HASH_MEMORY_COST); // Memory cost in Kb
 	const saltLength = Number(process.env.HASH_SALT_LENGTH);
@@ -12,7 +12,7 @@ describe("Hashing", () => {
 	const options: HashOptions = {
 		algorithm: "argon2id",
 		timeCost, memoryCost,
-		pepper, pepperVersion,
+		peppers,
 		saltLength
 	};
 
@@ -23,13 +23,13 @@ describe("Hashing", () => {
 	const averagePasswordLength = 9;
 
 	test("Average hashing speed", async () => {
-	
+
 		const samples: string[] = [];
 		for (let i = 0; i < iterations; i++)
 			samples.push(Math.random().toString(36).substring(2));
-		
+
 		const start = Bun.nanoseconds();
-		
+
 		for (let i = 0; i < samples.length; i++) {
 			const password = samples[i];
 			const hash = await Hash(password, options);
@@ -61,7 +61,7 @@ describe("Hashing", () => {
 		const hashes: string[] = [];
 		for (let i = 0; i < iterations; i++) {
 			const password = Math.random().toString(36).substring(2);
-			
+
 			passwords.push(password);
 			hashes.push(await Hash(password, options));
 		}
@@ -71,11 +71,11 @@ describe("Hashing", () => {
 		for (let i = 0; i < passwords.length; i++) {
 			const password = passwords[i];
 			const hash = hashes[i];
-		
+
 			// Add a 50% chance of inputting an incorrect password
 			const valid = Math.random() < 0.5;
 			const result = await Verify(valid ? password : "this is an invalid password", hash, options);
-			
+
 			expect(result, "Verification failure").toBe(valid);
 		}
 

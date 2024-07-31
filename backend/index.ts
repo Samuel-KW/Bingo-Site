@@ -1,8 +1,9 @@
-import {Server} from "./src/Server";
+import { Server } from "./src/Server";
 import express from "express";
 
-const app = express();
-const port = 8080;
+export const port = 8080;
 
+const app = express();
 const server = new Server(app);
+
 server.start(port);

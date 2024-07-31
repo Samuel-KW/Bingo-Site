@@ -5,7 +5,8 @@ import cookieParser from "cookie-parser";
 import path from "path";
 
 import { csrfOptions, doubleCsrfProtection, generateToken, sessionOptions } from "../../src/Authentication";
-import { getUserByUUID, User } from "../../Database";
+import { getUserByUUID } from "../../Database";
+import { User } from "../../src/User";
 import { SessionRequest } from "src/Server";
 
 declare module "express-session" {
@@ -51,7 +52,7 @@ router.use(function (req: Request, res: Response, next: NextFunction) {
 			const dbUser = getUserByUUID(user.id);
 
 			if (dbUser !== undefined)
-				request.user = User.new(dbUser);
+				request.user = new User(dbUser.uuid, dbUser.password, dbUser.firstName, dbUser.lastName, dbUser.email, dbUser.birthday, dbUser.avatarUrl, dbUser.accountType, dbUser.boards, dbUser.games);
 		}
 
 		// Generate CSRF token

@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
-import { addBoard, Board, updateUserBoards } from "../../Database";
-
+import { addBoard, updateUserBoards } from "../../Database";
+import { Board } from "../../src/Board";
 import { UserCreateBingoBoard } from "./Validation";
 import { isAuthenticated } from "src/Authentication";
 
@@ -34,7 +34,7 @@ export function CreateBoard (req: Request, res: Response) {
 	// Save board
 	updateUserBoards(uuid, ids);
 	addBoard(board);
-	console.log("User ", uuid, " created board ", board.id);
+	console.log("User", uuid, "created board", board.id);
 	res.json(board);
 
 }

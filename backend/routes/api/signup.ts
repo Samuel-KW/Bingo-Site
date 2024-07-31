@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { User, addUser, getUserByEmail } from "../../Database";
+import { addUser, getUserByEmail } from "../../Database";
 import { Hash, hashOptions } from "../../src/Authentication";
-
+import { User } from "../../src/User";
 import { SignupSchema } from "./Validation";
 
 export default async function SignUp (req: Request, res: Response): Promise<void> {
@@ -23,7 +23,7 @@ export default async function SignUp (req: Request, res: Response): Promise<void
 
 		const hash = await Hash(password, hashOptions);
 		const user = User.new({ email, password: hash, firstName, lastName, birthday, avatarUrl });
-		addUser(user.toDB());
+		addUser(user);
 
 		if (req.session.user === undefined) req.session.user = { id: user.uuid };
 		else req.session.user.id = user.uuid;

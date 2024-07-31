@@ -4,7 +4,9 @@ import session from "express-session";
 
 import * as path from "path";
 
-import BingoDatabase, { Board, User, getBoard, getUserByEmail, getUserByUUID, addBoard, addUser } from "../Database";
+import { Board } from "./Board";
+import { DatabaseUser, User } from "./User";
+import BingoDatabase, { getBoard, getUserByEmail, getUserByUUID, addBoard, addUser } from "../Database";
 import { Verify, Hash, hashOptions, csrfOptions } from "./Authentication";
 
 import pageRouter from "../routes/api/pages";
@@ -43,10 +45,10 @@ export class Server {
 				console.log(`\tServer initialized in ${dt}ms.\n`);
     }
 
-		async logIn (email: string, password: string): Promise<BingoUser> {
+		async logIn (email: string, password: string): Promise<DatabaseUser> {
 			const user = getUserByEmail(email);
 
-			if (user === undefined)
+			if (user === null)
 					throw "Invalid email or password.";
 
 			const valid = await Verify(password, user.password, hashOptions);
@@ -60,12 +62,12 @@ export class Server {
     async createUser (params: Partial<BingoUser>={}): Promise<User> {
 			const { password, firstName, lastName, email, birthday, avatarUrl } = params;
 
-			if (password === undefined || email === undefined)
+			if (!password || !email)
 				throw "Password and email are required fields";
 
 			// Verify email isn't already in use
 			const existingUser = getUserByEmail(email);
-			if (existingUser !== undefined)
+			if (existingUser)
 				throw "Email already in use.";
 
 			const hash = await Hash(password, hashOptions);
@@ -78,7 +80,7 @@ export class Server {
     createBoard(user: User, params: Partial<BingoBoard>={}): Board {
 			const { title, description, editors, cards } = params;
 
-			if (title === undefined || description === undefined)
+			if (!title || !description)
 				throw "Title and description are required.";
 
       const board = user.createBoard({ title, description, editors, cards });
@@ -107,6 +109,6 @@ export class Server {
 		}
 
     start(port: number): void {
-        this.app.listen(port, () => console.log(`Server listening on port ${port}!`));
+			this.app.listen(port, () => console.log(`Server listening on port ${port}!`));
     }
 }

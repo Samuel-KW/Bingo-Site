@@ -5,7 +5,7 @@ import { getBoard, updateBoard } from "../../Database";
 export function UpdateBoard (req: AuthenticatedRequest, res: Response) {
 
 	const id = req.body.board;
-	const data = req.body.data;
+	const data: unknown = req.body.data;
 
 	if (id === undefined || data === undefined) {
 		res.status(404).send("Invalid board.");
