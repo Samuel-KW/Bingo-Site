@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { Hash, Verify } from "../src/Authentication";
-import { HashOptions } from "../src/Types";
+import { HashOptions } from "../src/Authentication";
 
 describe("Hashing", () => {
 
