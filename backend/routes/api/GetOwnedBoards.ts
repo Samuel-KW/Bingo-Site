@@ -2,18 +2,18 @@ import { Response, Request } from "express";
 import { getOwnedBoards } from "../../Database";
 import { isAuthenticated } from "src/Authentication";
 
+const MAX_BOARDS: number = 50;
+
 export function GetOwnedBoards (req: Request, res: Response) {
 
-	if (!isAuthenticated(req)) {
-		res.status(401).send("Unauthorized");
-		return;
-	}
+	if (!isAuthenticated(req))
+		return res.status(401).send("Unauthorized");
 
-	const body = req.body;
-	const limit: number = body.limit ?? 10;
+	let limit: number = parseInt(req.body, 10);
+	limit = isNaN(limit) ? 10 : Math.min(limit, MAX_BOARDS);
 
 	const uuid = req.user.uuid;
 	const boards = getOwnedBoards(uuid, limit);
 
-	res.json(boards);
+	return res.json(boards);
 }

@@ -25,7 +25,7 @@ export default async function SignUp (req: Request, res: Response): Promise<void
 		const user = User.new({ email, password: hash, firstName, lastName, birthday, avatarUrl });
 		addUser(user);
 
-		if (req.session.user === undefined) req.session.user = { id: user.uuid };
+		if (!req.session.user) req.session.user = { id: user.uuid };
 		else req.session.user.id = user.uuid;
 
 		res.status(200).send({
@@ -44,7 +44,7 @@ export default async function SignUp (req: Request, res: Response): Promise<void
 		});
 		console.info("Created user:", email);
 	} catch (e: unknown) {
-		res.status(401).send("Unauthorized");
 		console.error("Error creating user (" + email + "):", e);
+		res.status(401).send("Unauthorized");
 	}
 };

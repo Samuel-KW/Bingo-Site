@@ -6,10 +6,8 @@ import { isAuthenticated } from "src/Authentication";
 
 export function CreateBoard (req: Request, res: Response) {
 
-	if (!isAuthenticated(req)) {
-		res.status(401).send("Unauthorized");
-		return;
-	}
+	if (!isAuthenticated(req))
+		return res.status(401).send("Unauthorized");
 
 	const result = UserCreateBingoBoard.safeParse(req.body);
 
@@ -17,15 +15,14 @@ export function CreateBoard (req: Request, res: Response) {
 		console.error("Error creating board:");
 		console.log(req.body);
 		console.log(result.error);
-		res.status(400).send("Bad Request");
-		return;
+		return res.status(400).send("Bad Request");
 	}
 
-	const { title, description, editors, cards } = result.data;
 	const uuid = req.user.uuid;
+	const { title, description, editors, cards } = result.data;
 
 	// Create new board
-	const board = Board.new({ title, description, owner: uuid, editors, cards });
+	const board = Board.new({ owner: uuid, title, description, editors, cards });
 
 	// Add board to user profile
 	const ids = req.user.boards;
@@ -34,7 +31,7 @@ export function CreateBoard (req: Request, res: Response) {
 	// Save board
 	updateUserBoards(uuid, ids);
 	addBoard(board);
-	console.log("User", uuid, "created board", board.id);
-	res.json(board);
 
+	console.log("User", uuid, "created board", board.id);
+	return res.json(board);
 }

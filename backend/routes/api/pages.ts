@@ -1,10 +1,9 @@
 import express, { Request, Response, NextFunction, Router } from "express";
-import { doubleCsrf } from "csrf-csrf";
 import expressSession from "express-session";
 import cookieParser from "cookie-parser";
 import path from "path";
 
-import { csrfOptions, doubleCsrfProtection, generateToken, sessionOptions } from "../../src/Authentication";
+import { doubleCsrfProtection, generateToken, sessionOptions } from "../../src/Authentication";
 import { getUserByUUID } from "../../Database";
 import { User } from "../../src/User";
 import { SessionRequest } from "src/Server";
@@ -44,25 +43,22 @@ console.log("\tServing React application.");
 // Initialize session authentication, add user object to request
 router.use(function (req: Request, res: Response, next: NextFunction) {
 
-		const request = req as SessionRequest;
-		const user = request.session.user;
+	const request = req as SessionRequest;
+	const uuid = request.session.user?.id;
 
-		// If the user is authenticated, set the user object
-		if (user?.id !== undefined) {
-			const dbUser = getUserByUUID(user.id);
+	// If the user is authenticated, set the user object
+	if (uuid) {
+		const dbUser = getUserByUUID(uuid);
 
-			if (dbUser !== undefined)
-				request.user = new User(dbUser.uuid, dbUser.password, dbUser.firstName, dbUser.lastName, dbUser.email, dbUser.birthday, dbUser.avatarUrl, dbUser.accountType, dbUser.boards, dbUser.games);
-		}
+		if (dbUser)
+			res.locals["user"] = dbUser;
+	}
 
-		// Generate CSRF token
-		res.locals.csrfToken = generateToken(req, res);
+	// Generate CSRF token
+	res.locals["csrfToken"] = generateToken(req, res);
 
-		next();
+	next();
 });
 console.log("\tSession authentication initialized.");
-
-
-
 
 export default router;

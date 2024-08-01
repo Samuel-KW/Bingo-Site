@@ -1,9 +1,9 @@
 import { Database, Statement } from "bun:sqlite";
-import { BingoUser, BingoBoard, DatabaseBingoBoard } from "routes/api/Validation";
+import { BingoUser, BingoBoard, DatabaseBingoBoard, UserCreateBingoBoard } from "routes/api/Validation";
 import { DatabaseBoard } from "src/Board";
 import { DatabaseUser } from "src/User";
 
-const DATABASE_FILE = "./db/" + (process.env.DATABASE_FILE ?? "db.sqlite");
+const DATABASE_FILE = "./db/" + (process.env["DATABASE_FILE"] ?? "db.sqlite");
 const DB_USERS = "users";
 const DB_BOARDS = "boards";
 console.log("Writing to database file:", DATABASE_FILE);
@@ -186,18 +186,18 @@ export const deleteBoard = (id: string) => {
  * Update a board in the database
  * @param board Board object to update
  */
-export const updateBoard = (board: BingoBoard) => {
-	const data: DatabaseBingoBoard = {
-		...board,
+export const updateBoard = (id: string, board: UserCreateBingoBoard) => {
+	const data = {
+		title: board.title,
+		description: board.description,
 		updated_at: Date.now(),
 		editors: JSON.stringify(board.editors),
-		cards: JSON.stringify(board.cards),
-		players: JSON.stringify(board.players)
+		cards: JSON.stringify(board.cards)
 	};
 
 	const keys = Object.keys(data);
 	db.prepare(`UPDATE ${DB_BOARDS} SET ${keys.map(k => `${k} = $${k}`).join(", ")} WHERE id = $id`)
-		.run({...data});
+		.run({...data, id});
 };
 
 /**

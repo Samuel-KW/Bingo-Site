@@ -3,6 +3,7 @@ import { Router } from "express";
 import LogIn from "../../routes/api/login";
 import SignUp from "../../routes/api/signup";
 import LogOut from "../../routes/api/logout";
+
 import { GetOwnedBoards } from "./GetOwnedBoards";
 import { GetBoards } from "../../routes/api/GetBoards";
 import { CreateBoard } from "../../routes/api/CreateBoard";
@@ -23,10 +24,10 @@ router.get("/api/csrf", (req: Request, res) => {
 console.log("\tDouble CSRF authentication initialized.");
 
 // TODO REMOVE THEM LATER
-router.get("/api/users", (req: Request, res: Response) => {
+router.get("/api/users", (_req: Request, res: Response) => {
 	res.json(getAllUsers());
 });
-router.get("/api/boards", (req: Request, res: Response) => {
+router.get("/api/boards", (_req: Request, res: Response) => {
 	res.json(getAllBoards());
 });
 

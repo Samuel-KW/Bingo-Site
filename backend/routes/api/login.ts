@@ -5,18 +5,20 @@ import { hashOptions, Verify } from "src/Authentication";
 
 export default function LogIn (req: Request, res: Response) {
 
-	const body = req.body;
-	const email: string = body.email;
-	const password: string = body.password;
+	const email: unknown = req.body.email;
+	const password: unknown = req.body.password;
+	if (typeof email !== "string" || typeof password !== "string") {
+		console.error("Invalid login: Incorrect body types");
+		return res.status(400).send("Bad Request");
+	}
 
 	const user = getUserByEmail(email);
-
 	if (!user) {
 		console.error("Invalid login: User not found");
 		return res.status(401).send("Unauthorized");
 	}
 
-	Verify(password, user.password, hashOptions)
+	return Verify(password, user.password, hashOptions)
 		.then((valid: boolean) => {
 
 			if (!valid) {
@@ -45,7 +47,7 @@ export default function LogIn (req: Request, res: Response) {
 			});
 		})
 		.catch((err: unknown) => {
-			console.error("-------------------\nInternal Server Error:\n\n", err, "\n-------------------");
+			console.error("Error logging in:", err);
 			return res.status(500).send("Internal Server Error");
 		});
 }

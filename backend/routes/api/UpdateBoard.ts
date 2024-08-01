@@ -1,30 +1,45 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../../src/Server";
 import { getBoard, updateBoard } from "../../Database";
+import { DatabaseBoard } from "../../src/Board";
+import { UserCreateBingoBoard } from "./Validation";
 
 export function UpdateBoard (req: AuthenticatedRequest, res: Response) {
 
-	const id = req.body.board;
+	const id: string = req.body.board;
 	const data: unknown = req.body.data;
 
-	if (id === undefined || data === undefined) {
+	// TODO Check the data type of the body and handle JSON/stringify handling
+	console.log("UpdateBoard", id, data);
+
+	if (!id || !data) {
 		res.status(404).send("Invalid board.");
 		return;
 	}
 
-	const board = getBoard(req.params.id);
-
-	if (board === undefined) {
+	const board: DatabaseBoard | null = getBoard(req.params.id);
+	if (!board) {
 		res.status(404).send("Board not found");
 		return;
 	}
 
-	const editors = board.editors;
-	if (req.user.uuid !== id && board.editors) {
-		res.status(403).send("You do not have permission to delete this board.");
-		return;
-	}
+	const user: string = req.user.uuid;
+	const editors: string[] = board.editors ? JSON.parse(board.editors) : [];
 
-	updateBoard(id);
-	res.json({ success: true });
+	if (user === board.owner || editors.includes(user)) {
+
+		const parsed = UserCreateBingoBoard.safeParse(data);
+
+		if (!parsed.success) {
+			console.error("Error updating board:", parsed.error.errors);
+			res.status(400).send("Bad Request");
+			return;
+		}
+
+		updateBoard(id, parsed.data);
+		res.json({ success: true });
+
+	} else {
+		res.status(403).send("You do not have permission to delete this board.");
+	}
 }

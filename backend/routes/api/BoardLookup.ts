@@ -1,19 +1,15 @@
 import { Response, Request } from "express";
-import { AuthenticatedRequest } from "../../src/Server";
 import { getBoard } from "../../Database";
 
-export function BoardLookup (req: Request | AuthenticatedRequest, res: Response) {
+export function BoardLookup (req: Request, res: Response) {
 
-	if ("params" in req === false) {
-		res.status(404).send("Invalid board.");
-		return;
-	}
+	const id = req.params["id"];
+	if (typeof id !== "string")
+		return res.status(404).send("Invalid board.");
 
-	const board = getBoard(req.params.id);
-	if (board === undefined) {
-		res.status(404).send("Board not found");
-		return;
-	}
+	const board = getBoard(id);
+	if (!board)
+		return res.status(404).send("Board not found");
 
-	res.json(board);
+	return res.json(board);
 }

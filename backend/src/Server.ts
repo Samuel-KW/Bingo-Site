@@ -1,23 +1,16 @@
-import express, {Express, Request, Response, NextFunction } from "express";
-import cookieParser from "cookie-parser";
-import session from "express-session";
+import {Express, Request, Response } from "express";
 
 import * as path from "path";
 
 import { Board } from "./Board";
 import { DatabaseUser, User } from "./User";
-import BingoDatabase, { getBoard, getUserByEmail, getUserByUUID, addBoard, addUser } from "../Database";
-import { Verify, Hash, hashOptions, csrfOptions } from "./Authentication";
+
+import { getUserByEmail, addBoard, addUser } from "../Database";
+import { Verify, Hash, hashOptions } from "./Authentication";
+import { BingoBoard, BingoUser } from "routes/api/Validation";
 
 import pageRouter from "../routes/api/pages";
 import authRouter from "../routes/api/auth";
-
-import BunStoreClass from "./BunStore";
-import { BingoBoard, BingoUser, DatabaseBingoUser } from "routes/api/Validation";
-const BunStore = BunStoreClass(session);
-
-// @format
-const noop = () => { };
 
 export interface HttpError extends Error {
   status: number;
@@ -33,82 +26,82 @@ export interface AuthenticatedRequest extends Request {
 
 export class Server {
 
-    constructor(private app: Express) {
+	constructor(private app: Express) {
 
-				console.log("\nInitializing server...");
-				const timeStart = Date.now();
+		console.log("\nInitializing server...");
+		const timeStart = Date.now();
 
-				this.init();
-				this.initRoutes();
+		this.init();
+		this.initRoutes();
 
-				const dt = Date.now() - timeStart;
-				console.log(`\tServer initialized in ${dt}ms.\n`);
-    }
+		const dt = Date.now() - timeStart;
+		console.log(`\tServer initialized in ${dt}ms.\n`);
+	}
 
-		async logIn (email: string, password: string): Promise<DatabaseUser> {
-			const user = getUserByEmail(email);
+	async logIn (email: string, password: string): Promise<DatabaseUser> {
+		const user = getUserByEmail(email);
 
-			if (user === null)
-					throw "Invalid email or password.";
+		if (user === null)
+			throw "Invalid email or password.";
 
-			const valid = await Verify(password, user.password, hashOptions);
+		const valid = await Verify(password, user.password, hashOptions);
 
-			if (!valid)
-					throw "Invalid email or password.";
+		if (!valid)
+			throw "Invalid email or password.";
 
-			return user;
-		}
+		return user;
+	}
 
-    async createUser (params: Partial<BingoUser>={}): Promise<User> {
-			const { password, firstName, lastName, email, birthday, avatarUrl } = params;
+	async createUser (params: Partial<BingoUser>={}): Promise<User> {
+		const { password, firstName, lastName, email, birthday, avatarUrl } = params;
 
-			if (!password || !email)
-				throw "Password and email are required fields";
+		if (!password || !email)
+			throw "Password and email are required fields";
 
-			// Verify email isn't already in use
-			const existingUser = getUserByEmail(email);
-			if (existingUser)
-				throw "Email already in use.";
+		// Verify email isn't already in use
+		const existingUser = getUserByEmail(email);
+		if (existingUser)
+			throw "Email already in use.";
 
-			const hash = await Hash(password, hashOptions);
-      const user = User.new({ email, password: hash, firstName, lastName, birthday, avatarUrl });
+		const hash = await Hash(password, hashOptions);
+		const user = User.new({ email, password: hash, firstName, lastName, birthday, avatarUrl });
 
-      addUser(user);
-      return user;
-    }
+		addUser(user);
+		return user;
+	}
 
-    createBoard(user: User, params: Partial<BingoBoard>={}): Board {
-			const { title, description, editors, cards } = params;
+	createBoard(user: User, params: Partial<BingoBoard>={}): Board {
+		const { title, description, editors, cards } = params;
 
-			if (!title || !description)
-				throw "Title and description are required.";
+		if (!title || !description)
+			throw "Title and description are required.";
 
-      const board = user.createBoard({ title, description, editors, cards });
-      addBoard(board);
-      return board;
-    }
+		const board = user.createBoard({ title, description, editors, cards });
+		addBoard(board);
+		return board;
+	}
 
-    private init (): void {
-			console.log("\tNothing to initialize here .-.");
-		}
+	private init (): void {
+		console.log("\tNothing to initialize here .-.");
+	}
 
-		private initRoutes (): void {
+	private initRoutes (): void {
 
-			// Ensure requests are secure in production
-			if (process.env.NODE_ENV === "production")
-				this.app.enable("trust proxy");
+		// Ensure requests are secure in production
+		if (process.env.NODE_ENV === "production")
+			this.app.enable("trust proxy");
 
-			this.app.use(pageRouter);
-			this.app.use(authRouter);
-			console.log("\tAPI routes initialized.");
+		this.app.use(pageRouter);
+		this.app.use(authRouter);
+		console.log("\tAPI routes initialized.");
 
-			// Handle all other requests by serving the React app
-			this.app.get("*", (req: Request, res: Response) => {
-					res.sendFile(path.resolve("../build/index.html"));
-			});
-		}
+		// Handle all other requests by serving the React app
+		this.app.get("*", (req: Request, res: Response) => {
+				res.sendFile(path.resolve("../build/index.html"));
+		});
+	}
 
-    start(port: number): void {
-			this.app.listen(port, () => console.log(`Server listening on port ${port}!`));
-    }
+	start(port: number): void {
+		this.app.listen(port, () => console.log(`Server listening on port ${port}!`));
+	}
 }
