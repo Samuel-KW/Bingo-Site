@@ -6,7 +6,15 @@ import { SessionData } from "express-session";
 
 // Type definitions for BunStore
 export type ExpiredOptions = {
+
+	/**
+	 * Whether to clear expired sessions automatically.
+	 */
 	clear: boolean;
+
+	/**
+	 * The interval at which to clear expired sessions in milliseconds.
+	 */
 	intervalMs: number;
 };
 
@@ -37,7 +45,6 @@ const clearExpiredInterval = 900000;
 const tableName = "sessions";
 const schema = `CREATE TABLE IF NOT EXISTS ${tableName} (sid TEXT NOT NULL PRIMARY KEY, sess JSON NOT NULL, expire TEXT NOT NULL)`;
 
-
 export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 	class BunStore extends Store {
 
@@ -48,7 +55,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			super(options);
 
 			if (!options.client)
-				throw new Error("A client must be directly provided to BunStore");
+				throw new Error("A database client must be directly provided to BunStore");
 
 			this.expired = {
 				clear: (options.expired && options.expired.clear) || true,
@@ -60,9 +67,8 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			this.client = options.client;
 			this.createDb();
 
-			if (this.expired.clear) {
+			if (this.expired.clear)
 				this.startInterval();
-			}
 		}
 
 		startInterval() {
@@ -86,7 +92,6 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 
 		set(sid: string, sess: SessionData, cb: Function = noop): void {
 			let age: number;
-
 			// NOTE: Express's temporal unit of choice is milliseconds:
 			// http://expressjs.com/en/resources/middleware/session.html#:~:text=cookie.maxAge
 			age = sess.cookie && sess.cookie.maxAge ? sess.cookie.maxAge : oneDay;
@@ -96,7 +101,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			const entry = [ sid, JSON.stringify(sess), expire ];
 
 			try {
-				this.client.prepare(`INSERT OR REPLACE INTO ${tableName} VALUES (?, ?, ?)`, entry);
+				this.client.run(`INSERT OR REPLACE INTO ${tableName} VALUES (?, ?, ?)`, entry);
 			} catch (err) {
 				cb(err);
 				return;

@@ -1,5 +1,5 @@
 import { Database, Statement } from "bun:sqlite";
-import { BingoUser, BingoBoard, DatabaseBingoBoard, UserCreateBingoBoard } from "routes/api/Validation";
+import { BingoUser, BingoBoard, DatabaseBingoBoard, UserCreateBingoBoard } from "routes/api/validation";
 import { DatabaseBoard } from "src/Board";
 import { DatabaseUser } from "src/User";
 

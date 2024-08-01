@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import { addBoard, updateUserBoards } from "../../Database";
 import { Board } from "../../src/Board";
-import { UserCreateBingoBoard } from "./Validation";
+import { UserCreateBingoBoard } from "./validation";
 import { isAuthenticated } from "src/Authentication";
 
 export function CreateBoard (req: Request, res: Response) {
@@ -25,7 +25,7 @@ export function CreateBoard (req: Request, res: Response) {
 	const board = Board.new({ owner: uuid, title, description, editors, cards });
 
 	// Add board to user profile
-	const ids = req.user.boards;
+	const ids = req.user.boards ? JSON.parse(req.user.boards) : [];
 	ids.push(board.id);
 
 	// Save board

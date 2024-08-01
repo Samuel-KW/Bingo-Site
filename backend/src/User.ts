@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { BingoBoard, BingoUser, BoardPlayerStats, DatabaseBingoUser } from "routes/api/Validation";
+import { BingoBoard, BingoUser, BoardPlayerStats, DatabaseBingoUser } from "routes/api/validation";
 import { Board } from "./Board";
 
 export class DatabaseUser {

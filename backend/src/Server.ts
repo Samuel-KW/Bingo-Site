@@ -7,7 +7,7 @@ import { DatabaseUser, User } from "./User";
 
 import { getUserByEmail, addBoard, addUser } from "../Database";
 import { Verify, Hash, hashOptions } from "./Authentication";
-import { BingoBoard, BingoUser } from "routes/api/Validation";
+import { BingoBoard, BingoUser } from "routes/api/validation";
 
 import pageRouter from "../routes/api/pages";
 import authRouter from "../routes/api/auth";
@@ -17,11 +17,11 @@ export interface HttpError extends Error {
 }
 
 export interface SessionRequest extends Request {
-  user: User | undefined;
+  user: DatabaseUser | undefined;
 }
 
 export interface AuthenticatedRequest extends Request {
-  user: User;
+  user: DatabaseUser;
 }
 
 export class Server {
@@ -96,7 +96,7 @@ export class Server {
 		console.log("\tAPI routes initialized.");
 
 		// Handle all other requests by serving the React app
-		this.app.get("*", (req: Request, res: Response) => {
+		this.app.get("*", (_req: Request, res: Response) => {
 				res.sendFile(path.resolve("../build/index.html"));
 		});
 	}
