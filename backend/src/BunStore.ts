@@ -1,7 +1,6 @@
 // Modified from https://github.com/attestate/better-sqlite3-session-store/
 
 import { Database, Statement } from "bun:sqlite";
-import { table } from "console";
 import Session from "express-session";
 import { SessionData } from "express-session";
 
@@ -15,15 +14,10 @@ interface DatabaseOptions {
 	/**
 	 * Enables automatic capturing of promise rejection.
 	 */
-	captureRejections?: boolean | undefined;
-	client?: Database;
-	expired?: ExpiredOptions;
+	captureRejections: boolean | undefined;
+	client: Database;
+	expired: ExpiredOptions;
 }
-
-export type BunStoreOptions = {
-	client?: Database;
-	expired?: ExpiredOptions;
-};
 
 export type Entry = {
 	table: string;
@@ -50,8 +44,9 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 		private client: Database;
 		private expired: ExpiredOptions;
 
-		constructor(options: DatabaseOptions = {}) {
+		constructor(options: Partial<DatabaseOptions> = {}) {
 			super(options);
+
 			if (!options.client)
 				throw new Error("A client must be directly provided to BunStore");
 
@@ -140,7 +135,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			cb(null, undefined);
 		}
 
-		length(cb: Function = noop) {
+		override length(cb: Function = noop) {
 			let req: Statement;
 			let res: { count: number };
 
@@ -156,7 +151,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			cb(null, res.count);
 		}
 
-		clear(cb: Function = noop) {
+		override clear(cb: Function = noop) {
 			try {
 				this.client.run("DELETE FROM " + tableName);
 			} catch (err) {
@@ -167,7 +162,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			cb(null, undefined);
 		}
 
-		touch(sid: string, sess: SessionData, cb: Function = noop) {
+		override touch(sid: string, sess: SessionData, cb: Function = noop) {
 			const entry = { sid } as Entry;
 
 			if (sess && sess.cookie && sess.cookie.expires) {
@@ -187,7 +182,7 @@ export default function BunStore ({ Store }: { Store: typeof Session.Store }) {
 			cb(null, undefined);
 		}
 
-		all(cb: Function = noop) {
+		override all(cb: Function = noop) {
 			let req: Statement;
 			let res: Entry[];
 			try {
