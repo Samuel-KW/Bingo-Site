@@ -4,11 +4,24 @@
     "baseUrl": "./",
     "target": "es6",
     "moduleResolution": "node",
-    "esModuleInterop": true,
     "lib": ["es6"],
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
-		"strict": true
+
+		"strict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+		"strictNullChecks": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "include": [ "**.ts", "src/Types.ts" ],
+  "include": [ "**.ts", "**.test.ts" ],
+	"compileOnSave": false,
+	"buildOnSave": false
 }
