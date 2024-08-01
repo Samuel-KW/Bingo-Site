@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "../../src/Authentication";
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "../src/Authentication";
 
 const MIN_BOARD_TITLE_LENGTH = 1;
 const MAX_BOARD_TITLE_LENGTH = 64;

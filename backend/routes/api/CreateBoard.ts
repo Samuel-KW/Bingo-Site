@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import { addBoard, updateUserBoards } from "../../Database";
 import { Board } from "../../src/Board";
-import { UserCreateBingoBoard } from "./validation";
+import { UserCreateBingoBoard } from "../validation";
 import { isAuthenticated } from "src/Authentication";
 
 export function CreateBoard (req: Request, res: Response) {

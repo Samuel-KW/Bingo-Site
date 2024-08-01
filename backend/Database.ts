@@ -64,7 +64,7 @@ const tableBoards: TableDefinition = {
   }
 };
 
-const db = new Database(DATABASE_FILE, {
+export const db = new Database(DATABASE_FILE, {
 	create: true,
 	strict: true
 });
@@ -85,7 +85,6 @@ export class Query {
 	public static createBoard: Statement;
 
 	public static isOpen = false;
-	public static db = db;
 
 	/**
 	 * Prepares common SQL queries

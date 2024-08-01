@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { getBoards } from "../../Database";
-import { isAuthenticated } from "src/Authentication";
+import { isAuthenticated } from "../../src/Authentication";
 
 const MAX_BOARDS = 10;
 

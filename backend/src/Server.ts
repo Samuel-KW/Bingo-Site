@@ -7,10 +7,10 @@ import { DatabaseUser, User } from "./User";
 
 import { getUserByEmail, addBoard, addUser } from "../Database";
 import { Verify, Hash, hashOptions } from "./Authentication";
-import { BingoBoard, BingoUser } from "routes/api/validation";
+import { BingoBoard, BingoUser } from "../routes/validation";
 
-import pageRouter from "../routes/api/pages";
-import authRouter from "../routes/api/auth";
+import pageRouter from "../routes/pages";
+import authRouter from "../routes/auth";
 
 export interface HttpError extends Error {
   status: number;

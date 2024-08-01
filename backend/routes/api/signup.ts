@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { addUser, getUserByEmail } from "../../Database";
 import { Hash, hashOptions } from "../../src/Authentication";
 import { User } from "../../src/User";
-import { SignupSchema } from "./validation";
+import { SignupSchema } from "../validation";
 
 export default async function SignUp (req: Request, res: Response): Promise<void> {
 

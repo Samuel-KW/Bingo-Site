@@ -1,17 +1,16 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 
-import LogIn from "./Login";
-import SignUp from "./Signup";
-import LogOut from "./Logout";
+import { getAllBoards, getAllUsers, db } from "Database";
 
-import { GetOwnedBoards } from "./GetOwnedBoards";
-import { GetParticipatingBoards } from "./GetParticipatingBoards";
-import { CreateBoard } from "../../routes/api/CreateBoard";
-import { BoardLookup } from "../../routes/api/BoardLookup";
-import { doubleCsrfProtection, generateToken } from "src/Authentication";
+import LogIn from "./api/Login";
+import SignUp from "./api/Signup";
+import LogOut from "./api/Logout";
+import { GetOwnedBoards } from "./api/GetOwnedBoards";
+import { GetParticipatingBoards } from "./api/GetParticipatingBoards";
 
-import { Request, Response } from "express";
-import { getAllBoards, getAllUsers } from "Database";
+import { CreateBoard } from "../routes/api/CreateBoard";
+import { BoardLookup } from "../routes/api/BoardLookup";
+import { doubleCsrfProtection, generateToken } from "../src/Authentication";
 
 // Initialize the router
 const router = Router();
@@ -28,6 +27,10 @@ router.get("/api/csrf", (req: Request, res) => {
 console.log("\tDouble CSRF authentication initialized.");
 
 // TODO REMOVE THEM LATER
+router.get("/api/sessions", (_req: Request, res: Response) => {
+	const sessions = db.prepare("SELECT * FROM sessions").all();
+	res.json(sessions);
+});
 router.get("/api/users", (_req: Request, res: Response) => {
 	res.json(getAllUsers());
 });

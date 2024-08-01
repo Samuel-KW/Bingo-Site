@@ -3,9 +3,9 @@ import expressSession from "express-session";
 import cookieParser from "cookie-parser";
 import path from "path";
 
-import { doubleCsrfProtection, generateToken, sessionOptions } from "../../src/Authentication";
-import { addUser, getUserByUUID } from "../../Database";
-import { User } from "../../src/User";
+import { generateToken, sessionOptions } from "../src/Authentication";
+import { getUserByUUID } from "../Database";
+import { User } from "../src/User";
 import { AuthenticatedRequest, SessionRequest } from "src/Server";
 
 declare module "express-session" {

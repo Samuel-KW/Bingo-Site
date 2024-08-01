@@ -1,7 +1,7 @@
 
 import { Response, Request } from "express";
 import { getUserByEmail } from "../../Database";
-import { hashOptions, Verify } from "src/Authentication";
+import { hashOptions, Verify } from "../../src/Authentication";
 
 export default function LogIn (req: Request, res: Response) {
 

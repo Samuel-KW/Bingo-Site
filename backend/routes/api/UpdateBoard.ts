@@ -2,7 +2,7 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "../../src/Server";
 import { getBoard, updateBoard } from "../../Database";
 import { DatabaseBoard } from "../../src/Board";
-import { UserCreateBingoBoard } from "./validation";
+import { UserCreateBingoBoard } from "../validation";
 
 export function UpdateBoard (req: AuthenticatedRequest, res: Response) {
 
