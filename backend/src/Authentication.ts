@@ -1,37 +1,66 @@
 import crypto from "crypto";
-import { doubleCsrf, DoubleCsrfConfigOptions, RequestMethod } from "csrf-csrf";
-import { NextFunction, Request, Response } from "express";
-import session, { SessionOptions } from "express-session";
+import { doubleCsrf, RequestMethod } from "csrf-csrf";
+import { Request } from "express";
+import session from "express-session";
 import BingoDatabase from "../Database";
-import { BingoBoard, UserMetadata, HashOptions } from "./Types";
 
 import BunStoreClass from "./BunStore";
 import { AuthenticatedRequest } from "./Server";
 const BunStore = BunStoreClass(session);
 
-export const MIN_PASSWORD_LENGTH = Number(process.env.MIN_PASSWORD_LENGTH);
-export const MAX_PASSWORD_LENGTH = Number(process.env.MAX_PASSWORD_LENGTH);
+export const MIN_PASSWORD_LENGTH = Number(process.env["MIN_PASSWORD_LENGTH"]);
+export const MAX_PASSWORD_LENGTH = Number(process.env["MAX_PASSWORD_LENGTH"]);
 if (!MIN_PASSWORD_LENGTH || !MAX_PASSWORD_LENGTH)
 	throw new Error("Missing password length options.");
 
-const SESSION_SECRET = process.env.SESSION_SECRETS?.split(" ");
+const SESSION_SECRET = process.env["SESSION_SECRETS"]?.split(" ");
 if (!SESSION_SECRET)
 	throw new Error("No session secret(s) provided.");
 
-const CSRF_SECRETS = process.env.CSRF_SECRETS?.split(" ");
+const CSRF_SECRETS = process.env["CSRF_SECRETS"]?.split(" ");
 if (!CSRF_SECRETS)
 	throw new Error("No CSRF secrets provided.");
 
-const HASH_TIME_COST = Number(process.env.HASH_TIME_COST);
-const HASH_MEMORY_COST = Number(process.env.HASH_MEMORY_COST);
-const HASH_SALT_LENGTH = Number(process.env.HASH_SALT_LENGTH);
+const HASH_TIME_COST = Number(process.env["HASH_TIME_COST"]);
+const HASH_MEMORY_COST = Number(process.env["HASH_MEMORY_COST"]);
+const HASH_SALT_LENGTH = Number(process.env["HASH_SALT_LENGTH"]);
 if (!HASH_TIME_COST || !HASH_MEMORY_COST || !HASH_SALT_LENGTH)
 	throw new Error("Missing hash options.");
 
-const HASH_PEPPERS = process.env.PEPPER?.split(" ");
+const HASH_PEPPERS = process.env["PEPPER"]?.split(" ");
 if (!HASH_PEPPERS)
 	throw new Error("No hash pepper(s) provided.");
 
+/* Hash options */
+export type HashOptions = {
+	/**
+	 * The algorithm to use for hashing. If possible, use argon2id.
+	 */
+	algorithm: "bcrypt" | "argon2id" | "argon2d" | "argon2i";
+
+	/**
+	 * The memory cost to use for hashing in kilobytes.
+	 */
+	memoryCost: number;
+
+	/**
+	 * The time cost to use for hashing in iterations.
+	 */
+	timeCost: number;
+
+	/**
+	 * The length of the salt to use for hashing in bytes.
+	 */
+	saltLength: number;
+
+	/**
+	 * The pepper to use for hashing. The first pepper in the
+	 * array will be used for encoding new hashes and the
+	 * remaining peppers will be used for verifying previous
+	 * hashes.
+	 */
+	peppers: string[];
+};
 
 
 export const hashOptions: HashOptions = {
@@ -80,7 +109,6 @@ if (process.env.NODE_ENV === "production") {
   sessionOptions.cookie.secure = true;
 }
 
-// https://github.com/Psifi-Solutions/csrf-csrf
 export const {
 	invalidCsrfTokenError, // This is just for convenience if you plan on making your own middleware.
 	generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
